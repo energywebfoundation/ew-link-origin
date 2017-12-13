@@ -99,3 +99,7 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# artik710-logger
+*.json
+.idea
