@@ -10,6 +10,9 @@ Test integration between Artik710 and industrial Data Logger.
 5. Hardware integration
 
 ##Installing dependencies
+- `sudo apt-get upgrade python3`
+- `sudo apt-get install python-pip`
+- `pip install --upgrade pip`
 - `pip install virtualenv`
 - `virtualenv -p python3 venv`
 - `source venv/bin/activate`
