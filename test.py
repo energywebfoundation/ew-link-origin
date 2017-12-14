@@ -7,7 +7,7 @@ import web3
 from lib import Spinner
 
 ACCOUNT = '0x00E27b1BB824D66d8ec926f23b04913Fe9b1Bd77'
-CONTRACT = '0x4ADC0f82fec7bb4BE3aa6ACA0B8d9f65a93C0B25'
+CONTRACT = '0xC2c4e2E135d3E1963d375E20AB8d40ee9eEDb7Fe'
 PWD = '48qzjbhPdZnw'
 
 ABI = json.load(open('abi.json', 'r'))

@@ -92,7 +92,9 @@ try:
     latest_block_obj = w3.eth.getBlock('latest')
     latest_block_str = str(latest_block_obj.number)
 
-    if synced_block_str != latest_block_str:
+    peers = w3.net.peerCount
+
+    if synced_block_str != latest_block_str or peers < 5:
         raise AsyncClientError
     logger.info('Synced \033[1mOK')
 
@@ -138,7 +140,7 @@ except (requests.exceptions.ConnectionError, ConnectionRefusedError, ReadTimeout
     logger.critical("Connection timed out. - Please verify that the ethereum client is running.")
 
 except AsyncClientError:
-    logger.error("ethereum client is Out of Sync. Please check the client log and try again.")
+    logger.error("Ethereum client is Out of Sync or Forked. Please check the client log and try again.")
 
 except ValueError as ve:
     message =ve.args[0]['message']
