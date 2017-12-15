@@ -7,11 +7,12 @@ Test integration between Artik710 and industrial Data Logger.
 3. EWF client installed and running
     - Clone the [repo](https://github.com/energywebfoundation/energyweb-client) and follow the instructions on README.
 4. Python 3 installed
-5. Hardware integration
+6. Compiled contract and abi. Use remix
+6. Hardware integration
 
 ##Installing dependencies
-- `sudo apt-get upgrade python3`
-- `sudo apt-get install python-pip`
+- `sudo apt-get upgrade python3 -y`
+- `sudo apt-get install python-pip -y`
 - `pip install --upgrade pip`
 - `pip install virtualenv`
 - `virtualenv -p python3 venv`

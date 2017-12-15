@@ -1,9 +1,7 @@
 import json
 import time
-from random import randrange
-
 import web3
-
+from random import randrange
 from lib import Spinner
 
 ACCOUNT = '0x00E27b1BB824D66d8ec926f23b04913Fe9b1Bd77'
