@@ -1,14 +1,12 @@
 import json
 import time
 import web3
-from lib import Spinner, Device, LogEntry
-import xml.etree.ElementTree as ET
+from random import randrange
+from lib import Spinner
 
 ACCOUNT = '0x00E27b1BB824D66d8ec926f23b04913Fe9b1Bd77'
 CONTRACT = '0xC2c4e2E135d3E1963d375E20AB8d40ee9eEDb7Fe'
 PWD = '48qzjbhPdZnw'
-
-EUMEL_XML = 'test_examples/EumelXMLOutput.xml'
 
 ABI = json.load(open('abi.json', 'r'))
 
@@ -18,29 +16,28 @@ w3 = web3.Web3(web3.HTTPProvider('http://localhost:8545'))
 contract_instance = w3.eth.contract(ABI, CONTRACT, ContractFactoryClass=web3.contract.ConciseContract)
 
 
-def parse_eumel_xml():
-    tree = ET.parse(EUMEL_XML)
-    root = tree.getroot()
-    header = root[0].attrib
-    readings = {child.attrib['id']: child.text for child in root[0][0]}
-    device = Device(manufacturer=header['man'], model=header['mod'], serial_number=header['sn'])
-    pattern = '%Y-%m-%dT%H:%M:%SZ'
-    epoch = int(time.mktime(time.strptime(header['t'], pattern)))
-    value = int(readings['TotWhImp'].replace('.', ''))
-    log_entry = LogEntry(epoch=epoch, value=value)
-    return device, log_entry
-
-
 def convert_log_entry(epoch, reading):
     pretty_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(epoch))
-    pretty_reading = float(reading) / 100
-    return '{} - {:,} Whr'.format(pretty_time, pretty_reading)
+    pretty_reading = float(reading) / 10
+    return '{} - {:,} mW'.format(pretty_time, pretty_reading)
 
 
-def log_values(epoch, reading):
+def check_values():
+    log_size = contract_instance.getLogSize()
+    print('Log size: {}'.format(log_size))
+    if log_size > 0:
+        epoch, reading = contract_instance.registry(log_size-1)
+        print('Latest log value: {} - {}'.format(epoch, reading))
+        print('Pretty printing: ' + convert_log_entry(epoch, reading))
+
+
+def input_random_values():
     print('Inserting new values')
     w3.personal.unlockAccount(account=ACCOUNT, passphrase=PWD)
-    tx_hash = contract_instance.log(epoch, reading, transact={'from': ACCOUNT})
+    return contract_instance.log(int(time.time()), randrange(0, 100, 2), transact={'from': ACCOUNT})
+
+
+def check_transaction(tx_hash):
     print("Waiting Tx to be mined ")
     spinner = Spinner()
     spinner.start()
@@ -63,14 +60,15 @@ def print_log_history():
 
 
 try:
-    device, log_entry = parse_eumel_xml()
-    log_values(log_entry.epoch, log_entry.value)
-    print(device.manufacturer, device.model, device.serial_number)
-    print(convert_log_entry(log_entry.epoch, log_entry.value))
+    check_values()
+    tx_hash = input_random_values()
+    check_transaction(tx_hash)
+    check_values()
     print('------------------')
     print_log_history()
 
 
 except Exception as e:
     print(e)
+    print('- DEU RUIM CORAI')
     pass

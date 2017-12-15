@@ -3,6 +3,21 @@ import time
 import threading
 
 
+class Device:
+
+    def __init__(self, manufacturer, model, serial_number):
+        self.manufacturer = manufacturer
+        self.model = model
+        self.serial_number = serial_number
+
+
+class LogEntry:
+
+    def __init__(self, epoch, value):
+        self.epoch = epoch
+        self.value = value
+
+
 class Spinner:
     busy = False
     delay = 0.1
