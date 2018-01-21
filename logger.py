@@ -4,9 +4,9 @@ import web3
 from lib import Spinner, Device, LogEntry
 import xml.etree.ElementTree as ET
 
-ACCOUNT = '0x00E27b1BB824D66d8ec926f23b04913Fe9b1Bd77'
-CONTRACT = '0xC2c4e2E135d3E1963d375E20AB8d40ee9eEDb7Fe'
-PWD = '48qzjbhPdZnw'
+ACCOUNT = '0x00C6fD17d09097424F2CE3E794c6be2934ABBC25'
+CONTRACT = '0x122A00cAef700037Bb74D269468c82b21629507F'
+PWD = '!12345!'
 
 EUMEL_XML = 'test_examples/EumelXMLOutput.xml'
 
