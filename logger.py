@@ -1,5 +1,7 @@
 import json
 import time
+
+import requests
 import web3
 from lib import Spinner, Device, LogEntry
 import xml.etree.ElementTree as ET
@@ -9,6 +11,8 @@ CONTRACT = '0xC2c4e2E135d3E1963d375E20AB8d40ee9eEDb7Fe'
 PWD = '48qzjbhPdZnw'
 
 EUMEL_XML = 'test_examples/EumelXMLOutput.xml'
+EUMEL_IP = ''
+EUMEL_ENDPOINT = EUMEL_IP + '/rest'
 
 ABI = json.load(open('abi.json', 'r'))
 
@@ -18,8 +22,13 @@ w3 = web3.Web3(web3.HTTPProvider('http://localhost:8545'))
 contract_instance = w3.eth.contract(ABI, CONTRACT, ContractFactoryClass=web3.contract.ConciseContract)
 
 
+def get_eumel_xml():
+    r = requests.get(EUMEL_ENDPOINT, auth=('admin', 'aA123456!'))
+
+
 def parse_eumel_xml():
-    tree = ET.parse(EUMEL_XML)
+    http_packet = requests.get(EUMEL_ENDPOINT, auth=('admin', 'aA123456!'))
+    tree = ET.parse(http_packet.content)
     root = tree.getroot()
     header = root[0].attrib
     readings = {child.attrib['id']: child.text for child in root[0][0]}
