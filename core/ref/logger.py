@@ -1,14 +1,14 @@
 import json
 import time
+from xml.etree import ElementTree
 
 import requests
 import web3
-from lib import Spinner, Device, LogEntry
-import xml.etree.ElementTree as ET
+from core import Spinner, Device, LogEntry
 
-ACCOUNT = '0x00C6fD17d09097424F2CE3E794c6be2934ABBC25'
+ACCOUNT = '0x00E27b1BB824D66d8ec926f23b04913Fe9b1Bd77'
 CONTRACT = '0x122A00cAef700037Bb74D269468c82b21629507F'
-PWD = '!12345!'
+PWD = '48qzjbhPdZnw'
 
 EUMEL_XML = 'test_examples/EumelXMLOutput.xml'
 EUMEL_IP = ''
@@ -23,21 +23,22 @@ contract_instance = w3.eth.contract(ABI, CONTRACT, ContractFactoryClass=web3.con
 
 
 def get_eumel_xml():
-    r = requests.get(EUMEL_ENDPOINT, auth=('admin', 'aA123456!'))
+    http_request = requests.get(EUMEL_ENDPOINT, auth=('admin', 'aA123456!'))
 
 
 def parse_eumel_xml():
-    http_packet = requests.get(EUMEL_ENDPOINT, auth=('admin', 'aA123456!'))
-    tree = ET.parse(http_packet.content)
-    root = tree.getroot()
-    header = root[0].attrib
-    readings = {child.attrib['id']: child.text for child in root[0][0]}
-    device = Device(manufacturer=header['man'], model=header['mod'], serial_number=header['sn'])
-    pattern = '%Y-%m-%dT%H:%M:%SZ'
-    epoch = int(time.mktime(time.strptime(header['t'], pattern)))
-    value = int(readings['TotWhImp'].replace('.', ''))
-    log_entry = LogEntry(epoch=epoch, value=value)
-    return device, log_entry
+    #http_packet = requests.get(EUMEL_ENDPOINT, auth=('admin', 'aA123456!'))
+
+    tree = ElementTree.parse(EUMEL_XML)
+    tree_root = tree.getroot()
+    tree_header = tree_root[0].attrib
+    tree_leaves = {child.attrib['id']: child.text for child in tree_root[0][0]}
+    parsed_device = Device(manufacturer=tree_header['man'], model=tree_header['mod'], serial_number=tree_header['sn'])
+    time_format = '%Y-%m-%dT%H:%M:%SZ'
+    converted_epoch_time = int(time.mktime(time.strptime(tree_header['t'], time_format)))
+    accumulated_measurement_in_watts = int(tree_leaves['TotWhImp'].replace('.', ''))
+    parsed_log_entry = LogEntry(epoch=converted_epoch_time, value=accumulated_measurement_in_watts)
+    return parsed_device, parsed_log_entry
 
 
 def convert_log_entry(epoch, reading):
