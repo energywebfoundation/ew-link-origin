@@ -4,6 +4,7 @@ import time
 
 from core.abstract.input import EnergyData, CarbonEmissionData
 from core.input.simulator import EnergyMeter
+from test.custom import VerboseTest
 
 
 class EnergyDataTest(unittest.TestCase):
@@ -26,10 +27,11 @@ class CarbonEmissionInputTest(unittest.TestCase):
         # Todo: Add data type for each param and quality asserts
 
 
-class EnergyMeterTest(unittest.TestCase):
+class EnergyMeterTest(VerboseTest):
 
     def setUp(self):
         self.meter = EnergyMeter()
+        VerboseTest.setUp(self)
 
     def simple(self):
         energy_data_test = EnergyDataTest()

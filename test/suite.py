@@ -6,6 +6,7 @@ from test.simulator import EnergyMeterTest
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(EnergyMeterTest('extended'))
+    suite.countTestCases()
     return suite
 
 
