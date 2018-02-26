@@ -18,17 +18,39 @@ To facilitate the deployment and updating of these devices we use a continuous i
 
 1. [Energyweb client](https://github.com/energywebfoundation/energyweb-client) installed and running.
 2. Python 3 and dependencies installed. Follow the [guide](#installing-dependencies) bellow.
-3. With the virtual environment activated run `python test.py` in the root folder of this repo.
+3. With the virtual environment activated run `python test.py` on the root folder of this repo.
 
 ### Installing dependencies
-- `sudo apt-get install python3 python-dev python3-dev \
-     build-essential libssl-dev libffi-dev \
-     libxml2-dev libxslt1-dev zlib1g-dev \
-     python-pip -y`
-- `sudo apt-get upgrade python3 -y`
-- `pip install --upgrade pip`
-- `pip install virtualenv`
-- `virtualenv -p python3 venv`
-- `source venv/bin/activate`
-- `pip install -r requirements.txt`
+Install python 3 and libraries from the os package manager. This is an example using `apt` but different ones might apply.
+```sh
+sudo apt-get install python3 python-dev python3-dev \
+build-essential libssl-dev libffi-dev \
+libxml2-dev libxslt1-dev zlib1g-dev \
+python-pip -y
+```
+Update python 3 in case it is previously installed nut not in the latest version.
+```
+sudo apt-get upgrade python3 -y
+```
+Upgrade python package manager.
+```
+pip install --upgrade pip
+```
+Install Virtual Environment python package. Might ask for super user permissions to install it globally.
+```
+pip install virtualenv
+```
+Create the virtual environment files in the current folder. Best on the root folder of this repo.
+```
+virtualenv -p python3 venv
+```
+After the virtual environment is created, its files are inside `venv` folder and are activated via a shell script. Run the command on the same folder the latest step was run.
+```
+source venv/bin/activate
+```
+Install the project python dependencies listed on `requirements.txt` into the current virtual environment.
+```
+pip install -r requirements.txt
+```
+
 
