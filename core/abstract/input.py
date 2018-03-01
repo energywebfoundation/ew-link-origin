@@ -24,12 +24,12 @@ class ExternalData:
     Encapsulates collected data in a traceable fashion
     """
 
-    def __init__(self, access_timestamp, raw):
+    def __init__(self, access_epoch, raw):
         """
-        :param access_timestamp: Time the external API was accessed
+        :param access_epoch: Time the external API was accessed
         :param raw: Raw data collected
         """
-        self.access_timestamp = access_timestamp
+        self.access_epoch = access_epoch
         self.raw = raw
 
 
@@ -51,19 +51,19 @@ class EnergyData(ExternalData):
     Standard for energy and power data used as input
     """
 
-    def __init__(self, device, access_timestamp, raw, accumulated_power, measurement_timestamp):
+    def __init__(self, device, access_epoch, raw, accumulated_power, measurement_epoch):
         """
         Minimum set of data for power measurement logging.
         :param device: Metadata about the measurement device
-        :param access_timestamp: Time the external API was accessed
+        :param access_epoch: Time the external API was accessed
         :param raw: Raw data collected
         :param accumulated_power: Registered in Mega Watts
-        :param measurement_timestamp: Time of measurement at the source
+        :param measurement_epoch: Time of measurement at the source
         """
         self.device = device
         self.accumulated_power = accumulated_power
-        self.measurement_timestamp = measurement_timestamp
-        ExternalData.__init__(self, access_timestamp, raw)
+        self.measurement_epoch = measurement_epoch
+        ExternalData.__init__(self, access_epoch, raw)
 
 
 class CarbonEmissionData(ExternalData):
@@ -71,14 +71,14 @@ class CarbonEmissionData(ExternalData):
     Standard for carbon emission data used as input
     """
 
-    def __init__(self, access_timestamp, raw, accumulated_co2, measurement_timestamp):
+    def __init__(self, access_epoch, raw, accumulated_co2, measurement_epoch):
         """
         Minimum set of data for power measurement logging.
-        :param access_timestamp: Time the external API was accessed
+        :param access_epoch: Time the external API was accessed
         :param raw: Raw data collected
         :param accumulated_co2: Registered in great britain pounds per carbon dioxide
-        :param measurement_timestamp: Time of measurement at the source
+        :param measurement_epoch: Time of measurement at the source
         """
         self.accumulated_co2 = accumulated_co2
-        self.measurement_timestamp = measurement_timestamp
-        ExternalData.__init__(self, access_timestamp, raw)
+        self.measurement_epoch = measurement_epoch
+        ExternalData.__init__(self, access_epoch, raw)

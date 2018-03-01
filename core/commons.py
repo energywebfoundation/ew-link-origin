@@ -9,14 +9,21 @@ import colorlog
 import logging
 
 handler = colorlog.StreamHandler()
-# %(log_color)s%(asctime)s - %(levelname)s - %(message)s
 handler.setFormatter(colorlog.ColoredFormatter('%(log_color)s%(message)s'))
 
 # Default color scheme is 'example'
-logger = colorlog.getLogger('example')
-logger.addHandler(handler)
+tty_logger = colorlog.getLogger('example')
+tty_logger.addHandler(handler)
+tty_logger.setLevel(logging.ERROR)
 
-logger.levels = logging
+
+file_logger = logging.getLogger('spam_application')
+file_logger.setLevel(logging.DEBUG)
+fh = logging.FileHandler('/var/log/bond.log')
+fh.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+file_logger.addHandler(fh)
 
 
 def save(file_name: str, data: str):
