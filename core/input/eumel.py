@@ -21,11 +21,15 @@ class DataLogger(ExternalDataSource):
         self.eumel_api_url = ip + '/rest'
         self.auth = (user, password)
 
-    def read_state(self) -> EnergyData:
-        # tree = ElementTree.parse('test_examples/EumelXMLOutput.xml')
-        http_packet = requests.get(self.eumel_api_url, auth=self.auth)
-        raw = http_packet.content
-        tree = ElementTree.parse(raw)
+    def read_state(self, path=None) -> EnergyData:
+        if path:
+            tree = ElementTree.parse('test_examples/EumelXMLOutput.xml')
+            with open(path) as file:
+                raw = file.read()
+        else:
+            http_packet = requests.get(self.eumel_api_url, auth=self.auth)
+            raw = http_packet.content
+            tree = ElementTree.parse(raw)
         tree_root = tree.getroot()
         tree_header = tree_root[0].attrib
         tree_leaves = {child.attrib['id']: child.text for child in tree_root[0][0]}
