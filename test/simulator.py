@@ -1,8 +1,10 @@
 import time
 
+from core.abstract.input import CarbonEmissionData
+from core.input.carbonemission import Wattime
+from core.input.eumel import DataLogger
 from core.input.simulator import EnergyMeter
-from test.custom import VerboseTest
-from test.data import EnergyDataTest
+from test.abstract import VerboseTest, EnergyDataTest
 
 
 class EnergyMeterTest(VerboseTest):
@@ -24,3 +26,36 @@ class EnergyMeterTest(VerboseTest):
         self.assertTrue(state_one.measurement_epoch < state_two.measurement_epoch)
         self.assertTrue(state_one.accumulated_power < state_two.accumulated_power)
         self.assertNotEqual(state_one.raw, state_two.raw)
+
+
+class WattimeTest(VerboseTest):
+
+    def setUp(self):
+        self.meter = Wattime()
+        VerboseTest.setUp(self)
+
+    def simple(self):
+        self.assertIsInstance(self.meter.read_state('National+Grid'), CarbonEmissionData)
+
+    def extended(self):
+        # TODO: Add all methods and check outputs against api doc.
+        pass
+
+
+class EumelTest(VerboseTest):
+
+    def __init__(self, ip, user, password):
+        self.ip = ip
+        self.usr = user
+        self.pwd = password
+
+    def setUp(self):
+        self.meter = DataLogger(self.ip, self.usr, self.pwd)
+        VerboseTest.setUp(self)
+
+    def simple(self):
+        self.assertIsInstance(self.meter.read_state('National+Grid'), CarbonEmissionData)
+
+    def extended(self):
+        # TODO: Add all methods and check outputs against api doc.
+        pass

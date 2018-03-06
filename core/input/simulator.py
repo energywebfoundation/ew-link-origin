@@ -18,7 +18,8 @@ class EnergyMeter(ExternalDataSource):
         device = Device(
             manufacturer='Slock.it',
             model='Virtual Energy Meter',
-            serial_number='0001000')
+            serial_number='0001000',
+            geolocation=(1.123, 1.321))
         accumulated_power = random.randint(self.memory, (self.memory + 1) + 20)
         measurement_timestamp = int(time.time())
         device_str = device.manufacturer + device.model + device.serial_number

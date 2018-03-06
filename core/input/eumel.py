@@ -22,7 +22,6 @@ class DataLogger(ExternalDataSource):
         self.auth = (user, password)
 
     def read_state(self) -> EnergyData:
-        # To read from Comment line 42 and uncomment 43
         # tree = ElementTree.parse('test_examples/EumelXMLOutput.xml')
         http_packet = requests.get(self.eumel_api_url, auth=self.auth)
         raw = http_packet.content

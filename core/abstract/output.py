@@ -24,7 +24,7 @@ class AsyncClientError(EnvironmentError):
     pass
 
 
-class SmartContract:
+class SmartContractClient:
     """
     Ethereum-like smart contracts abstraction
     """
@@ -48,18 +48,6 @@ class SmartContract:
         :rtype: dict
         """
         raise NotImplementedError
-
-    def convert_registry(self, *args):
-        """
-        Converts stored data format to human readable
-        """
-        raise NotImplementedError
-
-
-class Terminal:
-    """
-    Command line terminal emulator
-    """
 
     def convert_registry(self, *args):
         """

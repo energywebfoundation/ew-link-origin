@@ -8,15 +8,17 @@ class Device:
     Data gathering device abstraction
     """
 
-    def __init__(self, manufacturer, model, serial_number):
+    def __init__(self, manufacturer, model, serial_number, geolocation):
         """
         :param manufacturer: Device Manufacturer
         :param model: Device model
         :param serial_number: Device Serial Number
+        :param geolocation: Device geo location tuple (lat, lng)
         """
         self.manufacturer = manufacturer
         self.model = model
         self.serial_number = serial_number
+        self.geolocation = geolocation
 
 
 class ExternalData:
