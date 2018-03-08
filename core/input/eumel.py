@@ -6,7 +6,6 @@ import requests
 from core.abstract.input import ExternalDataSource, EnergyData, Device
 
 
-# Todo: Review, this is base only
 class DataLogger(ExternalDataSource):
     """
     Eumel DataLogger api access implementation
@@ -18,7 +17,7 @@ class DataLogger(ExternalDataSource):
         :param user:
         :param password:
         """
-        self.eumel_api_url = ip + '/rest'
+        self.eumel_api_url = ip + 'wizard/public/api/rest'
         self.auth = (user, password)
 
     def read_state(self, path=None) -> EnergyData:
@@ -29,14 +28,15 @@ class DataLogger(ExternalDataSource):
         else:
             http_packet = requests.get(self.eumel_api_url, auth=self.auth)
             raw = http_packet.content
-            tree = ElementTree.parse(raw)
+            tree = ElementTree.ElementTree(ElementTree.fromstring(raw))
         tree_root = tree.getroot()
         tree_header = tree_root[0].attrib
-        tree_leaves = {child.attrib['id']: child.text for child in tree_root[0][0]}
+        tree_leaves = {child.attrib['id']: child.text for child in tree_root[0][1]}
         device = Device(
             manufacturer=tree_header['man'],
             model=tree_header['mod'],
-            serial_number=tree_header['sn'])
+            serial_number=tree_header['sn'],
+            geolocation=None)
         access_timestamp = int(time.time())
         time_format = '%Y-%m-%dT%H:%M:%SZ'
         accumulated_power = int(tree_leaves['TotWhImp'].replace('.', ''))

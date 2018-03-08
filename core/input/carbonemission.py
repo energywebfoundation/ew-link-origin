@@ -8,14 +8,16 @@ from core.abstract.input import ExternalDataSource, CarbonEmissionData
 
 class Wattime(ExternalDataSource):
 
-    def __init__(self, usr, pwd):
+    def __init__(self, usr: str, pwd: str, hours_from_now: int):
         """
         Wattime API credentials. http://watttime.org/
         :param usr: Username used for login
         :param pwd: Users password
+        :param hours_from_now: Hours from the current time to check for CO emission.
         """
         self.credentials = {'username': usr, 'password': pwd}
         self.api_url = 'https://api.watttime.org/api/v1/'
+        self.time_delta = hours_from_now
 
     def read_state(self, ba) -> CarbonEmissionData:
         """
@@ -47,28 +49,38 @@ class Wattime(ExternalDataSource):
             raise AttributeError('Failed getting a new token.')
         return ans['token']
 
-    def get_marginal(self, ba, auth_token) -> dict:
+    def get_marginal(self, ba, auth_token, time_delta=None) -> dict:
         """
         Gets marginal carbon emission based on real time energy source mix of the grid.
         :param ba: Balancing Authority. https://api.watttime.org/tutorials/#ba
         :param auth_token: authentication token
+        :param time_delta: Enables consulting a specific one-hour range
         :return: Measured data in lb/MW plus other relevant raw metadata.
         """
-        last_hour = datetime.datetime.now() - datetime.timedelta(hours=1),
+        base_time = datetime.datetime.now()
+        if time_delta:
+            base_time = base_time - datetime.timedelta(hours=self.time_delta)
+            start_at = base_time.strftime("%Y-%m-%dT%H:00:00")
+            end_at = base_time.strftime("%Y-%m-%dT%H:59:59")
+        else:
+            start_at = base_time.strftime("%Y-%m-%dT%00:00:00")
+            end_at = base_time.strftime("%Y-%m-%dT%23:59:59")
+
         marginal_query = {
             'ba': ba,
-            'start_at': last_hour.strftime("%Y-%m-%dT%H:00:00"),
-            'end_at': last_hour.strftime("%Y-%m-%dT%H:59:59"),
+            'start_at': start_at,
+            'end_at': end_at,
             'page_size': 1,
-            'freq': '',
             'market': 'RTHR'
         }
         endpoint = self.api_url + 'marginal/'
-        h = {'token': auth_token}
+        h = {'Authorization': 'Token ' + auth_token}
         r = requests.get(endpoint, headers=h, params=marginal_query)
         ans = r.json()
-        if ans['count'] < 1 or ans['count'] > 1:
-            raise AttributeError('Ambiguous response from api.')
+        if 'count' not in ans.keys() and 'detail' in ans.keys():
+            raise AttributeError('Failed to login on api.')
+        if ans['count'] < 1:
+            raise AttributeError('Empty response from api.')
         return ans['results'][0]
 
     def get_ba(self, lon, lat, auth_token) -> str:
@@ -88,3 +100,5 @@ class Wattime(ExternalDataSource):
         r = requests.get(endpoint, headers=h, params=geo_query)
         ans = r.json()
         return ans['abbrev']
+
+

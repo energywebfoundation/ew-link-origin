@@ -27,7 +27,9 @@ class DeviceTest(unittest.TestCase):
         self.assertIsInstance(device.serial_number, str)
         self.assertTrue(len(str(device.serial_number)) > 2)
 
-        self.assertIsInstance(device.geolocation, float)
+        self.assertIsInstance(device.geolocation, tuple)
+        self.assertIsInstance(device.geolocation[0], float)
+        self.assertIsInstance(device.geolocation[1], float)
 
 
 class EnergyDataTest(unittest.TestCase):

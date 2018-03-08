@@ -18,8 +18,8 @@ class SmireAPI(ExternalDataSource):
         self.site = site
         self.api_url = 'https://test.smire.bluesafire.io/api/'
 
-    def read_state(self) -> EnergyData:
-        raw = self.get_daily_data(1)
+    def read_state(self, days=1) -> EnergyData:
+        raw = self._get_daily_data(days)
         state = [{'date': a, 'produced': b} for a, b in zip(raw['datetime'], raw['production'])]
         device_meta = {
             'manufacturer': 'Unknown',
@@ -36,13 +36,13 @@ class SmireAPI(ExternalDataSource):
         return EnergyData(device, access_epoch, raw, accumulated_power, measurement_epoch)
         pass
 
-    def get_daily_data(self, days) -> dict:
+    def _get_daily_data(self, days) -> dict:
         marginal_query = {
             'day_count': days,
             'site': self.site
         }
-        endpoint = self.api_url + 'daily_data/'
-        r = requests.get(endpoint, params=marginal_query, auth=self.auth)
+        endpoint = self.api_url + 'daily_data'
+        r = requests.get(endpoint, params=marginal_query, auth=self.credentials)
         ans = r.json()
         if len(ans['production']) < 1:
             raise AttributeError('Empty response from api.')
