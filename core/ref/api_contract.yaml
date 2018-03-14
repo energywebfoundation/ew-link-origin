@@ -212,6 +212,15 @@ definitions:
   MeasuredEnergyOnDevice:
     type: object
     properties:
+      count:
+        type: integer
+        description: Page count
+      previous:
+        type: string
+        description: Link to previous page
+      next:
+        type: string
+        description: Link to next page
       device:
         $ref: '#/definitions/Device'
       measuredEnergy:
