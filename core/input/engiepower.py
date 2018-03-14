@@ -34,7 +34,6 @@ class SmireAPI(ExternalDataSource):
         measurement_timestamp = datetime.datetime.strptime(state[0]['date'], "%Y-%m-%d")
         measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
         return EnergyData(device, access_epoch, raw, accumulated_power, measurement_epoch)
-        pass
 
     def _get_daily_data(self, days) -> dict:
         marginal_query = {
@@ -49,7 +48,7 @@ class SmireAPI(ExternalDataSource):
         return ans
 
 
-class Engie(SmireAPI):
+class EngiePower(SmireAPI):
 
     def __init__(self, usr: str, pwd: str):
         super().__init__(usr, pwd, 'eget')

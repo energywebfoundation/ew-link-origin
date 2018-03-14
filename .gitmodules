@@ -1,0 +1,3 @@
+[submodule "certificate_of_origin"]
+	path = certificate_of_origin
+	url = git@github.com:energywebfoundation/certificate_of_origin.git
