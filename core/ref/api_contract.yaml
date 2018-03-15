@@ -206,9 +206,9 @@ definitions:
       accumulated_power:
         type: number
         description: Registered in Mega Watts
-      measurement_epoch:
+      measurement_time:
         type: integer
-        description: Time of measurement in the device, in epoch format.
+        description: Time of measurement in the device, in RFC 3339 format. ie. 2018-03-14T17:12:20+00:00
   MeasuredEnergyOnDevice:
     type: object
     properties:
