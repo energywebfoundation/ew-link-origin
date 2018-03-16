@@ -43,13 +43,10 @@ class EnergyWeb(SmartContractClient):
             address=self.contract['address'],
             bytecode=self.contract['bytecode'],
             ContractFactoryClass=ConciseContract)
-        # event_filter = contract_instance.eventFilter(event_name)
         tx_hash = getattr(contract_instance, method_name)(*args, transact={'from': self.credentials[0]})
         tx_receipt = None
         for _ in range(self.MAX_RETRIES):
             tx_receipt = self.w3.eth.getTransactionReceipt(tx_hash)
-            # event_logs = event_filter.get()
-            # is_same_block = event_logs[0]['blockNumber'] == tx_receipt['blockNumber']
             if tx_receipt and tx_receipt['blockNumber']:
                 break
             time.sleep(self.SECONDS_BETWEEN_RETRIES)
