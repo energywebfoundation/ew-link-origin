@@ -77,6 +77,7 @@ class Wattime(ExternalDataSource):
         h = {'Authorization': 'Token ' + auth_token}
         r = requests.get(endpoint, headers=h, params=marginal_query)
         ans = r.json()
+        print(ans)
         if 'count' not in ans.keys() and 'detail' in ans.keys():
             raise AttributeError('Failed to login on api.')
         if ans['count'] < 1:
