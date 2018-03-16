@@ -14,10 +14,23 @@ if __name__ == '__main__':
     meter = carbonemission.Wattime('energyweb', 'en3rgy!web', 48)
 
     while infinite:
-        fr = meter.read_state('FR')
-        print('Wattime - France')
-        print(convert_time(fr.measurement_epoch))
-        print(fr.accumulated_co2)
-        print('----------')
+        try:
+            fr = meter.read_state('FR')
+            print('Wattime - France')
+            print(convert_time(fr.measurement_epoch))
+            print(fr.accumulated_co2)
+            print('----------')
+
+        except:
+            print('deu ruim')
+
+        try:
+            fr = meter.read_state('National Grid')
+            print('Wattime - France')
+            print(convert_time(fr.measurement_epoch))
+            print(fr.accumulated_co2)
+            print('----------')
+        except:
+            print('deu ruim')
 
         time.sleep(5)
