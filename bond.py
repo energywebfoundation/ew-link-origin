@@ -27,11 +27,11 @@ if __name__ == '__main__':
         try:
             meter = carbonemission.Wattime('energyweb', 'en3rgy!web')
             fr = meter.read_state('National Grid')
-            print('Wattime - France')
+            print('Wattime - Uk')
             print(convert_time(fr.measurement_epoch))
             print(fr.accumulated_co2)
             print('----------')
         except:
             print('deu ruim')
 
-        time.sleep(60)
+        time.sleep(350)
