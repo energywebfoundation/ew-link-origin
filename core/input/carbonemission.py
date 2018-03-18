@@ -26,6 +26,7 @@ class Wattime(ExternalDataSource):
         """
         # 1. Authenticate in Wattime api
         auth_token = self.get_auth_token()
+        print(' auth token: ' + auth_token)
         # 2. Fetch marginal data
         raw = self.get_marginal(ba, auth_token)
         # 3. Converts lb/MW to kg/MW
@@ -73,6 +74,7 @@ class Wattime(ExternalDataSource):
             'page_size': 1,
             'market': 'RTHR'
         }
+        print(marginal_query)
         endpoint = self.api_url + 'marginal/'
         h = {'Authorization': 'Token ' + auth_token}
         r = requests.get(endpoint, headers=h, params=marginal_query)
