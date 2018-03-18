@@ -25,6 +25,7 @@ if __name__ == '__main__':
             print('deu ruim')
 
         try:
+            meter = carbonemission.Wattime('energyweb', 'en3rgy!web')
             fr = meter.read_state('National Grid')
             print('Wattime - France')
             print(convert_time(fr.measurement_epoch))
