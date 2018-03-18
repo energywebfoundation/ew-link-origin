@@ -65,7 +65,7 @@ class Wattime(ExternalDataSource):
             start_at = start_time.strftime("%Y-%m-%dT%H:00:00")
             end_at = base_time.strftime("%Y-%m-%dT%H:%M:%S")
         else:
-            start_at = base_time.strftime("%Y-%m-%dT%00:00:00")
+            start_at = base_time.strftime("%Y-%m-%dT00:00:00")
             end_at = base_time.strftime("%Y-%m-%dT23:59:59")
 
         marginal_query = {
@@ -75,12 +75,10 @@ class Wattime(ExternalDataSource):
             'page_size': 1,
             'market': 'RTHR'
         }
-        print(marginal_query)
         endpoint = self.api_url + 'marginal/'
         h = {'Authorization': 'Token ' + auth_token}
         r = requests.get(endpoint, headers=h, params=marginal_query)
         ans = r.json()
-        print(ans)
         if 'count' not in ans.keys() and 'detail' in ans.keys():
             raise AttributeError('Failed to login on api.')
         if ans['count'] < 1:
