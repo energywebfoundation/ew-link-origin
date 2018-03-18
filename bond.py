@@ -33,4 +33,4 @@ if __name__ == '__main__':
         except:
             print('deu ruim')
 
-        time.sleep(5)
+        time.sleep(60)
