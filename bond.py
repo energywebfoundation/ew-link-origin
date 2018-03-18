@@ -11,26 +11,24 @@ def convert_time(epoch: int):
 
 if __name__ == '__main__':
     infinite = True
-    meter = carbonemission.Wattime('energyweb', 'en3rgy!web', 48)
 
     while infinite:
         try:
-            fr = meter.read_state('FR')
+
+            meter = carbonemission.Wattime('energyweb', 'en3rgy!web')
+
+            fr = meter.read_state('FR', hours_from_now=48)
             print('Wattime - France')
             print(convert_time(fr.measurement_epoch))
             print(fr.accumulated_co2)
             print('----------')
 
-        except:
-            print('deu ruim')
-
-        try:
-            meter = carbonemission.Wattime('energyweb', 'en3rgy!web')
             fr = meter.read_state('National Grid')
             print('Wattime - Uk')
             print(convert_time(fr.measurement_epoch))
             print(fr.accumulated_co2)
-            print('----------')
+            print('----------\n')
+
         except:
             print('deu ruim')
 

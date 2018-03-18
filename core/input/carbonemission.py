@@ -8,28 +8,25 @@ from core.abstract.input import ExternalDataSource, CarbonEmissionData
 
 class Wattime(ExternalDataSource):
 
-    def __init__(self, usr: str, pwd: str, hours_from_now: int = None):
+    def __init__(self, usr: str, pwd: str):
         """
         Wattime API credentials. http://watttime.org/
         :param usr: Username used for login
         :param pwd: Users password
-        :param hours_from_now: Hours from the current time to check for CO emission. If none provided, will \
-        get current day.
         """
         self.credentials = {'username': usr, 'password': pwd}
         self.api_url = 'https://api.watttime.org/api/v1/'
-        self.time_delta = hours_from_now
+        self.auth_token = self.get_auth_token()
 
-    def read_state(self, ba) -> CarbonEmissionData:
+    def read_state(self, ba: str, hours_from_now: int = None) -> CarbonEmissionData:
         """
         Reach wattime api, parse and convert to CarbonEmissionData.
         :param ba: Balancing Authority. https://api.watttime.org/tutorials/#ba
+        :param hours_from_now: Hours from the current time to check for CO emission. If none provided, will \
+        get current day.
         """
-        # 1. Authenticate in Wattime api
-        auth_token = self.get_auth_token()
-        print(' auth token: ' + auth_token)
         # 2. Fetch marginal data
-        raw = self.get_marginal(ba, auth_token, self.time_delta)
+        raw = self.get_marginal(ba, self.auth_token, hours_from_now)
         # 3. Converts lb/MW to kg/MW
         accumulated_co2 = raw['marginal_carbon']['value']
         # 4. Converts time stamps to epoch
@@ -51,17 +48,18 @@ class Wattime(ExternalDataSource):
             raise AttributeError('Failed getting a new token.')
         return ans['token']
 
-    def get_marginal(self, ba, auth_token, time_delta=None) -> dict:
+    def get_marginal(self, ba: str, auth_token: str, hours_from_now: int = None) -> dict:
         """
         Gets marginal carbon emission based on real time energy source mix of the grid.
         :param ba: Balancing Authority. https://api.watttime.org/tutorials/#ba
         :param auth_token: authentication token
-        :param time_delta: Enables consulting a specific one-hour range
+        :param hours_from_now: Hours from the current time to check for CO emission. If none provided, will \
+        get current day.
         :return: Measured data in lb/MW plus other relevant raw metadata.
         """
         base_time = datetime.datetime.now()
-        if time_delta:
-            start_time = base_time - datetime.timedelta(hours=time_delta)
+        if hours_from_now:
+            start_time = base_time - datetime.timedelta(hours=hours_from_now)
             start_at = start_time.strftime("%Y-%m-%dT%H:00:00")
             end_at = base_time.strftime("%Y-%m-%dT%H:%M:%S")
         else:
@@ -102,5 +100,3 @@ class Wattime(ExternalDataSource):
         r = requests.get(endpoint, headers=h, params=geo_query)
         ans = r.json()
         return ans['abbrev']
-
-
