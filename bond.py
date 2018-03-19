@@ -3,14 +3,22 @@ import datetime
 
 from core.input import carbonemission
 
+from resin import Resin
+
 
 def convert_time(epoch: int):
     access_time = datetime.datetime.fromtimestamp(epoch)
     return access_time.strftime("%Y-%m-%d  %H:%M:%S")
 
 
+def read_config(resin: Resin):
+    app_vars = resin.models.environment_variables.device.get_all_by_application('main')
+    [print(var) for var in app_vars]
+
+
 if __name__ == '__main__':
     infinite = True
+    read_config(Resin())
 
     while infinite:
         try:

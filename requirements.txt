@@ -8,11 +8,16 @@ eth-keys==0.1.0b3
 eth-tester==0.1.0b5
 eth-utils==0.7.1
 idna==2.6
+pubnub==3.9.0
 py-solc==2.1.0
 pycryptodome==3.4.7
+pycryptodomex==3.5.1
+PyJWT==1.6.1
 pylru==1.0.9
+pyotp==2.2.6
 pysha3==1.0.2
 requests==2.18.4
+resin-sdk==2.2.0
 rlp==0.6.0
 semantic-version==2.6.0
 toolz==0.8.2
