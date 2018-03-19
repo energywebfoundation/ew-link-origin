@@ -13,7 +13,9 @@ def convert_time(epoch: int):
 
 def read_config(resin: Resin):
     app_vars = resin.models.environment_variables.device.get_all_by_application('main')
+    config = resin.models.application.get_config('main')
     [print(var) for var in app_vars]
+    print(config)
 
 
 if __name__ == '__main__':
