@@ -5,7 +5,7 @@ from test.abstract import VerboseTest, EnergyDataTest
 class EumelTest(VerboseTest):
 
     def setUp(self):
-        self.meter = DataLogger('http://sarnau5myhome.spdns.de:8002/', self.usr, self.pwd)
+        self.meter = DataLogger('', self.usr, self.pwd)
 
     def simple(self):
         energy_data_test = EnergyDataTest()
