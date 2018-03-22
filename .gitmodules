@@ -7,3 +7,6 @@
 [submodule "resin"]
 	path = resin
 	url = git@github.com:resin-io/resin-sdk-python.git
+[submodule "energyweb-client"]
+	path = energyweb-client
+	url = git@github.com:slockit/energyweb-client.git

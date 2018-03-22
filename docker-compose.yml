@@ -2,3 +2,5 @@ version: '2'
 services:
   bond:
     build: ./
+  ewf-client:
+    build: ./energyweb-client/
