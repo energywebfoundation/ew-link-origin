@@ -40,7 +40,7 @@ class ExternalDataSource:
     Interface to enforce correct return type and standardized naming
     """
 
-    def read_state(self) -> ExternalData:
+    def read_state(self, **kwargs) -> ExternalData:
         """
         Establishes a connection to the integration medium and returns the latest state
         :rtype: ExternalData

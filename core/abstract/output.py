@@ -37,7 +37,7 @@ class SmartContractClient:
         :param provider: Blockchain client rpc structure containing endpoint URL and connection type
         """
         self.credentials = credentials
-        self.contract = contract
+        self.contracts = contracts
         self.w3 = web3.Web3(provider)
 
     def check_sync(self) -> bool:

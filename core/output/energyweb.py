@@ -89,7 +89,7 @@ class Origin(EnergyWeb):
     This class is only an interface to a ewf-client via json rpc calls and interact with the smart-contract.
     """
 
-    def __init__(self, asset_id: int, credentials: tuple, url: str = 'http://localhost:8545'):
+    def __init__(self, asset_id: int, credentials: tuple, contract_address: str, url: str = 'http://localhost:8545'):
         """
         :param asset_id: ID received in asset registration.
         :param credentials: Network credentials ( address, password )
@@ -97,6 +97,7 @@ class Origin(EnergyWeb):
         :param provider: Blockchain client rpc structure containing endpoint URL and connection type
         """
         self.asset_id = asset_id
+        self.contract_address = contract_address
         super().__init__(credentials, url)
 
     def register_asset(self, country: str, region: str, zip_code: str, city: str, street: str, house_number: str, latitude: str, longitude: str):
@@ -123,8 +124,8 @@ class Origin(EnergyWeb):
         Wait for:
             event LogNewMeterRead(uint indexed _assetId, uint _oldMeterRead, uint _newMeterRead, bool _smartMeterDown, uint _certificatesCreatedForWh, uint _oldCO2OffsetReading, uint _newCO2OffsetReading, bool _serviceDown);
         """
-        receipt = self.call('saveSmartMeterRead', 'LogNewMeterRead', self.asset_id, energy, is_meter_down,
-                            previous_hash, co2_saved, is_co2_down)
+        receipt = self.call(self.contract_address, 'producer', 'saveSmartMeterRead', 'LogNewMeterRead',
+                            self.asset_id, energy, is_meter_down, previous_hash, co2_saved, is_co2_down)
         if not receipt:
             raise ConnectionError
         return receipt
@@ -138,7 +139,8 @@ class Origin(EnergyWeb):
         Wait for:
             event LogNewMeterRead(uint indexed _assetId, uint _oldMeterRead, uint _newMeterRead, uint _certificatesUsedForWh, bool _smartMeterDown);
         """
-        receipt = self.call('saveSmartMeterRead', 'LogNewMeterRead', energy, previous_hash, is_meter_down)
+        receipt = self.call(self.contract_address, 'consumer', 'saveSmartMeterRead', 'LogNewMeterRead',
+                            self.asset_id, energy, previous_hash, is_meter_down)
         if not receipt:
             raise ConnectionError
         return receipt

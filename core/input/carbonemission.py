@@ -18,7 +18,7 @@ class Wattime(ExternalDataSource):
         self.api_url = 'https://api.watttime.org/api/v1/'
         self.auth_token = self.get_auth_token()
 
-    def read_state(self, ba: str, hours_from_now: int = None) -> CarbonEmissionData:
+    def read_state(self, ba: str, hours_from_now: int = 2) -> CarbonEmissionData:
         """
         Reach wattime api, parse and convert to CarbonEmissionData.
         :param ba: Balancing Authority. https://api.watttime.org/tutorials/#ba
