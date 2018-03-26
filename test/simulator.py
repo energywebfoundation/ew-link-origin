@@ -1,8 +1,5 @@
 import time
 
-from core.abstract.input import CarbonEmissionData
-from core.input.carbonemission import Wattime
-from core.input.eumel import DataLogger
 from core.input.simulator import EnergyMeter
 from test.abstract import VerboseTest, EnergyDataTest
 
@@ -26,3 +23,12 @@ class EnergyMeterTest(VerboseTest):
         self.assertTrue(state_one.measurement_epoch < state_two.measurement_epoch)
         self.assertTrue(state_one.accumulated_power < state_two.accumulated_power)
         self.assertNotEqual(state_one.raw, state_two.raw)
+
+#
+# class DynamicLoaderTest(VerboseTest):
+#
+#     def setUp(self):
+#         self.meter = EnergyMeter()
+#         VerboseTest.setUp(self)
+#
+#

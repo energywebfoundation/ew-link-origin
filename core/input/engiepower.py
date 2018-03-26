@@ -48,7 +48,7 @@ class SmireAPI(ExternalDataSource):
         return ans
 
 
-class EngiePower(SmireAPI):
+class Eget(SmireAPI):
 
     def __init__(self, usr: str, pwd: str):
         super().__init__(usr, pwd, 'eget')

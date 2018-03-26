@@ -25,7 +25,6 @@ class GeneralSmartContractClient(SmartContractClient):
         :param max_retries: Software will try to connect to provider this amount of times
         :param retry_pause: Software will wait between reconnection trials this amount of seconds
         """
-        self.synced = self.check_sync()
         self.MAX_RETRIES = max_retries
         self.SECONDS_BETWEEN_RETRIES = retry_pause
         super().__init__(credentials, contracts, provider)
@@ -39,6 +38,8 @@ class GeneralSmartContractClient(SmartContractClient):
         return synced_block == latest_block
 
     def call(self, address: str, contract_name: str, method_name: str, event_name: str, *args) -> dict:
+        if not self.check_sync():
+            raise ConnectionError('Client is not synced to the last block.')
         self.w3.personal.unlockAccount(account=self.credentials[0], passphrase=self.credentials[1])
         contract = self.contracts[contract_name]
         contract_instance = self.w3.eth.contract(
@@ -75,7 +76,7 @@ class EnergyWeb(GeneralSmartContractClient):
                 "asset": json.load(open('certificate_of_origin/build/contracts/AssetLogic.json'))
             },
             "provider": HTTPProvider(url),
-            "max_reties": 1000,
+            "max_retries": 1000,
             "retry_pause": 5
         }
         super().__init__(credentials, **params)
@@ -89,15 +90,16 @@ class Origin(EnergyWeb):
     This class is only an interface to a ewf-client via json rpc calls and interact with the smart-contract.
     """
 
-    def __init__(self, asset_id: int, credentials: tuple, contract_address: str, url: str = 'http://localhost:8545'):
+    def __init__(self, contract_address: str, asset_id: int, wallet_add: str, wallet_pwd: str, url: str = 'http://localhost:8545'):
         """
+        :param contract_address: Contract structure containing ABI and bytecode and address keys.
         :param asset_id: ID received in asset registration.
-        :param credentials: Network credentials ( address, password )
-        :param contract: Contract structure containing ABI and bytecode and address keys.
-        :param provider: Blockchain client rpc structure containing endpoint URL and connection type
+        :param wallet_add: Network wallet address
+        :param wallet_add: Network wallet password
         """
         self.asset_id = asset_id
         self.contract_address = contract_address
+        credentials = (wallet_add, wallet_pwd)
         super().__init__(credentials, url)
 
     def register_asset(self, country: str, region: str, zip_code: str, city: str, street: str, house_number: str, latitude: str, longitude: str):
