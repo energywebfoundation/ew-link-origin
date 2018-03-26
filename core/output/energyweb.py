@@ -48,8 +48,11 @@ class GeneralSmartContractClient(SmartContractClient):
             bytecode=contract['bytecode'],
             ContractFactoryClass=ConciseContract)
         tx_hash = getattr(contract_instance, method_name)(*args, transact={'from': self.credentials[0]})
+        if not tx_hash:
+            raise ConnectionError('Transaction was not sent.')
         tx_receipt = None
         for _ in range(self.MAX_RETRIES):
+            tx = self.w3.eth.getTransaction(tx_hash)
             tx_receipt = self.w3.eth.getTransactionReceipt(tx_hash)
             if tx_receipt and tx_receipt['blockNumber']:
                 break

@@ -84,3 +84,21 @@ class CarbonEmissionData(ExternalData):
         self.accumulated_co2 = accumulated_co2
         self.measurement_epoch = measurement_epoch
         ExternalData.__init__(self, access_epoch, raw)
+
+
+class EnergyDataSource(ExternalDataSource):
+
+    def read_state(self, **kwargs) -> EnergyData:
+        """
+        Establishes a connection to the integration medium and returns the latest state
+        :rtype: EnergyData
+        """
+
+
+class CarbonEmissionDataSource(ExternalDataSource):
+
+    def read_state(self, **kwargs) -> CarbonEmissionData:
+        """
+        Establishes a connection to the integration medium and returns the latest state
+        :rtype: CarbonEmissionData
+        """

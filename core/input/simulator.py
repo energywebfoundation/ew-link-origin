@@ -1,11 +1,11 @@
 import random
 import time
 
-from core.abstract.input import ExternalDataSource, EnergyData, Device
+from core.abstract.input import EnergyDataSource, EnergyData, Device
 
 
 # Todo: Review, this is base only
-class EnergyMeter(ExternalDataSource):
+class EnergyMeter(EnergyDataSource):
     """
     Data logger simulator. It will return a pseudo-randomized incremental value in every iteration
     """
@@ -24,5 +24,4 @@ class EnergyMeter(ExternalDataSource):
         measurement_timestamp = int(time.time())
         device_str = device.manufacturer + device.model + device.serial_number
         raw = str(device_str + str(access_timestamp) + str(accumulated_power) + str(measurement_timestamp))
-        self.memory = accumulated_power
         return EnergyData(device, access_timestamp, raw, accumulated_power, measurement_timestamp)

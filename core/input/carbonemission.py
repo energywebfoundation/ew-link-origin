@@ -3,10 +3,10 @@ import calendar
 import requests
 import datetime
 
-from core.abstract.input import ExternalDataSource, CarbonEmissionData
+from core.abstract.input import CarbonEmissionDataSource, CarbonEmissionData
 
 
-class Wattime(ExternalDataSource):
+class Wattime(CarbonEmissionDataSource):
 
     def __init__(self, usr: str, pwd: str, ba: str, hours_from_now: int = 2):
         """
