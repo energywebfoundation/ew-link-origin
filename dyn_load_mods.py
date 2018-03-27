@@ -20,8 +20,6 @@ import importlib
 import json
 import datetime
 
-import math
-
 from core.abstract.input import EnergyDataSource, CarbonEmissionDataSource
 from core.output.energyweb import LocalClientOriginProducer
 
@@ -31,20 +29,22 @@ def convert_time(epoch: int):
     return access_time.strftime("%Y-%m-%d  %H:%M:%S")
 
 
-def get_class_instances(submodule: str) -> list:
+def get_class_instances(config_json: dict, submodule: str) -> list:
     """
     Reflection algorithm to dynamically load python modules referenced on the configuration json.
+    :param config_json: Configuration dict. Json must have the key 'modules' plus the specific kw for class init \
+    on the root. Every module should hold a list of files and classes to load.
     :param submodule: Name of any submodule of the core library. i.e.: "input" i.e.: "input.special"
     :return: List of core library class instances.
     """
     class_instances = []
-    for entry in misty_firefly['modules'][submodule]:
+    for entry in config_json['modules'][submodule]:
         for module_name in entry:
             module_path = 'core.' + submodule + '.' + module_name
             for class_name in entry[module_name]:
                 module = importlib.import_module(module_path)
                 class_obj = getattr(module, class_name)
-                class_kwargs = misty_firefly[class_name]
+                class_kwargs = config_json[class_name]
                 class_instance = class_obj(**class_kwargs)
                 class_instances.append(class_instance)
     return class_instances
@@ -56,8 +56,8 @@ if __name__ == '__main__':
     misty_firefly = json.load(open('misty-firefly.json'))
 
     # WARN: The sequence of input first is important to keep the following for loop working.
-    modules.extend(get_class_instances('input'))
-    modules.extend(get_class_instances('output'))
+    modules.extend(get_class_instances(misty_firefly, 'input'))
+    modules.extend(get_class_instances(misty_firefly, 'output'))
 
     print('`•.,,.•´¯¯`•.,,.•´¯¯`•.,, Config ,,.•´¯¯`•.,,.•´¯¯`•.,,.•´\n')
     for module in modules:
@@ -73,10 +73,10 @@ if __name__ == '__main__':
             # TODO: Add Meter down and api down capabilities.
             # TODO: File hashing and loading capabilities.
             produced_energy = {
-                'energy': int(math.floor(energy.accumulated_power)),
+                'energy': energy.accumulated_power,
                 'is_meter_down': False,
                 'previous_hash': 'null',
-                'co2_saved': int(math.floor(carbon_emission.accumulated_co2)),
+                'co2_saved': carbon_emission.accumulated_co2,
                 'is_co2_down': False
             }
             smart_contract = module.mint(**produced_energy)
