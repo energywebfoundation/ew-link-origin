@@ -1,5 +1,6 @@
+import json
 import time
-import web3
+from web3 import HTTPProvider
 
 from web3.contract import ConciseContract
 from web3.providers import BaseProvider
@@ -7,26 +8,26 @@ from web3.providers import BaseProvider
 from core.abstract.output import SmartContractClient
 
 
-class EnergyWeb(SmartContractClient):
+class GeneralSmartContractClient(SmartContractClient):
     """
-    Energy web Blockchain client api integration. This should work for all parity based clients.
-
-    https://github.com/energywebfoundation/energyweb-client
-    https://github.com/paritytech/parity
+    General EVM based blockchain client smart contract integration.
+    Tested:
+        - https://github.com/paritytech/parity
+        - https://github.com/ethereum/go-ethereum
+        - https://github.com/energywebfoundation/energyweb-client
     """
 
-    def __init__(self, credentials: tuple, contract: dict, provider: BaseProvider):
+    def __init__(self, credentials: tuple, contracts: dict, provider: BaseProvider, max_retries: int, retry_pause: int):
         """
         :param credentials: Network credentials ( address, password )
-        :param contract: Contract structure containing ABI and bytecode and address keys.
+        :param contracts: Contracts structure containing name, ABI and bytecode and address keys.
         :param provider: Blockchain client rpc structure containing endpoint URL and connection type
+        :param max_retries: Software will try to connect to provider this amount of times
+        :param retry_pause: Software will wait between reconnection trials this amount of seconds
         """
-        self.credentials = credentials
-        self.contract = contract
-        self.w3 = web3.Web3(provider)
-        self.synced = self.check_sync()
-        self.MAX_RETRIES = 1000
-        self.SECONDS_BETWEEN_RETRIES = 5
+        self.MAX_RETRIES = max_retries
+        self.SECONDS_BETWEEN_RETRIES = retry_pause
+        super().__init__(credentials, contracts, provider)
 
     def check_sync(self) -> bool:
         synced_block = str(self.w3.eth.blockNumber)
@@ -36,26 +37,52 @@ class EnergyWeb(SmartContractClient):
 
         return synced_block == latest_block
 
-    def call(self, method_name: str, event_name: str, *args) -> dict:
+    def call(self, address: str, contract_name: str, method_name: str, event_name: str, *args) -> dict:
+        if not self.check_sync():
+            raise ConnectionError('Client is not synced to the last block.')
         self.w3.personal.unlockAccount(account=self.credentials[0], passphrase=self.credentials[1])
+        contract = self.contracts[contract_name]
         contract_instance = self.w3.eth.contract(
-            abi=self.contract['abi'],
-            address=self.contract['address'],
-            bytecode=self.contract['bytecode'],
+            abi=contract['abi'],
+            address=address,
+            bytecode=contract['bytecode'],
             ContractFactoryClass=ConciseContract)
         tx_hash = getattr(contract_instance, method_name)(*args, transact={'from': self.credentials[0]})
+        if not tx_hash:
+            raise ConnectionError('Transaction was not sent.')
         tx_receipt = None
         for _ in range(self.MAX_RETRIES):
+            tx = self.w3.eth.getTransaction(tx_hash)
             tx_receipt = self.w3.eth.getTransactionReceipt(tx_hash)
             if tx_receipt and tx_receipt['blockNumber']:
                 break
             time.sleep(self.SECONDS_BETWEEN_RETRIES)
         return tx_receipt
 
-    def convert_registry(self, epoch, reading):
-        pretty_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(epoch))
-        pretty_reading = float(reading) / 100
-        return '{} - {:,} Whr'.format(pretty_time, pretty_reading)
+
+class EnergyWeb(GeneralSmartContractClient):
+    """
+    Energy web Blockchain client rpc.
+
+    https://github.com/energywebfoundation/energyweb-client
+    """
+
+    def __init__(self, credentials: tuple, url: str):
+        """
+        :param credentials: Network credentials ( address, password )
+        :param url: Url to connect to Energyweb Client RPC
+        """
+        params = {
+            "contracts": {
+                "producer": json.load(open('certificate_of_origin/build/contracts/AssetProducingRegistryLogic.json')),
+                "consumer": json.load(open('certificate_of_origin/build/contracts/AssetProducingRegistryLogic.json')),
+                "asset": json.load(open('certificate_of_origin/build/contracts/AssetLogic.json'))
+            },
+            "provider": HTTPProvider(url),
+            "max_retries": 1000,
+            "retry_pause": 5
+        }
+        super().__init__(credentials, **params)
 
 
 class Origin(EnergyWeb):
@@ -66,17 +93,19 @@ class Origin(EnergyWeb):
     This class is only an interface to a ewf-client via json rpc calls and interact with the smart-contract.
     """
 
-    def __init__(self, asset_id: int, credentials: tuple, contract: dict, provider: BaseProvider):
+    def __init__(self, contract_address: str, asset_id: int, wallet_add: str, wallet_pwd: str, url: str = 'http://localhost:8545'):
         """
+        :param contract_address: Contract structure containing ABI and bytecode and address keys.
         :param asset_id: ID received in asset registration.
-        :param credentials: Network credentials ( address, password )
-        :param contract: Contract structure containing ABI and bytecode and address keys.
-        :param provider: Blockchain client rpc structure containing endpoint URL and connection type
+        :param wallet_add: Network wallet address
+        :param wallet_add: Network wallet password
         """
         self.asset_id = asset_id
-        super().__init__(credentials, contract, provider)
+        self.contract_address = contract_address
+        credentials = (wallet_add, wallet_pwd)
+        super().__init__(credentials, url)
 
-    def register_producer_asset(self, country: str, region: str, zip_code: str, city: str, street: str, house_number: str, latitude: str, longitude: str):
+    def register_asset(self, country: str, region: str, zip_code: str, city: str, street: str, house_number: str, latitude: str, longitude: str):
         """
         Register asset. The account signing the transaction must have "AssetAdmin" role to successfully register.
         Source:
@@ -91,13 +120,7 @@ class Origin(EnergyWeb):
         """
         pass
 
-
-class OriginProducer(Origin):
-    """
-    Green Energy Producer
-    """
-
-    def mint_produced_energy(self, energy: int, is_meter_down: bool, previous_hash: str, co2_saved: int, is_co2_down: bool) -> dict:
+    def mint_produced(self, energy: int, is_meter_down: bool, previous_hash: str, co2_saved: int, is_co2_down: bool) -> dict:
         """
         Source:
             AssetProducingRegistryLogic.sol
@@ -106,27 +129,48 @@ class OriginProducer(Origin):
         Wait for:
             event LogNewMeterRead(uint indexed _assetId, uint _oldMeterRead, uint _newMeterRead, bool _smartMeterDown, uint _certificatesCreatedForWh, uint _oldCO2OffsetReading, uint _newCO2OffsetReading, bool _serviceDown);
         """
-        receipt = self.call('saveSmartMeterRead', 'LogNewMeterRead', self.asset_id, energy, is_meter_down, previous_hash, co2_saved, is_co2_down)
+        receipt = self.call(self.contract_address, 'producer', 'saveSmartMeterRead', 'LogNewMeterRead',
+                            self.asset_id, energy, is_meter_down, previous_hash, co2_saved, is_co2_down)
         if not receipt:
             raise ConnectionError
         return receipt
 
-
-class OriginConsumer(Origin):
-    """
-    Green Energy Consumer
-    """
-
-    def mint_consumed_energy(self, energy: int, previous_hash: str, is_meter_down: bool):
+    def mint_consuming(self, energy: int, previous_hash: str, is_meter_down: bool):
         """
         Source:
-            AssetProducingRegistryLogic.sol
+            AssetConsumingRegistryLogic.sol
         Call stack:
             function saveSmartMeterRead(uint _assetId, uint _newMeterRead, bytes32 _lastSmartMeterReadFileHash, bool _smartMeterDown) external isInitialized onlyAccount(AssetConsumingRegistryDB(address(db)).getSmartMeter(_assetId))
         Wait for:
             event LogNewMeterRead(uint indexed _assetId, uint _oldMeterRead, uint _newMeterRead, uint _certificatesUsedForWh, bool _smartMeterDown);
         """
-        receipt = self.call('saveSmartMeterRead', 'LogNewMeterRead', energy, previous_hash, is_meter_down)
+        receipt = self.call(self.contract_address, 'consumer', 'saveSmartMeterRead', 'LogNewMeterRead',
+                            self.asset_id, energy, previous_hash, is_meter_down)
         if not receipt:
             raise ConnectionError
         return receipt
+
+    def mint(self, **kwargs):
+        """
+        Mint the consumption or production of green energy.
+        :return:
+        """
+        raise NotImplementedError
+
+
+class LocalClientOriginProducer(Origin):
+    """
+    Green Energy Producer
+    """
+
+    def mint(self, energy: int, is_meter_down: bool, previous_hash: str, co2_saved: int, is_co2_down: bool) -> dict:
+        return self.mint_produced(energy, is_meter_down, previous_hash, co2_saved, is_co2_down)
+
+
+class LocalClientOriginConsumer(Origin):
+    """
+    Green Energy Consumer
+    """
+
+    def mint(self, energy: int, previous_hash: str, is_meter_down: bool):
+        return self.mint_consuming(energy, previous_hash, is_meter_down)

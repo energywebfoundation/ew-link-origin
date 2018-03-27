@@ -3,10 +3,10 @@ import calendar
 import requests
 import datetime
 
-from core.abstract.input import ExternalDataSource, EnergyData, Device
+from core.abstract.input import EnergyDataSource, EnergyData, Device
 
 
-class SmireAPI(ExternalDataSource):
+class SmireAPI(EnergyDataSource):
 
     def __init__(self, usr: str, pwd: str, site: str):
         """
@@ -28,7 +28,7 @@ class SmireAPI(ExternalDataSource):
             'geolocation': (raw['site']['latitude'], raw['site']['longitude'])
         }
         device = Device(**device_meta)
-        accumulated_power = state[0]['produced']
+        accumulated_power = int(("%.2f" % state[0]['produced']).replace('.', ''))
         now = datetime.datetime.now()
         access_epoch = calendar.timegm(now.timetuple())
         measurement_timestamp = datetime.datetime.strptime(state[0]['date'], "%Y-%m-%d")
@@ -48,7 +48,7 @@ class SmireAPI(ExternalDataSource):
         return ans
 
 
-class EngiePower(SmireAPI):
+class Eget(SmireAPI):
 
     def __init__(self, usr: str, pwd: str):
         super().__init__(usr, pwd, 'eget')

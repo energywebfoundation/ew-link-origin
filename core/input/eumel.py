@@ -3,11 +3,11 @@ from xml.etree import ElementTree
 
 import requests
 
-from core.abstract.input import ExternalDataSource, EnergyData, Device
+from core.abstract.input import EnergyDataSource, EnergyData, Device
 
 
 # Todo: Review, this is base only
-class DataLoggerV1(ExternalDataSource):
+class DataLoggerV1(EnergyDataSource):
     """
     Eumel DataLogger api access implementation
     """
@@ -42,7 +42,7 @@ class DataLoggerV1(ExternalDataSource):
         return EnergyData(device, access_timestamp, raw, accumulated_power, measurement_timestamp)
 
 
-class DataLoggerV2d1d1(ExternalDataSource):
+class DataLoggerV2d1d1(EnergyDataSource):
     """
     Eumel DataLogger api access implementation
     """
