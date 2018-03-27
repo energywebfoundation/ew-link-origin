@@ -26,13 +26,13 @@ class GridSingularity(ExternalDataSource):
               ] 
             }
         '''
-        # get the object with the right site_id
-        state = {}
-
-        for specific_site in raw["sites"]:
-            if specific_site["site_id"] == self.site:
-                state = specific_site
-                break
+        # add all consumption together and save latest timestamp
+        total_consumption = 0
+        latest_timestamp = 0
+        for consumptions in raw["consumption"]:
+            total_consumption += consumptions
+            if consumptions["timestamp"] > latest_timestamp:
+                latest_timestamp = consumptions["timestamp"]
 
         # build the device object
         device_meta = {
@@ -44,14 +44,15 @@ class GridSingularity(ExternalDataSource):
         device = Device(**device_meta)
 
         # get produced energy from filtered object
-        accumulated_power = int(("%.2f" % specific_site['energy']['data']).replace('.', ''))
+        accumulated_power = int(("%.2f" % total_consumption).replace('.', ''))
 
         # build access_epoch
         now = datetime.datetime.now()
         access_epoch = calendar.timegm(now.timetuple())
 
         # build measurement_epoch
-        measurement_timestamp = datetime.datetime.strptime(specific_site['end_time'], '%Y-%m-%dT%H:%M:%SZ')
+        # TODO: parse that UTC timestamp into date with remembering timezones and crap like that
+        measurement_timestamp = datetime.datetime.strptime(latest_timestamp, '%S')
         measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
 
         return EnergyData(device, access_epoch, raw, accumulated_power, measurement_epoch)
@@ -76,7 +77,7 @@ class GridSingularity(ExternalDataSource):
         # TODO: ask jens about that junk
 
         # start request
-        r = requests.get(endpoint, params=marginal_query, verify=False)
+        r = requests.get(endpoint, params=marginal_query)
         ans = r.json()
         if len(ans['serviceLocationId']) < 1:
             raise AttributeError('Empty response from api.')
