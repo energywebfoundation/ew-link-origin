@@ -33,19 +33,20 @@ def save(file_name: str, data: str):
 
 class Memory:
 
-    def __init__(self, program_name: str):
-        home_path = str(Path.home().joinpath(program_name))
-        self.file = home_path + '/memory.pkl'
-        if not os.path.exists(home_path):
-            os.makedirs(home_path)
+    def __init__(self, file_name_with_path: str):
+        # home_path = str(Path.home().joinpath(program_name))
+        # self.file = home_path + '/memory.pkl'
+        # if not os.path.exists(home_path):
+        #     os.makedirs(home_path)
+        self.file = file_name_with_path
         if not os.path.exists(self.file):
             self.memory = {}
         else:
             self.memory = pickle.load(open(self.file, 'rb'))
 
-    def save_memory(self, memory: dict):
-        self.memory.update(memory)
-        pickle.dump(memory, open(self.file, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
+    def save_memory(self, data: dict):
+        self.memory.update(data)
+        pickle.dump(data, open(self.file, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
 
 
 class Spinner:

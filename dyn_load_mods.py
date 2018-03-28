@@ -16,12 +16,17 @@
       }
     }
 """
+import hashlib
 import importlib
 import json
 import datetime
 
 from core.abstract.input import EnergyDataSource, CarbonEmissionDataSource
+from core.commons import Memory
 from core.output.energyweb import LocalClientOriginProducer
+
+
+CARALHO = './memory.pkl'
 
 
 def convert_time(epoch: int):
@@ -50,24 +55,38 @@ def get_class_instances(config_json: dict, submodule: str) -> list:
     return class_instances
 
 
+def save_raw_file(filename_with_path: str) -> str:
+    sha3 = hashlib.sha3_512()
+    sha3.update(open(filename_with_path, 'rb').read())
+    return sha3.hexdigest()
+
+
 if __name__ == '__main__':
 
-    modules = []
+    input_modules = []
+    output_modules = []
     misty_firefly = json.load(open('misty-firefly.json'))
 
     # WARN: The sequence of input first is important to keep the following for loop working.
-    modules.extend(get_class_instances(misty_firefly, 'input'))
-    modules.extend(get_class_instances(misty_firefly, 'output'))
+    input_modules.extend(get_class_instances(misty_firefly, 'input'))
+    output_modules.extend(get_class_instances(misty_firefly, 'output'))
+
+    # WARN: >
+    memory = Memory('./raw_data.pkl')
+    sha3 = hashlib.sha3_512()
+    sha3.update(open('./rolas', 'rb').read())
+    hashlib.sha3_512()
 
     print('`•.,,.•´¯¯`•.,,.•´¯¯`•.,, Config ,,.•´¯¯`•.,,.•´¯¯`•.,,.•´\n')
-    for module in modules:
+    for module in input_modules:
         if isinstance(module, CarbonEmissionDataSource):
             print('Carbon Emission: ' + module.__class__.__name__)
             carbon_emission = module.read_state()
         elif isinstance(module, EnergyDataSource):
             print('Energy: ' + module.__class__.__name__)
             energy = module.read_state()
-        elif isinstance(module, LocalClientOriginProducer):
+
+        if isinstance(module, LocalClientOriginProducer):
             print('Smart Contract: ' + module.__class__.__name__)
             # TODO: Multiple energy and carbon measurements capabilities.
             # TODO: Add Meter down and api down capabilities.
@@ -80,6 +99,31 @@ if __name__ == '__main__':
                 'is_co2_down': False
             }
             smart_contract = module.mint(**produced_energy)
+
+    for module in input_modules:
+        if isinstance(module, CarbonEmissionDataSource):
+            print('Carbon Emission: ' + module.__class__.__name__)
+            carbon_emission = module.read_state()
+        elif isinstance(module, EnergyDataSource):
+            print('Energy: ' + module.__class__.__name__)
+            energy = module.read_state()
+
+        if isinstance(module, LocalClientOriginProducer):
+            print('Smart Contract: ' + module.__class__.__name__)
+            # TODO: Multiple energy and carbon measurements capabilities.
+            # TODO: Add Meter down and api down capabilities.
+            # TODO: File hashing and loading capabilities.
+            produced_energy = {
+                'energy': energy.accumulated_power,
+                'is_meter_down': False,
+                'previous_hash': 'null',
+                'co2_saved': carbon_emission.accumulated_co2,
+                'is_co2_down': False
+            }
+            smart_contract = module.mint(**produced_energy)
+
+    memory = Memory(filename_with_path)
+    memory.save_memory(data)
 
     # asd
     print('\n\n¸.•*´¨`*•.¸¸.•*´¨`*•.¸ Results ¸.•*´¨`*•.¸¸.•*´¨`*•.¸\n')
