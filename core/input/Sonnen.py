@@ -72,7 +72,7 @@ class Sonnen_consume(ExternalDataSource):
         return ans
 
 
-# consuming producing
+# producing asset
 class Sonnen_produce(ExternalDataSource):
 
     def __init__(self, site_id: str):

@@ -5,7 +5,7 @@ import datetime
 
 from core.abstract.input import ExternalDataSource, EnergyData, Device
 
-# consuming asset
+# producing asset
 class SPGroupAPI(ExternalDataSource):
 
     def __init__(self, site_id: str):

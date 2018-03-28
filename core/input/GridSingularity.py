@@ -74,7 +74,8 @@ class GridSingularity(ExternalDataSource):
         endpoint = self.api_url + self.site_id + '/consumption/'
 
         # do the access management (get access token)
-        # TODO: ask jens about that junk
+        # username: Gridsingularity
+        # password: Berlin_2017
 
         # start request
         r = requests.get(endpoint, params=marginal_query)
