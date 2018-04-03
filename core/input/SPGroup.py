@@ -2,6 +2,7 @@ import calendar
 
 import requests
 import datetime
+from datetime import tzinfo, timedelta
 
 from core.abstract.input import ExternalDataSource, EnergyData, Device
 
@@ -52,15 +53,18 @@ class SPGroupAPI(ExternalDataSource):
         # accumulated_power = specific_site['energy']['data']
         accumulated_power = int(("%.2f" % specific_site['energy']['data']).replace('.', ''))
 
-        # build access_epoch
-        now = datetime.datetime.now()
-        access_epoch = calendar.timegm(now.timetuple())
+        # instance of mini utc class (tzinfo)
+        utc = UTC()
 
-        # build measurement_epoch
+        # build access_timestamp
+        now = datetime.datetime.now().astimezone()
+        access_timestamp = now.isoformat()
+
+        # build measurement_timestamp
         measurement_timestamp = datetime.datetime.strptime(specific_site['end_time'], '%Y-%m-%dT%H:%M:%SZ')
-        measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
+        measurement_timestamp = measurement_timestamp.replace(tzinfo=utc).isoformat()
 
-        return EnergyData(device, access_epoch, raw, accumulated_power, measurement_epoch)
+        return EnergyData(device, access_timestamp, raw, accumulated_power, measurement_timestamp)
 
     def _get_daily_data(self) -> dict:
         marginal_query = {
@@ -84,6 +88,19 @@ class SPGroup_b1(SPGroupAPI):
 
     def __init__(self, site_id: 'b1'):
         super().__init__(site_id)
+
+
+ZERO = timedelta(0)
+
+class UTC(tzinfo):
+    def utcoffset(self, dt):
+        return ZERO
+
+    def tzname(self, dt):
+        return "UTC"
+
+    def dst(self, dt):
+        return ZERO
 
 
 if __name__ == '__main__':
