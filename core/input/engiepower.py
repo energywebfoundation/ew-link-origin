@@ -2,6 +2,7 @@ import calendar
 
 import requests
 import datetime
+from datetime import tzinfo, timedelta
 
 from core.abstract.input import EnergyDataSource, EnergyData, Device
 
@@ -29,11 +30,17 @@ class SmireAPI(EnergyDataSource):
         }
         device = Device(**device_meta)
         accumulated_power = int(("%.2f" % state[0]['produced']).replace('.', ''))
-        now = datetime.datetime.now()
-        access_epoch = calendar.timegm(now.timetuple())
+
+        # instance of mini utc class (tzinfo)
+        cest = CEST()
+
+        now = datetime.datetime.now().astimezone()
+        access_timestamp = now.isoformat()
+
         measurement_timestamp = datetime.datetime.strptime(state[0]['date'], "%Y-%m-%d")
-        measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
-        return EnergyData(device, access_epoch, raw, accumulated_power, measurement_epoch)
+        measurement_timestamp = measurement_timestamp.replace(tzinfo=cest).isoformat()  # forcing the france timezone
+
+        return EnergyData(device, access_timestamp, raw, accumulated_power, measurement_timestamp)
 
     def _get_daily_data(self, days) -> dict:
         marginal_query = {
@@ -59,3 +66,33 @@ class Fontanelles(SmireAPI):
     def __init__(self, usr: str, pwd: str):
         super().__init__(usr, pwd, 'fontanelles')
 
+
+ZERO = timedelta(0)
+TWO = timedelta(hours=2)
+
+class UTC(tzinfo):
+    def utcoffset(self, dt):
+        return ZERO
+
+    def tzname(self, dt):
+        return "UTC"
+
+    def dst(self, dt):
+        return ZERO
+
+
+class CEST(tzinfo):
+    def utcoffset(self, dt):
+        return TWO
+
+    def tzname(self, dt):
+        return "CEST"
+
+    def dst(self, dt):
+        return TWO
+
+'''
+if __name__ == '__main__':
+    ex = Eget('', '')
+    ex.read_state()
+'''
