@@ -2,10 +2,11 @@ import calendar
 
 import requests
 import datetime
+from datetime import tzinfo, timedelta
 
 from core.abstract.input import ExternalDataSource, EnergyData, Device
 
-# producing asset
+# producing asset - !! only returns data from before 2015
 class Exelon(ExternalDataSource):
 
     def __init__(self, site_id: str):
@@ -49,19 +50,22 @@ class Exelon(ExternalDataSource):
         # accumulated_power = specific_site['energy']['data']
         accumulated_power = int(("%.2f" % specific_site['amount']).replace('.', ''))
 
+        # instance of mini utc class (tzinfo)
+        utc = UTC()
+
         # build access_epoch
-        now = datetime.datetime.now()
-        access_epoch = calendar.timegm(now.timetuple())
+        now = datetime.datetime.now().astimezone()
+        access_timestamp = now.isoformat()
 
         # build measurement_epoch
         measurement_timestamp = datetime.datetime.strptime(specific_site['endTime'], '%Y-%m-%dT%H:%M:%S.%fZ')
-        measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
+        measurement_timestamp = measurement_timestamp.replace(tzinfo=utc).isoformat()
 
-        return EnergyData(device, access_epoch, raw, accumulated_power, measurement_epoch)
+        return EnergyData(device, access_timestamp, raw, accumulated_power, measurement_timestamp)
 
     def _get_daily_data(self) -> dict:
-        date_now = datetime.datetime.utcnow().isoformat()
-        date_one_hour_before = datetime.datetime.utcnow() - datetime.timedelta(seconds=3600)
+        # date_now = datetime.datetime.utcnow().isoformat()
+        # date_one_hour_before = datetime.datetime.utcnow() - datetime.timedelta(seconds=3600)
         marginal_query = {
             'start': '2015-03-17T06:00:00.000Z',
             'end': '2015-03-18T04:59:59.999Z'
@@ -85,6 +89,19 @@ class Exelon_1(Exelon):
 
     def __init__(self, site_id: '0x6e953cc665e527d10989172def6a91fd489e7cf11'):
         super().__init__(site_id)
+
+
+ZERO = timedelta(0)
+
+class UTC(tzinfo):
+    def utcoffset(self, dt):
+        return ZERO
+
+    def tzname(self, dt):
+        return "UTC"
+
+    def dst(self, dt):
+        return ZERO
 
 
 if __name__ == '__main__':
