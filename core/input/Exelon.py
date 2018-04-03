@@ -53,11 +53,11 @@ class Exelon(ExternalDataSource):
         # instance of mini utc class (tzinfo)
         utc = UTC()
 
-        # build access_epoch
+        # build access_timestamp
         now = datetime.datetime.now().astimezone()
         access_timestamp = now.isoformat()
 
-        # build measurement_epoch
+        # build measurement_timestamp
         measurement_timestamp = datetime.datetime.strptime(specific_site['endTime'], '%Y-%m-%dT%H:%M:%S.%fZ')
         measurement_timestamp = measurement_timestamp.replace(tzinfo=utc).isoformat()
 
