@@ -8,13 +8,32 @@ from core.abstract.input import ExternalDataSource, EnergyData, Device
 # consumption asset
 class GridSingularity(ExternalDataSource):
 
-    def __init__(self, site_id: str):
+    def __init__(self, site_id: str, client_id: str, client_secret: str, username: str, password: str):
 
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.username = username
+        self.password = password
         self.site = site_id
         self.api_url = 'https://app1pub.smappee.net/dev/v1/servicelocation/'
 
     def read_state(self) -> EnergyData:
-        raw = self._get_daily_data()
+        # get access token
+        token_request = 'https://app1pub.smappee.net/dev/v1/oauth2/token'
+        marginal_query = {
+            'grant_type': 'password',
+            'client_id': self.client_id,
+            'client_secret': self.client_secret,
+            'username': self.username,
+            'password': self.password
+        }
+        r = requests.post(token_request, params=marginal_query)
+        ans = r.json()
+        if len(ans['access_token']) < 1:
+            raise AttributeError('Empty/Error response from api.')
+
+        # get raw data
+        raw = self._get_daily_data(ans['access_token'])
         '''
             {
             "serviceLocationId": 123,
@@ -57,7 +76,7 @@ class GridSingularity(ExternalDataSource):
 
         return EnergyData(device, access_epoch, raw, accumulated_power, measurement_epoch)
 
-    def _get_daily_data(self) -> dict:
+    def _get_daily_data(self, authToken: str) -> dict:
         # calculate the current time and one hour back from there
         d = datetime.datetime.utcnow()
         epoch = datetime.datetime(1970, 1, 1)
@@ -71,14 +90,15 @@ class GridSingularity(ExternalDataSource):
         }
 
         # build the endpoint for the request
-        endpoint = self.api_url + self.site_id + '/consumption/'
+        endpoint = self.api_url + self.site + '/consumption/'
 
         # do the access management (get access token)
         # username: Gridsingularity
         # password: Berlin_2017
+        provisional_header = {"Authorization": "Bearer " + authToken}
 
         # start request
-        r = requests.get(endpoint, params=marginal_query)
+        r = requests.get(endpoint, params=marginal_query, headers=provisional_header)
         ans = r.json()
         if len(ans['serviceLocationId']) < 1:
             raise AttributeError('Empty response from api.')
@@ -87,7 +107,7 @@ class GridSingularity(ExternalDataSource):
 
 class GridSingularity_123(GridSingularity):
 
-    def __init__(self, site_id: '123'):
+    def __init__(self, site_id: str):
         super().__init__(site_id)
 
 
