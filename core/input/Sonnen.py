@@ -59,7 +59,7 @@ class Sonnen_consume(ExternalDataSource):
         marginal_query = {
             'date': 5,  # expects year-month-day
             'hour': 'last_hour',  # the hour of day
-            'utc_offset': '01:00',  # TODO: ask jens about that
+            'utc_offset': '01:00',
             'asset_id': self.site
         }
 
@@ -112,7 +112,6 @@ class Sonnen_produce(ExternalDataSource):
         now = datetime.datetime.now()
         access_epoch = calendar.timegm(now.timetuple())
 
-        # TODO: figure out all that timezone stuff
         # build measurement_epoch
         measurement_timestamp = datetime.datetime.strptime(raw['requested_date'], '%Y-%m-%d')
         measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
@@ -126,7 +125,7 @@ class Sonnen_produce(ExternalDataSource):
         marginal_query = {
             'date': 5,  # expects year-month-day
             'hour': 'last_hour',  # the hour of day
-            'utc_offset': '01:00',  # TODO: ask jens about that
+            'utc_offset': '01:00',
             'asset_id': self.site
         }
 

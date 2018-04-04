@@ -87,7 +87,7 @@ class Exelon(ExternalDataSource):
 # needs a site_id
 class Exelon_1(Exelon):
 
-    def __init__(self, site_id: '0x6e953cc665e527d10989172def6a91fd489e7cf11'):
+    def __init__(self, site_id: str):
         super().__init__(site_id)
 
 
@@ -105,5 +105,5 @@ class UTC(tzinfo):
 
 
 if __name__ == '__main__':
-    ex = Exelon_1('b1')
+    ex = Exelon_1('0x6e953cc665e527d10989172def6a91fd489e7cf11')
     ex.read_state()
