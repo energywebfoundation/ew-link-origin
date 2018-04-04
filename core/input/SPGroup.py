@@ -1,3 +1,12 @@
+'''
+Interface for the SPGroup api
+- SPGroup api delivers producing data
+- delivers production from the past hour
+- constructor takes the site_id as parameter
+- !!! Access by hardcoded api key !!!
+'''
+
+
 import calendar
 
 import requests

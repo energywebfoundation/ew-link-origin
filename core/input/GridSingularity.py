@@ -18,7 +18,10 @@ class GridSingularity(ExternalDataSource):
         self.api_url = 'https://app1pub.smappee.net/dev/v1/servicelocation/'
 
     def read_state(self) -> EnergyData:
-        # get access token
+
+        # do the access management (get access token)
+        # username: Gridsingularity
+        # password: Berlin_2017
         token_request = 'https://app1pub.smappee.net/dev/v1/oauth2/token'
         marginal_query = {
             'grant_type': 'password',
@@ -92,9 +95,6 @@ class GridSingularity(ExternalDataSource):
         # build the endpoint for the request
         endpoint = self.api_url + self.site + '/consumption/'
 
-        # do the access management (get access token)
-        # username: Gridsingularity
-        # password: Berlin_2017
         provisional_header = {"Authorization": "Bearer " + authToken}
 
         # start request

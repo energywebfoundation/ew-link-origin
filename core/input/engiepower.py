@@ -1,3 +1,12 @@
+'''
+Interface for the Engie api
+- Engie api delivers producing data
+- delivers consumption and production from the past hour
+- constructor takes the site_id, username and password as parameters
+- Access by username and password
+'''
+
+
 import calendar
 
 import requests

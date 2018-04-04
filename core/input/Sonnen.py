@@ -2,6 +2,7 @@
 Interface for the Sonnen api
 - Sonnen api delivers consuming and producing data which are processed separately
 - delivers consumption and production from the past hour
+- constructor takes the site_id as parameter
 - !!! Access by hardcoded api key !!!
 '''
 
