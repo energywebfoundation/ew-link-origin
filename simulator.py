@@ -1,7 +1,7 @@
 import time
 
 import core.input.simulator
-from core.commons import tty_logger as logger
+from core.helper import tty_logger as logger
 
 meter = core.input.simulator.EnergyMeter()
 

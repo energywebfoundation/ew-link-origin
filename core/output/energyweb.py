@@ -5,6 +5,7 @@ from web3 import HTTPProvider
 from web3.contract import ConciseContract
 from web3.providers import BaseProvider
 
+from core.abstract.bond import ProducedChainData, ConsumedChainData
 from core.abstract.output import SmartContractClient
 
 
@@ -37,7 +38,8 @@ class GeneralSmartContractClient(SmartContractClient):
 
         return synced_block == latest_block
 
-    def call(self, address: str, contract_name: str, method_name: str, event_name: str, *args) -> dict:
+    def send(self, address: str, contract_name: str, method_name: str, event_name: str, *args) -> dict:
+        # TODO: Implement event catcher when present
         if not self.check_sync():
             raise ConnectionError('Client is not synced to the last block.')
         self.w3.personal.unlockAccount(account=self.credentials[0], passphrase=self.credentials[1])
@@ -52,12 +54,24 @@ class GeneralSmartContractClient(SmartContractClient):
             raise ConnectionError('Transaction was not sent.')
         tx_receipt = None
         for _ in range(self.MAX_RETRIES):
-            tx = self.w3.eth.getTransaction(tx_hash)
             tx_receipt = self.w3.eth.getTransactionReceipt(tx_hash)
             if tx_receipt and tx_receipt['blockNumber']:
                 break
             time.sleep(self.SECONDS_BETWEEN_RETRIES)
         return tx_receipt
+
+    def call(self, address: str, contract_name: str, method_name: str, event_name: str, *args) -> dict:
+        # TODO: Implement event catcher when present
+        if not self.check_sync():
+            raise ConnectionError('Client is not synced to the last block.')
+        self.w3.personal.unlockAccount(account=self.credentials[0], passphrase=self.credentials[1])
+        contract = self.contracts[contract_name]
+        contract_instance = self.w3.eth.contract(
+            abi=contract['abi'],
+            address=address,
+            bytecode=contract['bytecode'],
+            ContractFactoryClass=ConciseContract)
+        return getattr(contract_instance, method_name)(*args)
 
 
 class EnergyWeb(GeneralSmartContractClient):
@@ -93,7 +107,7 @@ class Origin(EnergyWeb):
     This class is only an interface to a ewf-client via json rpc calls and interact with the smart-contract.
     """
 
-    def __init__(self, contract_address: str, asset_id: int, wallet_add: str, wallet_pwd: str, url: str = 'http://localhost:8545'):
+    def __init__(self, contract_address: str, asset_id: int, wallet_add: str, wallet_pwd: str, url: str):
         """
         :param contract_address: Contract structure containing ABI and bytecode and address keys.
         :param asset_id: ID received in asset registration.
@@ -105,7 +119,8 @@ class Origin(EnergyWeb):
         credentials = (wallet_add, wallet_pwd)
         super().__init__(credentials, url)
 
-    def register_asset(self, country: str, region: str, zip_code: str, city: str, street: str, house_number: str, latitude: str, longitude: str):
+    def register_asset(self, country: str, region: str, zip_code: str, city: str, street: str, house_number: str,
+                       latitude: str, longitude: str):
         """
         Register asset. The account signing the transaction must have "AssetAdmin" role to successfully register.
         Source:
@@ -120,7 +135,40 @@ class Origin(EnergyWeb):
         """
         pass
 
-    def mint_produced(self, energy: int, is_meter_down: bool, previous_hash: str, co2_saved: int, is_co2_down: bool) -> dict:
+    def mint(self, **kwargs):
+        """
+        Mint the consumption or production of green energy.
+        :return:
+        """
+        raise NotImplementedError
+
+    def last_hash(self, **kwargs):
+        """
+        Get last file hash logged
+        :return:
+        """
+        raise NotImplementedError
+
+
+class OriginProducer(Origin):
+    """
+    Green Energy Producer
+    """
+
+    def __last_producer_file_hash(self):
+        """
+        Get last file hash registered from producer contract
+        Source:
+            AssetLogic.sol
+        Call stack:
+            function getAssetDataLog(uint _assetId)
+        """
+        receipt = self.call(self.contract_address, 'producer', 'getLastSmartMeterReadFileHash', '', self.asset_id)
+        if not receipt:
+            raise ConnectionError
+        return receipt
+
+    def __mint_produced(self, produced_energy: ProducedChainData) -> dict:
         """
         Source:
             AssetProducingRegistryLogic.sol
@@ -129,13 +177,39 @@ class Origin(EnergyWeb):
         Wait for:
             event LogNewMeterRead(uint indexed _assetId, uint _oldMeterRead, uint _newMeterRead, bool _smartMeterDown, uint _certificatesCreatedForWh, uint _oldCO2OffsetReading, uint _newCO2OffsetReading, bool _serviceDown);
         """
-        receipt = self.call(self.contract_address, 'producer', 'saveSmartMeterRead', 'LogNewMeterRead',
-                            self.asset_id, energy, is_meter_down, previous_hash, co2_saved, is_co2_down)
+        receipt = self.send(self.contract_address, 'producer', 'saveSmartMeterRead', 'LogNewMeterRead',
+                            self.asset_id, produced_energy.energy, produced_energy.is_meter_down,
+                            produced_energy.previous_hash, produced_energy.co2_saved, produced_energy.is_co2_down)
         if not receipt:
             raise ConnectionError
         return receipt
 
-    def mint_consuming(self, energy: int, previous_hash: str, is_meter_down: bool):
+    def mint(self, produced_energy: ProducedChainData) -> dict:
+        return self.__mint_produced(produced_energy)
+
+    def last_hash(self):
+        return self.__last_producer_file_hash()
+
+
+class OriginConsumer(Origin):
+    """
+    Green Energy Consumer
+    """
+
+    def __last_consumer_file_hash(self):
+        """
+        Get last file hash registered from consumer contract
+        Source:
+            AssetLogic.sol
+        Call stack:
+            function getAssetDataLog(uint _assetId)
+        """
+        receipt = self.call(self.contract_address, 'consumer', 'getLastSmartMeterReadFileHash', '', self.asset_id)
+        if not receipt:
+            raise ConnectionError
+        return receipt
+
+    def __mint_consumed(self, consumed_energy: ConsumedChainData) -> dict:
         """
         Source:
             AssetConsumingRegistryLogic.sol
@@ -144,33 +218,59 @@ class Origin(EnergyWeb):
         Wait for:
             event LogNewMeterRead(uint indexed _assetId, uint _oldMeterRead, uint _newMeterRead, uint _certificatesUsedForWh, bool _smartMeterDown);
         """
-        receipt = self.call(self.contract_address, 'consumer', 'saveSmartMeterRead', 'LogNewMeterRead',
-                            self.asset_id, energy, previous_hash, is_meter_down)
+        receipt = self.send(self.contract_address, 'consumer', 'saveSmartMeterRead', 'LogNewMeterRead',
+                            self.asset_id, consumed_energy.energy, consumed_energy.previous_hash,
+                            consumed_energy.is_meter_down)
         if not receipt:
             raise ConnectionError
         return receipt
 
-    def mint(self, **kwargs):
+    def mint(self, consumed_energy: ConsumedChainData) -> dict:
+        return self.__mint_consumed(consumed_energy)
+
+    def last_hash(self):
+        return self.__last_consumer_file_hash()
+
+
+class LocalClientOriginProducer(OriginProducer):
+    """
+    Green Energy Producer running a local ewf client
+    """
+
+    def __init__(self, contract_address: str, asset_id: int, wallet_add: str, wallet_pwd: str):
         """
-        Mint the consumption or production of green energy.
-        :return:
+        :param contract_address: Contract structure containing ABI and bytecode and address keys.
+        :param asset_id: ID received in asset registration.
+        :param wallet_add: Network wallet address
+        :param wallet_add: Network wallet password
         """
-        raise NotImplementedError
+        url = 'http://localhost:8545'
+        super().__init__(contract_address, asset_id, wallet_add, wallet_pwd, url)
 
 
-class LocalClientOriginProducer(Origin):
+class LocalClientOriginConsumer(OriginConsumer):
     """
-    Green Energy Producer
-    """
-
-    def mint(self, energy: int, is_meter_down: bool, previous_hash: str, co2_saved: int, is_co2_down: bool) -> dict:
-        return self.mint_produced(energy, is_meter_down, previous_hash, co2_saved, is_co2_down)
-
-
-class LocalClientOriginConsumer(Origin):
-    """
-    Green Energy Consumer
+    Green Energy Consumer running a local ewf client
     """
 
-    def mint(self, energy: int, previous_hash: str, is_meter_down: bool):
-        return self.mint_consuming(energy, previous_hash, is_meter_down)
+    def __init__(self, contract_address: str, asset_id: int, wallet_add: str, wallet_pwd: str):
+        """
+        :param contract_address: Contract structure containing ABI and bytecode and address keys.
+        :param asset_id: ID received in asset registration.
+        :param wallet_add: Network wallet address
+        :param wallet_add: Network wallet password
+        """
+        url = 'http://localhost:8545'
+        super().__init__(contract_address, asset_id, wallet_add, wallet_pwd, url)
+
+
+class RemoteClientOriginProducer(OriginProducer):
+    """
+    Green Energy Producer accessing a remote ewf client
+    """
+
+
+class RemoteClientOriginConsumer(OriginConsumer):
+    """
+    Green Energy Consumer accessing a remote ewf client
+    """

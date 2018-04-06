@@ -16,7 +16,6 @@ def read_config(resin: Resin):
         app_vars = resin.models.environment_variables.device.get_all_by_application('1001794')
         [print(var) for var in app_vars]
 
-
     except:
         print('deu ruim')
     try:

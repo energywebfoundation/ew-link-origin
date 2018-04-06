@@ -1,9 +1,10 @@
 """
 General data input interfaces
 """
+from core.abstract import JSONAble
 
 
-class Device:
+class Device(JSONAble):
     """
     Data gathering device abstraction
     """
@@ -21,7 +22,7 @@ class Device:
         self.geolocation = geolocation
 
 
-class ExternalData:
+class ExternalData(JSONAble):
     """
     Encapsulates collected data in a traceable fashion
     """
@@ -35,7 +36,7 @@ class ExternalData:
         self.raw = raw
 
 
-class ExternalDataSource:
+class ExternalDataSource(JSONAble):
     """
     Interface to enforce correct return type and standardized naming
     """

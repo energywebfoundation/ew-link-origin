@@ -3,8 +3,17 @@ General external data output interfaces
 """
 import web3
 
+from core.abstract import JSONAble
 
-class LogEntry:
+
+class DataOutput(JSONAble):
+    """
+    Data output wrapper
+    """
+    pass
+
+
+class LogEntry(DataOutput):
     """
     Standard for logging data2
     """
@@ -25,7 +34,7 @@ class AsyncClientError(EnvironmentError):
     pass
 
 
-class SmartContractClient:
+class SmartContractClient(DataOutput):
     """
     Ethereum-like smart contracts abstraction
     """
@@ -50,7 +59,21 @@ class SmartContractClient:
 
     def call(self, address: str, contract_name: str, method_name: str, password: str, args=None) -> dict:
         """
-        Calls a contract
+        Calls a method in a smart-contract
+        Sends a transaction to the Blockchain and awaits for mining until a receipt is returned.
+        :param address: Contract address
+        :param contract_name: Name of the contract in contracts
+        :param method_name: Use the same name as found in the contract abi
+        :param password: String of the raw password
+        :param args: Method parameters
+        :return: Transaction receipt
+        :rtype: dict
+        """
+        raise NotImplementedError
+
+    def send(self, address: str, contract_name: str, method_name: str, password: str, args=None) -> dict:
+        """
+        Send a transaction to execute a method in a smart-contract
         Sends a transaction to the Blockchain and awaits for mining until a receipt is returned.
         :param address: Contract address
         :param contract_name: Name of the contract in contracts
