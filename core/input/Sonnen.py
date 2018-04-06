@@ -1,7 +1,7 @@
 '''
 Interface for the Sonnen api
 - Sonnen api delivers consuming and producing data which are processed separately
-- delivers consumption and production from the past hour
+- delivers consumption and production !!! from the previous day two hours behinde !!!
 - constructor takes the site_id as parameter
 - !!! Access by hardcoded api key !!!
 '''
@@ -70,13 +70,13 @@ class Sonnen_consume(ExternalDataSource):
         utc_offset = d.utcoffset()
 
         marginal_query = {
-            'date': str(datetime.date.today()),  # expects year-month-day
-            'hour': datetime.datetime.now().hour - 1,  # the hour of day
+            'date': str(datetime.date.today()-timedelta(days=1)),  # expects year-month-day
+            'hour': datetime.datetime.now().hour - 2,  # the hour of day
             'utc_offset': utc_offset,
             'asset_id': self.site
         }
 
-        provisional_header = {"x-api-key": "T2zK7ShMZ24cNLB1t09CJ6UDhMVLLUGK6oNkAjRd"}
+        provisional_header = {"x-api-key": "ldEwCUZscBaNXHgm9qoeR9RnUKnzhQ5t7umVRNfH"}
         endpoint = self.api_url + 'charge_discharge'
 
         r = requests.get(endpoint, params=marginal_query, headers=provisional_header)
@@ -150,7 +150,7 @@ class Sonnen_produce(ExternalDataSource):
             'asset_id': self.site
         }
 
-        provisional_header = {"x-api-key": "T2zK7ShMZ24cNLB1t09CJ6UDhMVLLUGK6oNkAjRd"}
+        provisional_header = {"x-api-key": "ldEwCUZscBaNXHgm9qoeR9RnUKnzhQ5t7umVRNfH"}
         endpoint = self.api_url + 'charge_discharge'
 
         r = requests.get(endpoint, params=marginal_query, headers=provisional_header)
