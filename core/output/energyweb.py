@@ -103,9 +103,9 @@ class EnergyWeb(GeneralSmartContractClient):
         """
         params = {
             "contracts": {
-                "producer": json.load(open('./certificate_of_origin/build/contracts/AssetProducingRegistryLogic.json')),
-                "consumer": json.load(open('./certificate_of_origin/build/contracts/AssetProducingRegistryLogic.json')),
-                "asset": json.load(open('./certificate_of_origin/build/contracts/AssetLogic.json'))
+                "producer": json.load(open('./assets/AssetProducingRegistryLogic.json')),
+                "consumer": json.load(open('./assets/AssetProducingRegistryLogic.json')),
+                "asset": json.load(open('./assets/AssetLogic.json'))
             },
             "provider": HTTPProvider(url),
             "max_retries": 1000,

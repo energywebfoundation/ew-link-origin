@@ -30,6 +30,12 @@ if __name__ == '__main__':
     print(os.getcwd())
     print(os.listdir(os.getcwd()))
 
+    subprocess.Popen(["./assets/ewf-client", "--jsonrpc-apis", "all", "--reserved-peers", "./tobalaba-peers"],
+                     # stdout=subprocess.PIPE,
+                     # stderr=subprocess.PIPE
+                     )
+    print('waiting for ewf-client...\n\n')
+
     # while infinite:
     print('`•.,,.•´¯¯`•.,,.•´¯¯`•.,, Config ,,.•´¯¯`•.,,.•´¯¯`•.,,.•´\n')
     configuration = config.parse(read_config(APP_ID))
@@ -39,13 +45,6 @@ if __name__ == '__main__':
     if configuration.consumption is not None:
         print('Energy Consumption Module: ' + configuration.consumption.energy.__class__.__name__)
     [print('Output: ' + output.__class__.__name__) for output in configuration.outputs]
-
-    subprocess.Popen(["./ewf-client", "--jsonrpc-apis", "all", "--reserved-peers",
-                      "./tobalaba-peers"],
-                     # stdout=subprocess.PIPE,
-                     # stderr=subprocess.PIPE
-                     )
-    print('waiting for ewf-client...\n\n')
 
             # print('\n\n¸.•*´¨`*•.¸¸.•*´¨`*•.¸ Results ¸.•*´¨`*•.¸¸.•*´¨`*•.¸\n')
             # if configuration.production is not None:
