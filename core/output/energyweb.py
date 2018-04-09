@@ -31,7 +31,6 @@ class GeneralSmartContractClient(SmartContractClient):
         self.MAX_RETRIES = max_retries
         self.SECONDS_BETWEEN_RETRIES = retry_pause
         super().__init__(credentials, contracts, provider)
-        self.wallet_address = self.import_keys()
 
     def check_sync(self) -> bool:
         synced_block = str(self.w3.eth.blockNumber)
@@ -262,6 +261,7 @@ class LocalClientOriginProducer(OriginProducer):
         """
         url = 'http://localhost:8545'
         super().__init__(contract_address, asset_id, wallet_add, wallet_pwd, url)
+        self.wallet_address = self.import_keys()
 
 
 class LocalClientOriginConsumer(OriginConsumer):
@@ -278,6 +278,7 @@ class LocalClientOriginConsumer(OriginConsumer):
         """
         url = 'http://localhost:8545'
         super().__init__(contract_address, asset_id, wallet_add, wallet_pwd, url)
+        self.wallet_address = self.import_keys()
 
 
 class RemoteClientOriginProducer(OriginProducer):

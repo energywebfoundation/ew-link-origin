@@ -1,21 +1,12 @@
 # base-image for python on any machine using a template variable,
 # see more about dockerfile templates here:http://docs.resin.io/pages/deployment/docker-templates
-# FROM resin/%%RESIN_MACHINE_NAME%%-python:3.6
-FROM resin/%%RESIN_MACHINE_NAME%%-debian
+FROM resin/%%RESIN_MACHINE_NAME%%-python:3.6
 
 # use apt-get if you need to install dependencies,
 # for instance if you need ALSA sound utils, just uncomment the lines below.
 # RUN apt-get update && apt-get install -yq \
 #    alsa-utils libasound2-dev && \
 #    apt-get clean && rm -rf /var/lib/apt/lists/*
-
-RUN apt-get -y update
-RUN apt-get -y upgrade --fix-missing
-RUN apt-get install -y apt-utils
-RUN apt-get install -y build-essential libssl-dev libffi-dev python3.6 python3.6-dev openssl
-RUN python3 -V
-RUN sudo apt-get install -y python3-pip
-RUN pip3
 
 # Set our working directory
 WORKDIR /usr/src/app
@@ -24,7 +15,7 @@ WORKDIR /usr/src/app
 COPY ./requirements.txt /requirements.txt
 
 # pip install python deps from requirements.txt on the resin.io build server
-RUN pip3 install -r /requirements.txt
+RUN pip install -r /requirements.txt
 
 # This will copy all files in our root to the working  directory in the container
 COPY . ./
@@ -33,4 +24,4 @@ COPY . ./
 ENV INITSYSTEM on
 
 # bond.py will run when container starts up on the device
-CMD ["python3","bond.py"]
+CMD ["python","bond.py"]

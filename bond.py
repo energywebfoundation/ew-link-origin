@@ -23,19 +23,7 @@ def read_config(app_id: str):
 
 if __name__ == '__main__':
     infinite = True
-    print(os.path.isfile('./certificate_of_origin/build/contracts/AssetLogic.json'))
-    print(os.path.isfile('certificate_of_origin/build/contracts/AssetLogic.json'))
-    print(os.path.isfile('/usr/src/app/certificate_of_origin/build/contracts/AssetLogic.json'))
-    print(os.listdir('/usr/local/lib/'))
-    print(os.getcwd())
-    print(os.listdir(os.getcwd()))
 
-    subprocess.Popen(["./assets/ewf-client-arm", "--jsonrpc-apis", "all", "--reserved-peers", "./tobalaba-peers"],
-                     # stdout=subprocess.PIPE,
-                     # stderr=subprocess.PIPE
-                     )
-    print('waiting for ewf-client...\n\n')
-    time.sleep(20)
     # while infinite:
     print('`•.,,.•´¯¯`•.,,.•´¯¯`•.,, Config ,,.•´¯¯`•.,,.•´¯¯`•.,,.•´\n')
     configuration = config.parse(read_config(APP_ID))
