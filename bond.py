@@ -12,8 +12,8 @@ APP_ID = '1001794'
 
 def read_config(app_id: str):
     resin = Resin()
-    app_vars = resin.models.environment_variables.device.get_all_by_application(APP_ID)
-    variable = resin.models.application.get_config(APP_ID)
+    # app_vars = resin.models.environment_variables.device.get_all_by_application(APP_ID)
+    app_vars = resin.models.application.get_config(APP_ID)
     return next(var for var in app_vars if var['name'] == 'config')
 
 
@@ -23,6 +23,7 @@ if __name__ == '__main__':
     while infinite:
         print('`•.,,.•´¯¯`•.,,.•´¯¯`•.,, Config ,,.•´¯¯`•.,,.•´¯¯`•.,,.•´\n')
         configuration = read_config(APP_ID)
+        print(configuration)
         if configuration.production is not None:
             print('Energy Production Module: ' + configuration.production.energy.__class__.__name__)
             print('Carbon Emission Saved: ' + configuration.production.carbon_emission.__class__.__name__)
