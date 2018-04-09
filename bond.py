@@ -10,10 +10,11 @@ import core.helper as helper
 
 APP_ID = '1001794'
 
+
 def read_config(app_id: str):
     resin = Resin()
-    # app_vars = resin.models.environment_variables.device.get_all_by_application(APP_ID)
-    app_vars = resin.models.application.get_config(APP_ID)
+    app_vars = resin.models.environment_variables.device.get_all_by_application(APP_ID)
+    # app_vars = resin.models.application.get_config(APP_ID)
     return next(var for var in app_vars if var['name'] == 'config')
 
 
