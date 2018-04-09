@@ -24,6 +24,7 @@ def read_config(app_id: str):
 if __name__ == '__main__':
     infinite = True
     print(os.getcwd())
+    print(os.listdir(os.getcwd()))
 
     # while infinite:
     print('`•.,,.•´¯¯`•.,,.•´¯¯`•.,, Config ,,.•´¯¯`•.,,.•´¯¯`•.,,.•´\n')
