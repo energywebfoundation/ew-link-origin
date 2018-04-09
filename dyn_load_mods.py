@@ -18,7 +18,7 @@ if __name__ == '__main__':
     print('waiting for ewf-client...\n\n')
     time.sleep(60)
     print('`•.,,.•´¯¯`•.,,.•´¯¯`•.,, Config ,,.•´¯¯`•.,,.•´¯¯`•.,,.•´\n')
-    configuration = config.parse(JSON)
+    configuration = config.parse_file(JSON)
     if configuration.production is not None:
         print('Energy Production Module: ' + configuration.production.energy.__class__.__name__)
         print('Carbon Emission Saved: ' + configuration.production.carbon_emission.__class__.__name__)

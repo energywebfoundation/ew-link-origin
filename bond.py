@@ -22,8 +22,7 @@ if __name__ == '__main__':
 
     while infinite:
         print('`•.,,.•´¯¯`•.,,.•´¯¯`•.,, Config ,,.•´¯¯`•.,,.•´¯¯`•.,,.•´\n')
-        configuration = read_config(APP_ID)
-        print(configuration)
+        configuration = config.parse(read_config(APP_ID))
         if configuration.production is not None:
             print('Energy Production Module: ' + configuration.production.energy.__class__.__name__)
             print('Carbon Emission Saved: ' + configuration.production.carbon_emission.__class__.__name__)

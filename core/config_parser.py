@@ -27,18 +27,27 @@ def __get_class_instances(submodule: dict) -> object:
     return class_instance
 
 
-def parse(config_file_path: str) -> Configuration:
+def parse_file(config_file_path: str) -> Configuration:
     """
     Read config file into structured class instances.
     :param config_file_path: File system path to json format file.
     :return: Configuration instance
     """
     config_json = json.load(open(config_file_path))
-    is_consuming = 'consumption' in config_json
-    is_producing = 'production' in config_json
+    return parse(config_json)
+
+
+def parse(config_dict: dict) -> Configuration:
+    """
+    Read config file into structured class instances.
+    :param config_dict: Config dictionary.
+    :return: Configuration instance
+    """
+    is_consuming = 'consumption' in config_dict
+    is_producing = 'production' in config_dict
     instance = {
-        "consumption": __get_input_configuration(config_json['consumption'] if is_consuming else None),
-        "production": __get_input_configuration(config_json['production'] if is_producing else None),
-        "outputs": [__get_class_instances(output) for output in config_json['outputs']]
+        "consumption": __get_input_configuration(config_dict['consumption'] if is_consuming else None),
+        "production": __get_input_configuration(config_dict['production'] if is_producing else None),
+        "outputs": [__get_class_instances(output) for output in config_dict['outputs']]
     }
     return Configuration(**instance)
