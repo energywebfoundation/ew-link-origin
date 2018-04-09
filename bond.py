@@ -26,7 +26,7 @@ if __name__ == '__main__':
     print(os.path.isfile('./certificate_of_origin/build/contracts/AssetLogic.json'))
     print(os.path.isfile('certificate_of_origin/build/contracts/AssetLogic.json'))
     print(os.path.isfile('/usr/src/app/certificate_of_origin/build/contracts/AssetLogic.json'))
-    print(os.listdir('assets/'))
+    print(os.listdir('/usr/local/lib/'))
     print(os.getcwd())
     print(os.listdir(os.getcwd()))
 

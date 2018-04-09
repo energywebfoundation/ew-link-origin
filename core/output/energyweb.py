@@ -285,8 +285,28 @@ class RemoteClientOriginProducer(OriginProducer):
     Green Energy Producer accessing a remote ewf client
     """
 
+    def __init__(self, contract_address: str, asset_id: int, wallet_add: str, wallet_pwd: str):
+        """
+        :param contract_address: Contract structure containing ABI and bytecode and address keys.
+        :param asset_id: ID received in asset registration.
+        :param wallet_add: Network wallet address
+        :param wallet_add: Network wallet password
+        """
+        url = 'http://tobalaba.slock.it/rpc:8545'
+        super().__init__(contract_address, asset_id, wallet_add, wallet_pwd, url)
+
 
 class RemoteClientOriginConsumer(OriginConsumer):
     """
     Green Energy Consumer accessing a remote ewf client
     """
+
+    def __init__(self, contract_address: str, asset_id: int, wallet_add: str, wallet_pwd: str):
+        """
+        :param contract_address: Contract structure containing ABI and bytecode and address keys.
+        :param asset_id: ID received in asset registration.
+        :param wallet_add: Network wallet address
+        :param wallet_add: Network wallet password
+        """
+        url = 'http://tobalaba.slock.it/rpc:8545'
+        super().__init__(contract_address, asset_id, wallet_add, wallet_pwd, url)
