@@ -8,43 +8,35 @@ import core.data_access as dao
 import core.helper as helper
 
 
-def read_config(resin: Resin):
-    try:
-        app_vars = resin.models.environment_variables.device.get_all_by_application('1001794')
-        [print(var) for var in app_vars]
+APP_ID = '1001794'
 
-    except:
-        print('deu ruim')
-    try:
-        config = resin.models.application.get_config('1001794')
-        print(config)
-    except:
-        print('deu ruim')
+def read_config(app_id: str):
+    resin = Resin()
+    app_vars = resin.models.environment_variables.device.get_all_by_application(APP_ID)
+    variable = resin.models.application.get_config(APP_ID)
+    return next(var for var in app_vars if var['name'] == 'config')
 
 
 if __name__ == '__main__':
     infinite = True
-    read_config(Resin())
 
     while infinite:
-        try:
+        print('`•.,,.•´¯¯`•.,,.•´¯¯`•.,, Config ,,.•´¯¯`•.,,.•´¯¯`•.,,.•´\n')
+        configuration = read_config(APP_ID)
+        if configuration.production is not None:
+            print('Energy Production Module: ' + configuration.production.energy.__class__.__name__)
+            print('Carbon Emission Saved: ' + configuration.production.carbon_emission.__class__.__name__)
+        if configuration.consumption is not None:
+            print('Energy Consumption Module: ' + configuration.consumption.energy.__class__.__name__)
+        [print('Output: ' + output.__class__.__name__) for output in configuration.outputs]
 
-            subprocess.Popen(["./ewf-client", "--jsonrpc-apis", "all", "--reserved-peers",
-                              "./tobalaba-peers"],
-                             # stdout=subprocess.PIPE,
-                             # stderr=subprocess.PIPE
-                             )
-            print('waiting for ewf-client...\n\n')
-            time.sleep(60)
-            # print('`•.,,.•´¯¯`•.,,.•´¯¯`•.,, Config ,,.•´¯¯`•.,,.•´¯¯`•.,,.•´\n')
-            # configuration = config.parse(JSON)
-            # if configuration.production is not None:
-            #     print('Energy Production Module: ' + configuration.production.energy.__class__.__name__)
-            #     print('Carbon Emission Saved: ' + configuration.production.carbon_emission.__class__.__name__)
-            # if configuration.consumption is not None:
-            #     print('Energy Consumption Module: ' + configuration.consumption.energy.__class__.__name__)
-            # [print('Output: ' + output.__class__.__name__) for output in configuration.outputs]
-            #
+        subprocess.Popen(["./ewf-client", "--jsonrpc-apis", "all", "--reserved-peers",
+                          "./tobalaba-peers"],
+                         # stdout=subprocess.PIPE,
+                         # stderr=subprocess.PIPE
+                         )
+        print('waiting for ewf-client...\n\n')
+
             # print('\n\n¸.•*´¨`*•.¸¸.•*´¨`*•.¸ Results ¸.•*´¨`*•.¸¸.•*´¨`*•.¸\n')
             # if configuration.production is not None:
             #     production_local_chain = dao.DiskStorage(PRODUCTION_CHAIN)
@@ -114,8 +106,5 @@ if __name__ == '__main__':
             #     print('New Local File:')
             #     print(file_name_created)
             #     print('----------')
-
-        except:
-            print('deu ruim')
 
         time.sleep(350)
