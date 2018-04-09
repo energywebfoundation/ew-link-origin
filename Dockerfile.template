@@ -10,8 +10,11 @@ FROM resin/%%RESIN_MACHINE_NAME%%-debian
 #    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get -y update
+RUN apt-get install build-essential libssl-dev libffi-dev python3-dev
 RUN apt-get install -y openssl
-RUN apt-get install -y libssl-dev
+RUN python3 -V
+RUN sudo apt-get install -y python3-pip
+RUN pip3
 
 # Set our working directory
 WORKDIR /usr/src/app
@@ -20,7 +23,7 @@ WORKDIR /usr/src/app
 COPY ./requirements.txt /requirements.txt
 
 # pip install python deps from requirements.txt on the resin.io build server
-RUN pip install -r /requirements.txt
+RUN pip3 install -r /requirements.txt
 
 # This will copy all files in our root to the working  directory in the container
 COPY . ./
