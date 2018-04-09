@@ -43,6 +43,10 @@ def parse(config_dict: dict) -> Configuration:
     :param config_dict: Config dictionary.
     :return: Configuration instance
     """
+    if not isinstance(config_dict, dict):
+        print("Config type should be dict. Type found is:")
+        print(type(config_dict))
+        raise AssertionError
     is_consuming = 'consumption' in config_dict
     is_producing = 'production' in config_dict
     instance = {
