@@ -30,7 +30,7 @@ if __name__ == '__main__':
     print(os.getcwd())
     print(os.listdir(os.getcwd()))
 
-    subprocess.Popen(["./assets/ewf-client", "--jsonrpc-apis", "all", "--reserved-peers", "./tobalaba-peers"],
+    subprocess.Popen(["./assets/ewf-client-arm", "--jsonrpc-apis", "all", "--reserved-peers", "./tobalaba-peers"],
                      # stdout=subprocess.PIPE,
                      # stderr=subprocess.PIPE
                      )
