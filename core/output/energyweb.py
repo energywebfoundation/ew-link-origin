@@ -1,5 +1,7 @@
 import json
 import time
+
+import requests
 from web3 import HTTPProvider
 
 from web3.contract import ConciseContract
@@ -29,6 +31,7 @@ class GeneralSmartContractClient(SmartContractClient):
         self.MAX_RETRIES = max_retries
         self.SECONDS_BETWEEN_RETRIES = retry_pause
         super().__init__(credentials, contracts, provider)
+        self.wallet_address = self.import_keys()
 
     def check_sync(self) -> bool:
         synced_block = str(self.w3.eth.blockNumber)
@@ -38,18 +41,30 @@ class GeneralSmartContractClient(SmartContractClient):
 
         return synced_block == latest_block
 
+    def import_keys(self):
+        url = self.url
+        payload = {
+            "method": "parity_newAccountFromPhrase",
+            "params": [self.credentials[0], self.credentials[1]],
+            "id": 1,
+            "jsonrpc": "2.0"
+        }
+        r = requests.post(url, json=payload)
+        response = r.json()
+        return response['result']
+
     def send(self, address: str, contract_name: str, method_name: str, event_name: str, *args) -> dict:
         # TODO: Implement event catcher when present
         if not self.check_sync():
             raise ConnectionError('Client is not synced to the last block.')
-        self.w3.personal.unlockAccount(account=self.credentials[0], passphrase=self.credentials[1])
+        self.w3.personal.unlockAccount(account=self.wallet_address, passphrase=self.credentials[1])
         contract = self.contracts[contract_name]
         contract_instance = self.w3.eth.contract(
             abi=contract['abi'],
             address=address,
             bytecode=contract['bytecode'],
             ContractFactoryClass=ConciseContract)
-        tx_hash = getattr(contract_instance, method_name)(*args, transact={'from': self.credentials[0]})
+        tx_hash = getattr(contract_instance, method_name)(*args, transact={'from': self.wallet_address})
         if not tx_hash:
             raise ConnectionError('Transaction was not sent.')
         tx_receipt = None
@@ -64,7 +79,7 @@ class GeneralSmartContractClient(SmartContractClient):
         # TODO: Implement event catcher when present
         if not self.check_sync():
             raise ConnectionError('Client is not synced to the last block.')
-        self.w3.personal.unlockAccount(account=self.credentials[0], passphrase=self.credentials[1])
+        self.w3.personal.unlockAccount(account=self.wallet_address, passphrase=self.credentials[1])
         contract = self.contracts[contract_name]
         contract_instance = self.w3.eth.contract(
             abi=contract['abi'],
@@ -96,6 +111,7 @@ class EnergyWeb(GeneralSmartContractClient):
             "max_retries": 1000,
             "retry_pause": 5
         }
+        self.url = url
         super().__init__(credentials, **params)
 
 

@@ -1,3 +1,7 @@
+import subprocess
+
+import time
+
 import core.config_parser as config
 import core.data_access as dao
 import core.helper as helper
@@ -10,6 +14,9 @@ JSON = 'misty-firefly.json'
 
 if __name__ == '__main__':
 
+    subprocess.Popen(["/usr/local/bin/ewf-client", "--jsonrpc-apis", "all", "--reserved-peers", "/Users/r2d2/software/ewf/tobalaba-reserved-peers"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    print('waiting for ewf-client...\n\n')
+    time.sleep(60)
     print('`•.,,.•´¯¯`•.,,.•´¯¯`•.,, Config ,,.•´¯¯`•.,,.•´¯¯`•.,,.•´\n')
     configuration = config.parse(JSON)
     if configuration.production is not None:
