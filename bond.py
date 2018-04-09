@@ -2,6 +2,7 @@ import json
 import time
 import subprocess
 
+import os
 from resin import Resin
 
 import core.config_parser as config
@@ -22,23 +23,24 @@ def read_config(app_id: str):
 
 if __name__ == '__main__':
     infinite = True
+    print(os.getcwd())
 
-    while infinite:
-        print('`•.,,.•´¯¯`•.,,.•´¯¯`•.,, Config ,,.•´¯¯`•.,,.•´¯¯`•.,,.•´\n')
-        configuration = config.parse(read_config(APP_ID))
-        if configuration.production is not None:
-            print('Energy Production Module: ' + configuration.production.energy.__class__.__name__)
-            print('Carbon Emission Saved: ' + configuration.production.carbon_emission.__class__.__name__)
-        if configuration.consumption is not None:
-            print('Energy Consumption Module: ' + configuration.consumption.energy.__class__.__name__)
-        [print('Output: ' + output.__class__.__name__) for output in configuration.outputs]
+    # while infinite:
+    print('`•.,,.•´¯¯`•.,,.•´¯¯`•.,, Config ,,.•´¯¯`•.,,.•´¯¯`•.,,.•´\n')
+    configuration = config.parse(read_config(APP_ID))
+    if configuration.production is not None:
+        print('Energy Production Module: ' + configuration.production.energy.__class__.__name__)
+        print('Carbon Emission Saved: ' + configuration.production.carbon_emission.__class__.__name__)
+    if configuration.consumption is not None:
+        print('Energy Consumption Module: ' + configuration.consumption.energy.__class__.__name__)
+    [print('Output: ' + output.__class__.__name__) for output in configuration.outputs]
 
-        subprocess.Popen(["./ewf-client", "--jsonrpc-apis", "all", "--reserved-peers",
-                          "./tobalaba-peers"],
-                         # stdout=subprocess.PIPE,
-                         # stderr=subprocess.PIPE
-                         )
-        print('waiting for ewf-client...\n\n')
+    subprocess.Popen(["./ewf-client", "--jsonrpc-apis", "all", "--reserved-peers",
+                      "./tobalaba-peers"],
+                     # stdout=subprocess.PIPE,
+                     # stderr=subprocess.PIPE
+                     )
+    print('waiting for ewf-client...\n\n')
 
             # print('\n\n¸.•*´¨`*•.¸¸.•*´¨`*•.¸ Results ¸.•*´¨`*•.¸¸.•*´¨`*•.¸\n')
             # if configuration.production is not None:
@@ -110,4 +112,4 @@ if __name__ == '__main__':
             #     print(file_name_created)
             #     print('----------')
 
-        time.sleep(350)
+        # time.sleep(350)
