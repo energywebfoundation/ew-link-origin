@@ -1,6 +1,5 @@
 import json
 
-from datetime import time
 from resin import Resin
 
 import core.config_parser as config
