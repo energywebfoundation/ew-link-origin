@@ -23,9 +23,9 @@ if __name__ == '__main__':
         print('Energy Consumption Module: ' + configuration.consumption.energy.__class__.__name__)
     [print('Output: ' + output.__class__.__name__) for output in configuration.outputs]
 
-    # subprocess.Popen(["/usr/local/bin/ewf-client", "--jsonrpc-apis", "all", "--reserved-peers", "/Users/r2d2/software/ewf/tobalaba-reserved-peers"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    # print('waiting for ewf-client...\n\n')
-    # time.sleep(60)
+    subprocess.Popen(["/usr/local/bin/ewf-client", "--jsonrpc-apis", "all", "--reserved-peers", "/Users/r2d2/software/ewf/tobalaba-reserved-peers"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    print('waiting for ewf-client...\n\n')
+    time.sleep(60)
 
     print('\n\n¸.•*´¨`*•.¸¸.•*´¨`*•.¸ Results ¸.•*´¨`*•.¸¸.•*´¨`*•.¸\n')
     if configuration.production is not None:
