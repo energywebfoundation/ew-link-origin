@@ -329,9 +329,9 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "// Copyright 2018 Energy Web Foundation\n// This file is part of the Origin Application brought to you by the Energy Web Foundation,\n// a global non-profit organization focused on accelerating blockchain technology across the energy sector, \n// incorporated in Zug, Switzerland.\n//\n// The Origin Application is free software: you can redistribute it and/or modify\n// it under the terms of the GNU General Public License as published by\n// the Free Software Foundation, either version 3 of the License, or\n// (at your option) any later version.\n// This is distributed in the hope that it will be useful,\n// but WITHOUT ANY WARRANTY and without an implied warranty of\n// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n// GNU General Public License for more details, at <http://www.gnu.org/licenses/>.\n//\n// @authors: slock.it GmbH, Martin Kuechler, martin.kuchler@slock.it\n\npragma solidity ^0.4.17;\n\nimport \"./RoleManagement.sol\";\nimport \"./Updatable.sol\";\nimport \"./AssetDbInterface.sol\";\n\n/// @title Contract for storing the current logic-contracts-addresses for the certificate of origin\ncontract AssetLogic is RoleManagement, Updatable {\n\n    event LogAssetCreated(address sender, uint indexed _assetId);\n    event LogAssetFullyInitialized(uint indexed _assetId);\n    event LogAssetSetActive(uint indexed _assetId);\n    event LogAssetSetInactive(uint indexed _assetId);\n\n    AssetDbInterface public db;\n\n    modifier isInitialized {\n        require(address(db) != 0x0);\n        _;\n    }\n\n    /// @notice function to create a new empty asset, triggers event with created AssetID. To actually create an Asset the functions initGeneral and initLocations have to be called\n    function createAsset() \n        external\n        onlyRole(RoleManagement.Role.AssetAdmin)\n     {\n        uint assetId = db.createAsset();\n        LogAssetCreated(msg.sender, assetId);\n    }\n\n    /// @notice function toinizialize the database, can only be called once\n    /// @param _dbAddress address of the database contract\n    function init(address _dbAddress) \n        public\n        onlyRole(RoleManagement.Role.TopAdmin)\n    {\n        require(address(db) == 0x0);\n        db = AssetDbInterface(_dbAddress);\n    }\n\n    /// @notice Sets the location information of an asset in the database\n    /// @param _assetId the The index / identifier of an asset\n    /// @param _country The country where the asset is located\n    /// @param _region The region where the asset is located\n    /// @param _zip The zip coe where the asset is located\n    /// @param _city The city where the asset is located\n    /// @param _street The street where the asset is located\n    /// @param _houseNumber The house number where the asset is located\n    /// @param _gpsLatitude The gps-latitude of the asset\n    /// @param _gpsLongitude The gps-longitude of the asset \n    function initLocation (\n        uint _assetId,\n        bytes32 _country,\n        bytes32 _region,\n        bytes32 _zip,\n        bytes32 _city,\n        bytes32 _street,\n        bytes32 _houseNumber,\n        bytes32 _gpsLatitude,\n        bytes32 _gpsLongitude\n    )\n        external \n        isInitialized\n        onlyRole(RoleManagement.Role.AssetAdmin)\n    {\n        db.initLocation(_assetId, _country, _region, _zip, _city, _street, _houseNumber, _gpsLatitude, _gpsLongitude);\n         checkForFullAsset(_assetId);\n    }\n\n    /// @notice Sets active to false\n    /// @param _assetId The id belonging to an entry in the asset registry\n    /// @param _active flag if the asset is asset or not\n    function setActive(uint _assetId, bool _active)\n        external\n        isInitialized\n        onlyRole(RoleManagement.Role.AssetAdmin)\n    {\n       \n        db.setActive(_assetId, _active);\n        if (_active) {\n            LogAssetSetActive(_assetId);\n        } else {\n            LogAssetSetInactive(_assetId);\n        } \n    }\n\n    /// @notice Updates the logic contract\n    /// @param _newLogic Address of the new logic contract\n    function update(address _newLogic) \n        external\n        onlyAccount(address(cooContract))\n    {\n        Owned(db).changeOwner(_newLogic);\n    }\n\n    /// @notice gets the active flag on an asset\n    /// @param _assetId the assetId\n    /// @return the active flag\n    function getActive(uint _assetId)\n        external\n        view\n        returns (bool)\n    {\n        return db.getActive(_assetId);\n    }\n\n    /// @notice Gets the last filehash of the smart reader\n    /// @param _assetId the assetId\n    /// @return the alst smartmeterread-filehash\n    function getLastSmartMeterReadFileHash(uint _assetId)\n        external\n        view\n        returns (bytes32 datalog)\n    {\n        return db.getLastSmartMeterReadFileHash(_assetId);\n    }\n\n    /// @notice Function to get the amount of all assets\n    /// @dev needed to iterate though all the asset\n    /// @return the amount of all assets\n    function getAssetListLength()\n        external\n        view \n        returns (uint)\n    {\n        return db.getAssetListLength();\n    }\n\n    /// @notice Funtion to get the informaiton of the location of an asset\n    /// @param _assetId The identifier / index of the asset\n    /// @return country, region, zip-code, city, street, houseNumber, gpsLatitude, gpsLongitude\n    function getAssetLocation(uint _assetId)\n        external\n        view\n        returns(\n            bytes32 country,\n            bytes32 region,\n            bytes32 zip,\n            bytes32 city,\n            bytes32 street,\n            bytes32 houseNumber,\n            bytes32 gpsLatitude,\n            bytes32 gpsLongitude\n        )\n    {\n        return db.getAssetLocation(_assetId);\n    }\n\n    /// @notice Checks if a fully Asset-struct is created, enabled if asset all information are there\n    /// @dev only for internal use\n    /// @param _assetId the The index / identifier of an asset\n    function checkForFullAsset(uint _assetId)\n        internal\n    {\n        var (general, location, asset) = db.getExistStatus(_assetId);\n\n        if(general && location && !asset) {\n            db.setAssetExistStatus(_assetId,true);\n            LogAssetFullyInitialized(_assetId);\n            db.setLastSmartMeterReadDate(_assetId, now);\n        }\n    }\n\n    /// @notice Changes the address of a smart meter belonging to an asset\n    /// @param _assetId The id belonging to an entry in the asset registry\n    /// @param _newSmartMeter The address of the new smart meter\n    function updateSmartMeter(uint _assetId, address _newSmartMeter)\n        external\n        isInitialized\n        onlyRole(RoleManagement.Role.AssetAdmin)\n    {\n        db.setSmartMeter(_assetId, _newSmartMeter);\n    }\n\n}",
-  "sourcePath": "/Users/mkuechler/ewf/ewf-pushrepo/certificate_of_origin/contracts/AssetLogic.sol",
+  "sourcePath": "/Users/mkuechler/ewf/CoO/contracts/AssetLogic.sol",
   "ast": {
-    "absolutePath": "/Users/mkuechler/ewf/ewf-pushrepo/certificate_of_origin/contracts/AssetLogic.sol",
+    "absolutePath": "/Users/mkuechler/ewf/CoO/contracts/AssetLogic.sol",
     "exportedSymbols": {
       "AssetLogic": [
         1739
@@ -352,7 +352,7 @@
         "src": "886:24:4"
       },
       {
-        "absolutePath": "/Users/mkuechler/ewf/ewf-pushrepo/certificate_of_origin/contracts/RoleManagement.sol",
+        "absolutePath": "/Users/mkuechler/ewf/CoO/contracts/RoleManagement.sol",
         "file": "./RoleManagement.sol",
         "id": 1430,
         "nodeType": "ImportDirective",
@@ -363,7 +363,7 @@
         "unitAlias": ""
       },
       {
-        "absolutePath": "/Users/mkuechler/ewf/ewf-pushrepo/certificate_of_origin/contracts/Updatable.sol",
+        "absolutePath": "/Users/mkuechler/ewf/CoO/contracts/Updatable.sol",
         "file": "./Updatable.sol",
         "id": 1431,
         "nodeType": "ImportDirective",
@@ -374,7 +374,7 @@
         "unitAlias": ""
       },
       {
-        "absolutePath": "/Users/mkuechler/ewf/ewf-pushrepo/certificate_of_origin/contracts/AssetDbInterface.sol",
+        "absolutePath": "/Users/mkuechler/ewf/CoO/contracts/AssetDbInterface.sol",
         "file": "./AssetDbInterface.sol",
         "id": 1432,
         "nodeType": "ImportDirective",
@@ -4238,7 +4238,7 @@
     "src": "886:5752:4"
   },
   "legacyAST": {
-    "absolutePath": "/Users/mkuechler/ewf/ewf-pushrepo/certificate_of_origin/contracts/AssetLogic.sol",
+    "absolutePath": "/Users/mkuechler/ewf/CoO/contracts/AssetLogic.sol",
     "exportedSymbols": {
       "AssetLogic": [
         1739
@@ -4259,7 +4259,7 @@
         "src": "886:24:4"
       },
       {
-        "absolutePath": "/Users/mkuechler/ewf/ewf-pushrepo/certificate_of_origin/contracts/RoleManagement.sol",
+        "absolutePath": "/Users/mkuechler/ewf/CoO/contracts/RoleManagement.sol",
         "file": "./RoleManagement.sol",
         "id": 1430,
         "nodeType": "ImportDirective",
@@ -4270,7 +4270,7 @@
         "unitAlias": ""
       },
       {
-        "absolutePath": "/Users/mkuechler/ewf/ewf-pushrepo/certificate_of_origin/contracts/Updatable.sol",
+        "absolutePath": "/Users/mkuechler/ewf/CoO/contracts/Updatable.sol",
         "file": "./Updatable.sol",
         "id": 1431,
         "nodeType": "ImportDirective",
@@ -4281,7 +4281,7 @@
         "unitAlias": ""
       },
       {
-        "absolutePath": "/Users/mkuechler/ewf/ewf-pushrepo/certificate_of_origin/contracts/AssetDbInterface.sol",
+        "absolutePath": "/Users/mkuechler/ewf/CoO/contracts/AssetDbInterface.sol",
         "file": "./AssetDbInterface.sol",
         "id": 1432,
         "nodeType": "ImportDirective",
@@ -8150,5 +8150,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.0",
-  "updatedAt": "2018-04-05T14:15:23.046Z"
+  "updatedAt": "2018-04-09T15:13:13.235Z"
 }

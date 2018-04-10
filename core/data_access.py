@@ -63,7 +63,7 @@ class DiskStorage:
             base58_digest = base58.b58encode(sha3.digest())
             return 'Qm' + base58_digest
         else:
-            return None
+            return '0x0'
 
     def __chain_append(self, chain_link: ChainLink):
         self.__memory = chain_link
