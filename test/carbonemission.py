@@ -6,7 +6,7 @@ from test.abstract import VerboseTest, CarbonEmissionDataTest
 class WattimeTest(VerboseTest):
 
     def setUp(self):
-        self.meter = Wattime('energyweb', 'en3rgy!web', 24)
+        self.meter = Wattime('usr', 'pwd', 24)
         VerboseTest.setUp(self)
 
     def simple(self):

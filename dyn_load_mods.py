@@ -14,9 +14,6 @@ JSON = 'misty-firefly.json'
 
 if __name__ == '__main__':
 
-    subprocess.Popen(["/usr/local/bin/ewf-client", "--jsonrpc-apis", "all", "--reserved-peers", "/Users/r2d2/software/ewf/tobalaba-reserved-peers"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    print('waiting for ewf-client...\n\n')
-    time.sleep(60)
     print('`•.,,.•´¯¯`•.,,.•´¯¯`•.,, Config ,,.•´¯¯`•.,,.•´¯¯`•.,,.•´\n')
     configuration = config.parse_file(JSON)
     if configuration.production is not None:
@@ -25,6 +22,10 @@ if __name__ == '__main__':
     if configuration.consumption is not None:
         print('Energy Consumption Module: ' + configuration.consumption.energy.__class__.__name__)
     [print('Output: ' + output.__class__.__name__) for output in configuration.outputs]
+
+    # subprocess.Popen(["/usr/local/bin/ewf-client", "--jsonrpc-apis", "all", "--reserved-peers", "/Users/r2d2/software/ewf/tobalaba-reserved-peers"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    # print('waiting for ewf-client...\n\n')
+    # time.sleep(60)
 
     print('\n\n¸.•*´¨`*•.¸¸.•*´¨`*•.¸ Results ¸.•*´¨`*•.¸¸.•*´¨`*•.¸\n')
     if configuration.production is not None:
@@ -38,12 +39,14 @@ if __name__ == '__main__':
         produced_data = dao.read_production_data(configuration, last_local_chain_hash)
         file_name_created = production_local_chain.add_to_chain(produced_data)
         print('Produced Energy:')
-        print(helper.convert_time(produced_data.raw_energy.measurement_epoch))
-        print(produced_data.raw_energy.accumulated_power)
+        if produced_data.raw_energy:
+            print(helper.convert_time(produced_data.raw_energy.measurement_epoch))
+            print(produced_data.raw_energy.accumulated_power)
         print('----------')
         print('Carbon Emission Today:')
-        print(helper.convert_time(produced_data.raw_carbon_emitted.measurement_epoch))
-        print(produced_data.raw_carbon_emitted.accumulated_co2)
+        if produced_data.raw_carbon_emitted:
+            print(helper.convert_time(produced_data.raw_carbon_emitted.measurement_epoch))
+            print(produced_data.raw_carbon_emitted.accumulated_co2)
         print('----------')
         print('Sent to Blockchain:')
         print(produced_data.produced.to_dict())

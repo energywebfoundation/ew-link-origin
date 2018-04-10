@@ -26,7 +26,7 @@ class DataLoggerV1(EnergyDataSource):
             tree = ElementTree.parse('test_examples/EumelXMLOutput.xml')
         else:
             http_packet = requests.get(self.eumel_api_url, auth=self.auth)
-            raw = http_packet.content
+            raw = http_packet.content.decode()
             tree = ElementTree.parse(raw)
         tree_root = tree.getroot()
         tree_header = tree_root[0].attrib
@@ -63,7 +63,7 @@ class DataLoggerV2d1d1(EnergyDataSource):
                 raw = file.read()
         else:
             http_packet = requests.get(self.eumel_api_url, auth=self.auth)
-            raw = http_packet.content
+            raw = http_packet.content.decode()
             tree = ElementTree.ElementTree(ElementTree.fromstring(raw))
         tree_root = tree.getroot()
         tree_header = tree_root[0].attrib
@@ -77,4 +77,4 @@ class DataLoggerV2d1d1(EnergyDataSource):
         time_format = '%Y-%m-%dT%H:%M:%SZ'
         accumulated_power = int(tree_leaves['TotWhImp'].replace('.', ''))
         measurement_timestamp = int(time.mktime(time.strptime(tree_header['t'], time_format)))
-        return EnergyData(device, access_timestamp, raw, accumulated_power, measurement_timestamp)
+        return EnergyData(device, access_timestamp, str(raw), accumulated_power, measurement_timestamp)
