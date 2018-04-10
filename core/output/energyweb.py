@@ -50,7 +50,7 @@ class GeneralSmartContractClient(SmartContractClient):
         }
         r = requests.post(url, json=payload)
         response = r.json()
-        return response['result']
+        return self.w3.toChecksumAddress(response['result'])
 
     def send(self, address: str, contract_name: str, method_name: str, event_name: str, *args) -> dict:
         # TODO: Implement event catcher when present
@@ -96,8 +96,6 @@ class GeneralSmartContractClient(SmartContractClient):
             address=address,
             bytecode=contract['bytecode'])
 
-        # ////
-        #unicorns = self.w3.eth.contract(address="0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359", abi=EIP20_ABI)
         nonce = self.w3.eth.getTransactionCount(account=self.wallet_address)
         transaction = {
             'from': self.wallet_address,
@@ -110,7 +108,6 @@ class GeneralSmartContractClient(SmartContractClient):
         private_key = bytearray.fromhex(self.credentials[1])
         signed_txn = self.w3.eth.account.signTransaction(tx, private_key=private_key)
         tx_hash = self.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
-        # ////
 
         if not tx_hash:
             raise ConnectionError('Transaction was not sent.')
@@ -331,7 +328,7 @@ class RemoteClientOriginProducer(OriginProducer):
         """
         url = 'http://tobalaba.slock.it/rpc:8545'
         super().__init__(contract_address, asset_id, wallet_add, wallet_pwd, url)
-        self.wallet_address = self.credentials[0]
+        self.wallet_address = self.w3.toChecksumAddress(self.credentials[0])
 
     def __mint_produced(self, produced_energy: ProducedChainData) -> dict:
         """
