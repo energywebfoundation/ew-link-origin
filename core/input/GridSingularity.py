@@ -1,7 +1,17 @@
+'''
+Interface for the Gridsingularity api
+- Gridsingularity api delivers consuming and producing data which are processed separately
+- delivers production from the past hour
+- constructor takes the site_id, client_id, client_secret, username and password as parameter
+- Access by using a requested token which is generated with each call
+'''
+
+
 import calendar
 
 import requests
 import datetime
+from datetime import tzinfo, timedelta
 
 from core.abstract.input import ExternalDataSource, EnergyData, Device
 
@@ -30,7 +40,8 @@ class GridSingularity(ExternalDataSource):
             'username': self.username,
             'password': self.password
         }
-        r = requests.post(token_request, params=marginal_query)
+
+        r = requests.post(token_request, data=marginal_query)
         ans = r.json()
         if len(ans['access_token']) < 1:
             raise AttributeError('Empty/Error response from api.')
@@ -38,12 +49,21 @@ class GridSingularity(ExternalDataSource):
         # get raw data
         raw = self._get_daily_data(ans['access_token'])
         '''
-            {
-            "serviceLocationId": 123,
-            “consumptions” : [ 
-                { “timestamp”: 1372672500000, “consumption”: 23, “solar”: 56, “alwaysOn”: 12 },
-                { “timestamp”: 1372672800000, “consumption”: 67, “solar”: 57, “alwaysOn”: 12 },
-                { “timestamp”: 1372673100000, “consumption”: 88, “solar”: 58, “alwaysOn”: 12 },
+        {
+            "serviceLocationId": 26145,
+            "consumptions": [
+                {
+                    "timestamp": 1508709600000,
+                    "consumption": 24,
+                    "solar": 0,
+                    "alwaysOn": 108
+                },
+                {
+                    "timestamp": 1508796000000,
+                    "consumption": 34.9,
+                    "solar": 0,
+                    "alwaysOn": 0
+                },
                 ...                 
               ] 
             }
@@ -51,10 +71,10 @@ class GridSingularity(ExternalDataSource):
         # add all consumption together and save latest timestamp
         total_consumption = 0
         latest_timestamp = 0
-        for consumptions in raw["consumption"]:
-            total_consumption += consumptions
-            if consumptions["timestamp"] > latest_timestamp:
-                latest_timestamp = consumptions["timestamp"]
+        for element in raw["consumptions"]:
+            total_consumption += element['consumption']
+            if element["timestamp"] > latest_timestamp:
+                latest_timestamp = element["timestamp"]
 
         # build the device object
         device_meta = {
@@ -68,23 +88,28 @@ class GridSingularity(ExternalDataSource):
         # get produced energy from filtered object
         accumulated_power = int(("%.2f" % total_consumption).replace('.', ''))
 
-        # build access_epoch
-        now = datetime.datetime.now()
-        access_epoch = calendar.timegm(now.timetuple())
+        # instance of mini utc class (tzinfo)
+        utc = UTC()
 
-        # build measurement_epoch
-        # TODO: parse that UTC timestamp into date with remembering timezones and crap like that
-        measurement_timestamp = datetime.datetime.strptime(latest_timestamp, '%S')
-        measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
+        # build access_timestamp
+        now = datetime.datetime.now().astimezone()
+        access_timestamp = now.isoformat()
 
-        return EnergyData(device, access_epoch, raw, accumulated_power, measurement_epoch)
+        # build measurement_timestamp
+        # measurement_timestamp = datetime.datetime.strptime(str(latest_timestamp/1000), '%S')
+        measurement_timestamp = datetime.datetime.fromtimestamp(latest_timestamp/1000).strftime("%A, %B %d, %Y %I:%M:%S")
+        measurement_timestamp = datetime.datetime.strptime(measurement_timestamp, '%A, %B %d, %Y %I:%M:%S')
+        measurement_timestamp = measurement_timestamp.replace(tzinfo=utc).isoformat()
+
+        return EnergyData(device, access_timestamp, raw, accumulated_power, measurement_timestamp)
 
     def _get_daily_data(self, authToken: str) -> dict:
         # calculate the current time and one hour back from there
         d = datetime.datetime.utcnow()
         epoch = datetime.datetime(1970, 1, 1)
-        time_now = (d - epoch).total_seconds()
-        time_one_hour_ago = time_now - 3600
+        # * 1000 parse int (no clue why grid is asking for that format)
+        time_now = int((d - epoch).total_seconds()*1000)
+        time_one_hour_ago = int(time_now - 3600*1000)
 
         marginal_query = {
             'aggregation': 2,
@@ -93,24 +118,37 @@ class GridSingularity(ExternalDataSource):
         }
 
         # build the endpoint for the request
-        endpoint = self.api_url + self.site + '/consumption/'
+        endpoint = self.api_url + self.site + '/consumption'
 
         provisional_header = {"Authorization": "Bearer " + authToken}
 
         # start request
         r = requests.get(endpoint, params=marginal_query, headers=provisional_header)
         ans = r.json()
-        if len(ans['serviceLocationId']) < 1:
+        if len(ans['consumptions']) < 1:
             raise AttributeError('Empty response from api.')
         return ans
 
 
 class GridSingularity_123(GridSingularity):
 
-    def __init__(self, site_id: str):
-        super().__init__(site_id)
+    def __init__(self, site_id: str, client_id: str, client_secret: str, username: str, password: str):
+        super().__init__(site_id, client_id, client_secret, username, password)
+
+
+ZERO = timedelta(0)
+
+class UTC(tzinfo):
+    def utcoffset(self, dt):
+        return ZERO
+
+    def tzname(self, dt):
+        return "UTC"
+
+    def dst(self, dt):
+        return ZERO
 
 
 if __name__ == '__main__':
-    gs = GridSingularity_123('123')
+    gs = GridSingularity_123('26145', 'Gridsingularity', 'zatqZsCsfm', 'Gridsingularity', 'Berlin_2017')
     gs.read_state()
