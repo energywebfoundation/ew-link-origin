@@ -177,18 +177,15 @@ def print_consumption_results(config: Configuration, item: InputConfiguration):
 if __name__ == '__main__':
 
     infinite = True
+    configuration = config.parse(read_config(APP_ID))
+    print('`•.,,.•´¯¯`•.,,.•´¯¯`•.,, Config ,,.•´¯¯`•.,,.•´¯¯`•.,,.•´\n')
+    print_config()
+
     while infinite:
-
-        print('`•.,,.•´¯¯`•.,,.•´¯¯`•.,, Config ,,.•´¯¯`•.,,.•´¯¯`•.,,.•´\n')
-        configuration = config.parse(read_config(APP_ID))
-        print_config()
-
-        # start_ewf_client()
-
         print('\n\n¸.•*´¨`*•.¸¸.•*´¨`*•.¸ Results ¸.•*´¨`*•.¸¸.•*´¨`*•.¸\n')
-    if configuration.production:
-        [print_production_results(configuration, item) for item in configuration.production]
-    if configuration.consumption:
-        [print_consumption_results(configuration, item) for item in configuration.consumption]
+        if configuration.production:
+            [print_production_results(configuration, item) for item in configuration.production]
+        if configuration.consumption:
+            [print_consumption_results(configuration, item) for item in configuration.consumption]
 
         time.sleep(3600)
