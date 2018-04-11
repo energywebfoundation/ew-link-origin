@@ -9,7 +9,7 @@ from core.abstract.bond import InputConfiguration, Configuration
 
 PRODUCTION_CHAIN = 'production.pkl'
 CONSUMPTION_CHAIN = 'consumption.pkl'
-JSON = 'misty-firefly.json'
+JSON = 'paul#0@slock.it.json'
 
 
 def print_config():
@@ -59,12 +59,12 @@ def print_production_results(config: Configuration, item: InputConfiguration):
     try:
         print('Produced Energy:')
         if produced_data.raw_energy:
-            print(helper.convert_time(produced_data.raw_energy.measurement_epoch))
+            print(produced_data.raw_energy.measurement_epoch)
             print(produced_data.raw_energy.accumulated_power)
         print('----------')
         print('Carbon Emission Today:')
         if produced_data.raw_carbon_emitted:
-            print(helper.convert_time(produced_data.raw_carbon_emitted.measurement_epoch))
+            print(produced_data.raw_carbon_emitted.measurement_epoch)
             print(produced_data.raw_carbon_emitted.accumulated_co2)
         print('----------')
         print('Sent to Blockchain:')

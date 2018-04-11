@@ -6,7 +6,6 @@ from resin import Resin
 import time
 import core.config_parser as config
 import core.data_access as dao
-import core.helper as helper
 from core.abstract.bond import InputConfiguration, Configuration
 
 APP_ID = '1001794'
@@ -32,9 +31,8 @@ def print_config():
 
 
 def start_ewf_client():
-    subprocess.Popen(["/usr/local/bin/ewf-client", "--jsonrpc-apis", "all", "--reserved-peers",
-                      "/Users/r2d2/software/ewf/tobalaba-reserved-peers"], stdout=subprocess.PIPE,
-                     stderr=subprocess.PIPE)
+    subprocess.Popen(["assets/ewf-client-arm", "--jsonrpc-apis", "all", "--reserved-peers", "assets/tobalaba-peers"],
+                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     print('waiting for ewf-client...\n\n')
     time.sleep(60)
 
@@ -68,12 +66,12 @@ def print_production_results(config: Configuration, item: InputConfiguration):
     try:
         print('Produced Energy:')
         if produced_data.raw_energy:
-            print(helper.convert_time(produced_data.raw_energy.measurement_epoch))
+            print(produced_data.raw_energy.measurement_epoch)
             print(produced_data.raw_energy.accumulated_power)
         print('----------')
         print('Carbon Emission Today:')
         if produced_data.raw_carbon_emitted:
-            print(helper.convert_time(produced_data.raw_carbon_emitted.measurement_epoch))
+            print(produced_data.raw_carbon_emitted.measurement_epoch)
             print(produced_data.raw_carbon_emitted.accumulated_co2)
         print('----------')
         print('Sent to Blockchain:')
@@ -137,7 +135,7 @@ def print_consumption_results(config: Configuration, item: InputConfiguration):
         return
     try:
         print('Produced Energy:')
-        print(helper.convert_time(consumed_data.raw_energy.measurement_epoch))
+        print(consumed_data.raw_energy.measurement_epoch)
         print(consumed_data.raw_energy.accumulated_power)
         print('----------')
         print('Sent to Blockchain:')
