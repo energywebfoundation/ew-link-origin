@@ -9,7 +9,7 @@ from core.abstract.bond import InputConfiguration, Configuration
 
 PRODUCTION_CHAIN = 'production.pkl'
 CONSUMPTION_CHAIN = 'consumption.pkl'
-JSON = 'paul#0@slock.it.json'
+JSON = 'paul#1@slock.it.json'
 
 
 def print_config():

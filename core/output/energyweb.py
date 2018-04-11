@@ -80,7 +80,7 @@ class GeneralSmartContractClient(SmartContractClient):
         contract = self.contracts[contract_name]
         contract_instance = self.w3.eth.contract(
             abi=contract['abi'],
-            address=address,
+            address=self.w3.toChecksumAddress(address),
             bytecode=contract['bytecode'],
             ContractFactoryClass=ConciseContract)
         return getattr(contract_instance, method_name)(*args)
@@ -95,9 +95,9 @@ class GeneralSmartContractClient(SmartContractClient):
             address=origin.contract_address,
             bytecode=contract['bytecode'])
 
-        nonce = self.w3.eth.getTransactionCount(account=origin.wallet_add)
+        nonce = self.w3.eth.getTransactionCount(account=self.w3.toChecksumAddress(origin.wallet_add))
         transaction = {
-            'from': origin.wallet_add,
+            'from': self.w3.toChecksumAddress(origin.wallet_add),
             'gas': 400000,
             'gasPrice': self.w3.toWei('0', 'gwei'),
             'nonce': nonce,
@@ -363,7 +363,6 @@ class RemoteClientOriginProducer(OriginProducer):
             raise ValueError('No Produced co2 status present or in wrong format.')
 
         self.credentials = origin.wallet_add, origin.wallet_pwd
-        self.wallet_address = self.w3.toChecksumAddress(self.credentials[0])
         receipt = self.send_raw('producer', 'saveSmartMeterRead', origin, origin.asset_id, produced_energy.energy,
                                 produced_energy.is_meter_down, produced_energy.previous_hash.encode(),
                                 produced_energy.co2_saved, produced_energy.is_co2_down)
