@@ -16,10 +16,10 @@ TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzQwNTAsInVzZXJuYW1lIjoiZ2
 
 def read_config(app_id: str):
     resin = Resin()
-    # app_vars = resin.models.environment_variables.device.get_all_by_application(app_id)
+    # app_vars = resin.models.environment_variables.application.get_all(app_id)
     # app_vars = resin.models.application.get_config(APP_ID)
     resin.auth.login_with_token(TOKEN)
-    app_vars = resin.models.environment_variables.application.get_all(app_id)
+    app_vars = resin.models.environment_variables.device.get_all_by_application(app_id)
     print(app_vars)
     config_json_string = next(var for var in app_vars if var['name'] == 'config')
     return json.loads(config_json_string['value'])
