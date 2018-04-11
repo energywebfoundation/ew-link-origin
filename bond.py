@@ -20,7 +20,6 @@ def read_config(app_id: str):
     # app_vars = resin.models.application.get_config(APP_ID)
     resin.auth.login_with_token(TOKEN)
     app_vars = resin.models.environment_variables.device.get_all_by_application(app_id)
-    print(app_vars)
     config_json_string = next(var for var in app_vars if var['name'] == 'config')
     return json.loads(config_json_string['value'])
 
@@ -187,9 +186,9 @@ if __name__ == '__main__':
         # start_ewf_client()
 
         print('\n\n¸.•*´¨`*•.¸¸.•*´¨`*•.¸ Results ¸.•*´¨`*•.¸¸.•*´¨`*•.¸\n')
-        if configuration.production:
-            [print_production_results(item) for item in configuration.production]
-        if configuration.consumption:
-            [print_consumption_results(item) for item in configuration.consumption]
+    if configuration.production:
+        [print_production_results(configuration, item) for item in configuration.production]
+    if configuration.consumption:
+        [print_consumption_results(configuration, item) for item in configuration.consumption]
 
         time.sleep(3600)
