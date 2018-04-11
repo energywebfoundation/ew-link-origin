@@ -8,10 +8,10 @@ FROM resin/%%RESIN_MACHINE_NAME%%-python:3.6
 #    alsa-utils libasound2-dev && \
 #    apt-get clean && rm -rf /var/lib/apt/lists/*
 
+VOLUME ["/sys/fs/cgroup", "/sys/fs/cgroup/systemd", "/tmp", "/run", "/run/lock"]
+
 # Set our working directory
 WORKDIR /usr/src/app
-
-VOLUME ["/tmp", "/run", "/run/lock"]
 
 # Copy requirements.txt first for better cache on later pushes
 COPY ./requirements.txt /requirements.txt
