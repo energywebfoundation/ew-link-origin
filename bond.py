@@ -43,43 +43,71 @@ def start_ewf_client():
 
 def print_production_results(config: Configuration, item: InputConfiguration):
     print("==================== PRODUCTION INPUT READ ===========================")
-    production_local_chain = dao.DiskStorage(PRODUCTION_CHAIN)
-    last_local_chain_hash = production_local_chain.get_last_hash()
-    last_remote_chain_hash = config.client.last_hash(item.origin)
-    print('Local and Remote chain sync:')
-    print(last_local_chain_hash == last_remote_chain_hash)
-    print('----------')
-    produced_data = dao.read_production_data(item, last_local_chain_hash)
-    file_name_created = production_local_chain.add_to_chain(produced_data)
-    print('Produced Energy:')
-    if produced_data.raw_energy:
-        print(produced_data.raw_energy.measurement_epoch)
-        print(produced_data.raw_energy.accumulated_power)
-    print('----------')
-    print('Carbon Emission Today:')
-    if produced_data.raw_carbon_emitted:
-        print(produced_data.raw_carbon_emitted.measurement_epoch)
-        print(produced_data.raw_carbon_emitted.accumulated_co2)
-    print('----------')
-    print('Sent to Blockchain:')
-    print(produced_data.produced.to_dict())
-    print('----------')
+    try:
+        production_local_chain = dao.DiskStorage(PRODUCTION_CHAIN)
+        last_local_chain_hash = production_local_chain.get_last_hash()
+    except Exception as e:
+        print('ERROR: Writing or reading files')
+        return
+    try:
+        last_remote_chain_hash = config.client.last_hash(item.origin)
+        print('Local and Remote chain sync:')
+        print(last_local_chain_hash == last_remote_chain_hash)
+        print('----------')
+    except Exception as e:
+        print('ERROR: Reading hash from blockchain')
+        return
+    try:
+        produced_data = dao.read_production_data(item, last_local_chain_hash)
+    except Exception as e:
+        print('ERROR: Reading from remote api.')
+        return
+    try:
+        file_name_created = production_local_chain.add_to_chain(produced_data)
+    except Exception as e:
+        print('ERROR: Writing to local chain of files.')
+        return
+    try:
+        print('Produced Energy:')
+        if produced_data.raw_energy:
+            print(produced_data.raw_energy.measurement_epoch)
+            print(produced_data.raw_energy.accumulated_power)
+        print('----------')
+        print('Carbon Emission Today:')
+        if produced_data.raw_carbon_emitted:
+            print(produced_data.raw_carbon_emitted.measurement_epoch)
+            print(produced_data.raw_carbon_emitted.accumulated_co2)
+        print('----------')
+        print('Sent to Blockchain:')
+        print(produced_data.produced.to_dict())
+        print('----------')
 
-    print('Lash Remote Hash:')
-    print(config.client.last_hash(item.origin))
-    print('----------')
-    tx_receipt = config.client.mint(produced_data.produced, item.origin)
-    print('Receipt Block Number: ' + str(tx_receipt['blockNumber']))
-    print('-------------------')
-    print('New Remote Hash:')
-    print(config.client.last_hash(item.origin))
-    print('----------')
-    print('New Local Hash:')
-    print(production_local_chain.get_last_hash())
-    print('----------')
-    print('New Local File:')
-    print(file_name_created)
-    print('----------\n')
+    except Exception as e:
+        print('ERROR: Converting results to print.')
+        return
+    try:
+        print('Lash Remote Hash:')
+        print(config.client.last_hash(item.origin))
+        print('----------')
+        tx_receipt = config.client.mint(produced_data.produced, item.origin)
+        print('Receipt Block Number: ' + str(tx_receipt['blockNumber']))
+        print('-------------------')
+        print('New Remote Hash:')
+        print(config.client.last_hash(item.origin))
+        print('----------')
+    except Exception as e:
+        print('ERROR: Reading or writing to the blockchain.')
+        return
+    try:
+        print('New Local Hash:')
+        print(production_local_chain.get_last_hash())
+        print('----------')
+        print('New Local File:')
+        print(file_name_created)
+        print('----------\n')
+    except Exception as e:
+        print('ERROR: Reading from local chain of files.')
+        return
 
 
 def print_consumption_results(config: Configuration, item: InputConfiguration):

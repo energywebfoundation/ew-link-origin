@@ -55,14 +55,14 @@ class GeneralSmartContractClient(SmartContractClient):
         # TODO: Implement event catcher when present
         if not self.check_sync():
             raise ConnectionError('Client is not synced to the last block.')
-        self.w3.personal.unlockAccount(account=self.wallet_address, passphrase=self.credentials[1])
+        self.w3.personal.unlockAccount(account=self.w3.toChecksumAddress(self.wallet_address), passphrase=self.credentials[1])
         contract = self.contracts[contract_name]
         contract_instance = self.w3.eth.contract(
             abi=contract['abi'],
-            address=address,
+            address=self.w3.toChecksumAddress(address),
             bytecode=contract['bytecode'],
             ContractFactoryClass=ConciseContract)
-        tx_hash = getattr(contract_instance, method_name)(*args, transact={'from': self.wallet_address})
+        tx_hash = getattr(contract_instance, method_name)(*args, transact={'from': self.w3.toChecksumAddress(self.wallet_address)})
         if not tx_hash:
             raise ConnectionError('Transaction was not sent.')
         tx_receipt = None
@@ -92,7 +92,7 @@ class GeneralSmartContractClient(SmartContractClient):
         contract = self.contracts[contract_name]
         contract_instance = self.w3.eth.contract(
             abi=contract['abi'],
-            address=origin.contract_address,
+            address=self.w3.toChecksumAddress(origin.contract_address),
             bytecode=contract['bytecode'])
 
         nonce = self.w3.eth.getTransactionCount(account=self.w3.toChecksumAddress(origin.wallet_add))
