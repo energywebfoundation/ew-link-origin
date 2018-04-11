@@ -130,10 +130,10 @@ class GridSingularity(ExternalDataSource):
         return ans
 
 
-class GridSingularity_123(GridSingularity):
+class GridSingularity_26145(GridSingularity):
 
-    def __init__(self, site_id: str, client_id: str, client_secret: str, username: str, password: str):
-        super().__init__(site_id, client_id, client_secret, username, password)
+    def __init__(self, client_id: str, client_secret: str, username: str, password: str):
+        super().__init__('26145', client_id, client_secret, username, password)
 
 
 ZERO = timedelta(0)
@@ -150,5 +150,5 @@ class UTC(tzinfo):
 
 
 if __name__ == '__main__':
-    gs = GridSingularity_123('26145', 'Gridsingularity', 'zatqZsCsfm', 'Gridsingularity', 'Berlin_2017')
+    gs = GridSingularity_26145('Gridsingularity', 'zatqZsCsfm', 'Gridsingularity', 'Berlin_2017')
     gs.read_state()

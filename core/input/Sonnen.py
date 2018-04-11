@@ -164,15 +164,29 @@ class Sonnen_produce(ExternalDataSource):
 # sonne 101 consume
 class Sonnen_101_c(Sonnen_consume):
 
-    def __init__(self, site_id: '101'):
-        super().__init__(site_id)
+    def __init__(self):
+        super().__init__(site_id='101')
 
 
 # sonne 101 produce
 class Sonnen_101_p(Sonnen_produce):
 
-    def __init__(self, site_id: '101'):
-        super().__init__(site_id)
+    def __init__(self):
+        super().__init__(site_id='101')
+
+
+# sonne 102 consume
+class Sonnen_102_c(Sonnen_consume):
+
+    def __init__(self):
+        super().__init__(site_id='102')
+
+
+# sonne 102 produce
+class Sonnen_102_p(Sonnen_produce):
+
+    def __init__(self):
+        super().__init__(site_id='102')
 
 
 ZERO = timedelta(0)
@@ -189,7 +203,7 @@ class UTC(tzinfo):
 
 
 if __name__ == '__main__':
-    sp1 = Sonnen_101_c('101')
+    sp1 = Sonnen_102_c()
     sp1.read_state()
-    sp2 = Sonnen_101_p('101')
+    sp2 = Sonnen_102_p()
     sp2.read_state()

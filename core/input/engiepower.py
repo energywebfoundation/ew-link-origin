@@ -70,6 +70,18 @@ class Eget(SmireAPI):
         super().__init__(usr, pwd, 'eget')
 
 
+class Frasnes(SmireAPI):
+
+    def __init__(self, usr: str, pwd: str):
+        super().__init__(usr, pwd, 'frasnes')
+
+
+class Burgum(SmireAPI):
+
+    def __init__(self, usr: str, pwd: str):
+        super().__init__(usr, pwd, 'burgum')
+
+
 class Fontanelles(SmireAPI):
 
     def __init__(self, usr: str, pwd: str):

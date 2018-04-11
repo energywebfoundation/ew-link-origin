@@ -95,9 +95,32 @@ class SPGroupAPI(ExternalDataSource):
 # needs a site_id
 class SPGroup_b1(SPGroupAPI):
 
-    def __init__(self, site_id: 'b1'):
-        super().__init__(site_id)
+    def __init__(self):
+        super().__init__(site_id='b1')
 
+
+class SPGroup_k1(SPGroupAPI):
+
+    def __init__(self):
+        super().__init__(site_id='k1')
+
+
+class SPGroup_s1(SPGroupAPI):
+
+    def __init__(self):
+        super().__init__(site_id='s1')
+
+
+class SPGroup_s2(SPGroupAPI):
+
+    def __init__(self):
+        super().__init__(site_id='s2')
+
+
+class SPGroup_t1(SPGroupAPI):
+
+    def __init__(self):
+        super().__init__(site_id='t1')
 
 ZERO = timedelta(0)
 
@@ -113,5 +136,5 @@ class UTC(tzinfo):
 
 
 if __name__ == '__main__':
-    sp = SPGroup_b1('b1')
+    sp = SPGroup_k1()
     sp.read_state()
