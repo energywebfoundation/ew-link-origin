@@ -2,12 +2,13 @@ import json
 import time
 
 import requests
+import web3
 from web3 import HTTPProvider
 
 from web3.contract import ConciseContract
 from web3.providers import BaseProvider
 
-from core.abstract.bond import ProducedChainData, ConsumedChainData
+from core.abstract.bond import ProducedChainData, ConsumedChainData, OriginCredentials
 from core.abstract.output import SmartContractClient
 
 
@@ -34,10 +35,8 @@ class GeneralSmartContractClient(SmartContractClient):
 
     def check_sync(self) -> bool:
         synced_block = str(self.w3.eth.blockNumber)
-
         latest_block_obj = self.w3.eth.getBlock('latest')
         latest_block = str(latest_block_obj.number)
-
         return synced_block == latest_block
 
     def import_keys(self):
@@ -74,7 +73,7 @@ class GeneralSmartContractClient(SmartContractClient):
             time.sleep(self.SECONDS_BETWEEN_RETRIES)
         return tx_receipt
 
-    def call(self, address: str, contract_name: str, method_name: str, event_name: str, *args) -> dict:
+    def call(self, address: str, contract_name: str, method_name: str, *args) -> dict:
         # TODO: Implement event catcher when present
         if not self.check_sync():
             raise ConnectionError('Client is not synced to the last block.')
@@ -86,26 +85,26 @@ class GeneralSmartContractClient(SmartContractClient):
             ContractFactoryClass=ConciseContract)
         return getattr(contract_instance, method_name)(*args)
 
-    def send_raw(self, address: str, contract_name: str, method_name: str, event_name: str, *args) -> dict:
+    def send_raw(self, contract_name: str, method_name: str, origin: OriginCredentials, *args) -> dict:
         if not self.check_sync():
             raise ConnectionError('Client is not synced to the last block.')
 
         contract = self.contracts[contract_name]
         contract_instance = self.w3.eth.contract(
             abi=contract['abi'],
-            address=address,
+            address=origin.contract_address,
             bytecode=contract['bytecode'])
 
-        nonce = self.w3.eth.getTransactionCount(account=self.wallet_address)
+        nonce = self.w3.eth.getTransactionCount(account=origin.wallet_add)
         transaction = {
-            'from': self.wallet_address,
+            'from': origin.wallet_add,
             'gas': 400000,
             'gasPrice': self.w3.toWei('0', 'gwei'),
             'nonce': nonce,
         }
         tx = getattr(contract_instance.functions, method_name)(*args).buildTransaction(transaction)
         self.w3.eth.enable_unaudited_features()
-        private_key = bytearray.fromhex(self.credentials[1])
+        private_key = bytearray.fromhex(origin.wallet_pwd)
         signed_txn = self.w3.eth.account.signTransaction(tx, private_key=private_key)
         tx_hash = self.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 
@@ -118,7 +117,6 @@ class GeneralSmartContractClient(SmartContractClient):
                 break
             time.sleep(self.SECONDS_BETWEEN_RETRIES)
         return tx_receipt
-
 
 
 class EnergyWeb(GeneralSmartContractClient):
@@ -211,7 +209,7 @@ class OriginProducer(Origin):
         Call stack:
             function getAssetDataLog(uint _assetId)
         """
-        receipt = self.call(self.contract_address, 'producer', 'getLastSmartMeterReadFileHash', '', self.asset_id)
+        receipt = self.call(self.contract_address, 'producer', 'getLastSmartMeterReadFileHash', self.asset_id)
         if not receipt:
             raise ConnectionError
         return receipt
@@ -227,7 +225,8 @@ class OriginProducer(Origin):
         """
         receipt = self.send(self.contract_address, 'producer', 'saveSmartMeterRead', 'LogNewMeterRead',
                             self.asset_id, produced_energy.energy, produced_energy.is_meter_down,
-                            produced_energy.previous_hash.encode(), produced_energy.co2_saved, produced_energy.is_co2_down)
+                            produced_energy.previous_hash.encode(), produced_energy.co2_saved,
+                            produced_energy.is_co2_down)
         if not receipt:
             raise ConnectionError
         return receipt
@@ -252,7 +251,7 @@ class OriginConsumer(Origin):
         Call stack:
             function getAssetDataLog(uint _assetId)
         """
-        receipt = self.call(self.contract_address, 'consumer', 'getLastSmartMeterReadFileHash', '', self.asset_id)
+        receipt = self.call(self.contract_address, 'consumer', 'getLastSmartMeterReadFileHash', self.asset_id)
         if not receipt:
             raise ConnectionError
         return receipt
@@ -317,20 +316,33 @@ class LocalClientOriginConsumer(OriginConsumer):
 class RemoteClientOriginProducer(OriginProducer):
     """
     Green Energy Producer accessing a remote ewf client
+    TODO: review others, using this as default
     """
 
-    def __init__(self, contract_address: str, asset_id: int, wallet_add: str, wallet_pwd: str):
-        """
-        :param contract_address: Contract structure containing ABI and bytecode and address keys.
-        :param asset_id: ID received in asset registration.
-        :param wallet_add: Network wallet address
-        :param wallet_add: Network wallet password
-        """
-        url = 'http://tobalaba.slock.it/rpc:8545'
-        super().__init__(contract_address, asset_id, wallet_add, wallet_pwd, url)
-        self.wallet_address = self.w3.toChecksumAddress(self.credentials[0])
+    def __init__(self, url):
+        self.MAX_RETRIES = 1000
+        self.SECONDS_BETWEEN_RETRIES = 5
+        self.w3 = web3.Web3(HTTPProvider(url))
+        self.contracts = {
+            "producer": json.load(open('./assets/AssetProducingRegistryLogic.json')),
+            "consumer": json.load(open('./assets/AssetProducingRegistryLogic.json')),
+            "asset": json.load(open('./assets/AssetLogic.json'))
+        }
 
-    def __mint_produced(self, produced_energy: ProducedChainData) -> dict:
+    def __last_producer_file_hash(self, origin: OriginCredentials):
+        """
+        Get last file hash registered from producer contract
+        Source:
+            AssetLogic.sol
+        Call stack:
+            function getAssetDataLog(uint _assetId)
+        """
+        receipt = self.call(origin.contract_address, 'producer', 'getLastSmartMeterReadFileHash', origin.asset_id)
+        if not receipt:
+            raise ConnectionError
+        return receipt
+
+    def __mint_produced(self, produced_energy: ProducedChainData, origin: OriginCredentials) -> dict:
         """
         Source:
             AssetProducingRegistryLogic.sol
@@ -339,38 +351,43 @@ class RemoteClientOriginProducer(OriginProducer):
         Wait for:
             event LogNewMeterRead(uint indexed _assetId, uint _oldMeterRead, uint _newMeterRead, bool _smartMeterDown, uint _certificatesCreatedForWh, uint _oldCO2OffsetReading, uint _newCO2OffsetReading, bool _serviceDown);
         """
-        if not (produced_energy.energy and isinstance(produced_energy.energy, int)):
+        if not isinstance(produced_energy.energy, int):
             raise ValueError('No Produced energy present or in wrong format.')
         if not isinstance(produced_energy.is_meter_down, bool):
             raise ValueError('No Produced energy status present or in wrong format.')
-        if not (produced_energy.previous_hash and isinstance(produced_energy.previous_hash, str)):
+        if not isinstance(produced_energy.previous_hash, str):
             raise ValueError('No Produced hash of last file present or in wrong format.')
-        if not (produced_energy.co2_saved and isinstance(produced_energy.co2_saved, int)):
+        if not isinstance(produced_energy.co2_saved, int):
             raise ValueError('No Produced co2 present or in wrong format.')
         if not isinstance(produced_energy.is_co2_down, bool):
             raise ValueError('No Produced co2 status present or in wrong format.')
-        receipt = self.send_raw(self.contract_address, 'producer', 'saveSmartMeterRead', 'LogNewMeterRead',
-                            self.asset_id, produced_energy.energy, produced_energy.is_meter_down,
-                            produced_energy.previous_hash.encode(), produced_energy.co2_saved, produced_energy.is_co2_down)
+
+        self.credentials = origin.wallet_add, origin.wallet_pwd
+        self.wallet_address = self.w3.toChecksumAddress(self.credentials[0])
+        receipt = self.send_raw('producer', 'saveSmartMeterRead', origin, origin.asset_id, produced_energy.energy,
+                                produced_energy.is_meter_down, produced_energy.previous_hash.encode(),
+                                produced_energy.co2_saved, produced_energy.is_co2_down)
         if not receipt:
             raise ConnectionError
         return receipt
 
-    def mint(self, produced_energy: ProducedChainData) -> dict:
-        return self.__mint_produced(produced_energy)
+    def mint(self, produced_energy: ProducedChainData, origin: OriginCredentials) -> dict:
+        return self.__mint_produced(produced_energy, origin)
 
+    def last_hash(self, origin: OriginCredentials):
+        return self.__last_producer_file_hash(origin)
 
-class RemoteClientOriginConsumer(OriginConsumer):
-    """
-    Green Energy Consumer accessing a remote ewf client
-    """
-
-    def __init__(self, contract_address: str, asset_id: int, wallet_add: str, wallet_pwd: str):
+    class RemoteClientOriginConsumer(OriginConsumer):
         """
-        :param contract_address: Contract structure containing ABI and bytecode and address keys.
-        :param asset_id: ID received in asset registration.
-        :param wallet_add: Network wallet address
-        :param wallet_add: Network wallet password
+        Green Energy Consumer accessing a remote ewf client
         """
-        url = 'http://tobalaba.slock.it/rpc:8545'
-        super().__init__(contract_address, asset_id, wallet_add, wallet_pwd, url)
+
+        def __init__(self, contract_address: str, asset_id: int, wallet_add: str, wallet_pwd: str):
+            """
+            :param contract_address: Contract structure containing ABI and bytecode and address keys.
+            :param asset_id: ID received in asset registration.
+            :param wallet_add: Network wallet address
+            :param wallet_add: Network wallet password
+            """
+            url = 'http://tobalaba.slock.it/rpc:8545'
+            super().__init__(contract_address, asset_id, wallet_add, wallet_pwd, url)

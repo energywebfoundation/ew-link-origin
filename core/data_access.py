@@ -8,7 +8,7 @@ import datetime
 from core import base58
 from core.abstract.input import ExternalDataSource, ExternalData
 from core.abstract.bond import ChainLink, ChainFile, Configuration, ProductionFileData, ConsumptionFileData, \
-    ProducedChainData, ConsumedChainData, ChainData, LocalFileData
+    ProducedChainData, ConsumedChainData, ChainData, LocalFileData, InputConfiguration, OriginCredentials
 from core.output.energyweb import Origin
 
 
@@ -96,13 +96,7 @@ def __fetch_input_data(external_data_source: ExternalDataSource):
         return None
 
 
-def __filter_origin_client(outputs: list) -> Origin:
-    for output in outputs:
-        if issubclass(output.__class__, Origin):
-            return output
-
-
-def read_production_data(config: Configuration, last_hash: str) -> ProductionFileData:
+def read_production_data(config: InputConfiguration, last_hash: str) -> ProductionFileData:
     """
     Reach for external data sources and return parsed consumed data
     :param last_hash: Last file hash
@@ -110,8 +104,8 @@ def read_production_data(config: Configuration, last_hash: str) -> ProductionFil
     :return: ProductionInputData
     """
     input_data_dict = {
-        'raw_energy': __fetch_input_data(config.production.energy),
-        'raw_carbon_emitted': __fetch_input_data(config.production.carbon_emission),
+        'raw_energy': __fetch_input_data(config.energy),
+        'raw_carbon_emitted': __fetch_input_data(config.carbon_emission),
         'produced': None,
     }
     input_data = ProductionFileData(**input_data_dict)
@@ -128,16 +122,16 @@ def read_production_data(config: Configuration, last_hash: str) -> ProductionFil
     return input_data
 
 
-def read_consumption_data(config: Configuration, last_hash: str) -> ConsumptionFileData:
+def read_consumption_data(config: InputConfiguration, last_hash: str) -> ConsumptionFileData:
     """
     Reach for external data sources and return parsed consumed data
     :param last_hash: Last file hash
-    :param config: Configuration
+    :param config: InputConfiguration
     :return: ConsumptionInputData
     """
     input_data_dict = {
-        'raw_energy': __fetch_input_data(config.consumption.energy),
-        'raw_carbon_emitted': __fetch_input_data(config.consumption.carbon_emission),
+        'raw_energy': __fetch_input_data(config.energy),
+        'raw_carbon_emitted': __fetch_input_data(config.carbon_emission),
         'consumed': None,
     }
     input_data = ConsumptionFileData(**input_data_dict)
@@ -148,25 +142,4 @@ def read_consumption_data(config: Configuration, last_hash: str) -> ConsumptionF
     }
     input_data.consumed = ConsumedChainData(**consumed)
     return input_data
-
-
-def send_to_origin_contract(config: Configuration, file: ChainData) -> dict:
-    """
-    Send to Origin
-    :param file:
-    :param config:
-    :return:
-    """
-    origin_client = __filter_origin_client(config.outputs)
-    return origin_client.mint(file)
-
-
-def get_last_hash(config: Configuration) -> dict:
-    """
-    Returns last chain link file hash
-    :param config:
-    :return:
-    """
-    origin_client = __filter_origin_client(config.outputs)
-    return origin_client.last_hash()
 

@@ -5,7 +5,7 @@ import datetime
 
 from core.abstract import JSONAble
 from core.abstract.input import EnergyData, CarbonEmissionData, EnergyDataSource, CarbonEmissionDataSource
-from core.abstract.output import DataOutput, SmartContractClient
+from core.abstract.output import SmartContractClient
 
 
 class LocalFileData(JSONAble):
@@ -84,30 +84,42 @@ class ChainLink:
         return self.last_link
 
 
+class OriginCredentials(JSONAble):
+    def __init__(self, contract_address: str, asset_id: int, wallet_add: str, wallet_pwd: str):
+        self.contract_address = contract_address
+        self.asset_id = asset_id
+        self.wallet_add = wallet_add
+        self.wallet_pwd = wallet_pwd
+
+
 class InputConfiguration:
 
-    def __init__(self, energy: EnergyDataSource, carbon_emission: CarbonEmissionDataSource = None):
+    def __init__(self, energy: EnergyDataSource, origin: OriginCredentials, carbon_emission: CarbonEmissionDataSource = None):
         if not isinstance(energy, EnergyDataSource):
             raise AttributeError
-        if not isinstance(carbon_emission, CarbonEmissionDataSource):
+        if not isinstance(origin, OriginCredentials):
+            raise AttributeError
+        if not None and not isinstance(carbon_emission, CarbonEmissionDataSource):
             raise AttributeError
         self.energy = energy
+        self.origin = origin
         self.carbon_emission = carbon_emission
 
 
 class Configuration:
 
-    def __init__(self, production: InputConfiguration, consumption: InputConfiguration, outputs: [DataOutput]):
-        if production is not None and not isinstance(production, InputConfiguration):
-            raise AttributeError
-        if consumption is not None and not isinstance(consumption, InputConfiguration):
-            raise AttributeError
-        blockchain_client_count = 0
-        for output in outputs:
-            if issubclass(output.__class__, SmartContractClient):
-                blockchain_client_count += 1
-        if blockchain_client_count != 1:
-            raise AttributeError('Must have strictly one blockchain client.')
+    def __init__(self, production: [InputConfiguration], consumption: [InputConfiguration], client: SmartContractClient):
         self.production = production
         self.consumption = consumption
-        self.outputs = outputs
+        self.client = client
+
+    def __check(self, production, consumption, client):
+        [self.__check_input_config(item) for item in production]
+        [self.__check_input_config(item) for item in consumption]
+        if not issubclass(client.__class__, SmartContractClient):
+            raise AttributeError('Must have strictly one blockchain client.')
+
+    @staticmethod
+    def __check_input_config(obj):
+        if not isinstance(obj, InputConfiguration):
+            raise AttributeError('Configuration file contain errors.')
