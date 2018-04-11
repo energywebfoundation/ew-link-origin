@@ -31,7 +31,6 @@ class Wattime(CarbonEmissionDataSource):
         raw = self.get_marginal(self.auth_token)
         # 3. Converts lb/MW to kg/W
         accumulated_co2 = raw['marginal_carbon']['value'] * 0.453592 * pow(10, -6)
-        accumulated_co2 = int(("%.2f" % accumulated_co2).replace('.', ''))
         # 4. Converts time stamps to epoch
         now = datetime.datetime.now()
         access_epoch = calendar.timegm(now.timetuple())

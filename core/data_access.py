@@ -109,8 +109,10 @@ def read_production_data(config: InputConfiguration, last_hash: str) -> Producti
         'produced': None,
     }
     input_data = ProductionFileData(**input_data_dict)
-    # TODO: convert carbon correctly
-    co2_saved = input_data.raw_carbon_emitted.accumulated_co2 * input_data.raw_energy.accumulated_power if input_data.raw_carbon_emitted and input_data.raw_energy else None
+    co2_saved = None
+    if input_data.raw_carbon_emitted and input_data.raw_energy:
+        calculated_co2 = input_data.raw_carbon_emitted.accumulated_co2 * input_data.raw_energy.accumulated_power
+        co2_saved = int(("%.2f" % calculated_co2).replace('.', ''))
     produced = {
         'energy': input_data.raw_energy.accumulated_power if input_data.raw_energy else None,
         'is_meter_down': True if input_data.raw_energy is None else False,

@@ -11,7 +11,7 @@ FROM resin/%%RESIN_MACHINE_NAME%%-python:3.6
 # Set our working directory
 WORKDIR /usr/src/app
 
-VOLUME ["/sys/fs/cgroup", "/tmp", "/run", "/run/lock"]
+VOLUME ["/tmp", "/run", "/run/lock"]
 
 # Copy requirements.txt first for better cache on later pushes
 COPY ./requirements.txt /requirements.txt
