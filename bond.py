@@ -188,4 +188,4 @@ if __name__ == '__main__':
         if configuration.consumption:
             [print_consumption_results(configuration, item) for item in configuration.consumption]
 
-        time.sleep(3600)
+        time.sleep(86400)

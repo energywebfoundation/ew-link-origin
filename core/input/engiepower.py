@@ -1,13 +1,10 @@
-'''
+"""
 Interface for the Engie api
 - Engie api delivers producing data
 - delivers consumption and production from the past hour
 - constructor takes the site_id, username and password as parameters
 - Access by username and password
-'''
-
-
-import calendar
+"""
 
 import requests
 import datetime
@@ -38,7 +35,7 @@ class SmireAPI(EnergyDataSource):
             'geolocation': (raw['site']['latitude'], raw['site']['longitude'])
         }
         device = Device(**device_meta)
-        accumulated_power = int(("%.2f" % state[0]['produced']).replace('.', ''))
+        accumulated_power = state[-1]['produced'] * pow(10, 3)
 
         # instance of mini utc class (tzinfo)
         cest = CEST()
@@ -46,7 +43,7 @@ class SmireAPI(EnergyDataSource):
         now = datetime.datetime.now().astimezone()
         access_timestamp = now.isoformat()
 
-        measurement_timestamp = datetime.datetime.strptime(state[0]['date'], "%Y-%m-%d")
+        measurement_timestamp = datetime.datetime.strptime(state[-1]['date'], "%Y-%m-%d")
         measurement_timestamp = measurement_timestamp.replace(tzinfo=cest).isoformat()  # forcing the france timezone
 
         return EnergyData(device, access_timestamp, raw, accumulated_power, measurement_timestamp)
