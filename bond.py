@@ -25,7 +25,8 @@ def read_config():
     resin = Resin()
     resin.auth.login_with_token(TOKEN)
     app_vars = resin.models.environment_variables.device.get_all(os.environ['RESIN_DEVICE_UUID'])
-    config_json_string = next(var for var in app_vars if var['name'] == 'config')
+    # app_vars = resin.models.environment_variables.device.get_all('734e348be116e254fcc7a6f46708e96a')
+    config_json_string = next(var for var in app_vars if var['env_var_name'] == 'config')
     return json.loads(config_json_string['value'])
 
 
