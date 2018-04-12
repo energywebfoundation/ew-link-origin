@@ -1,6 +1,8 @@
 import json
 
 import subprocess
+
+import os
 from resin import Resin
 
 import time
@@ -8,18 +10,21 @@ import core.config_parser as config
 import core.data_access as dao
 from core.abstract.bond import InputConfiguration, Configuration
 
-APP_ID = '1031561'
 PRODUCTION_CHAIN = 'production.pkl'
 CONSUMPTION_CHAIN = 'consumption.pkl'
-TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzQwNTAsInVzZXJuYW1lIjoiZ2hfY2VyZWFsa2lsbCIsImVtYWlsIjoiZGVwcmF6ekBnbWFpbC5jb20iLCJjcmVhdGVkX2F0IjoiMjAxOC0wMi0xNVQxMDozMjozOC4wMTlaIiwiZmlyc3RfbmFtZSI6IlBhdWwiLCJsYXN0X25hbWUiOiJEZXByYXoiLCJjb21wYW55IjoiIiwiYWNjb3VudF90eXBlIjoicGVyc29uYWwiLCJqd3Rfc2VjcmV0IjoiNkpZWVBUUEpSTDVaQTZRM0ZUUkE2VU1OQ0w3QVFEVlIiLCJoYXNfZGlzYWJsZWRfbmV3c2xldHRlciI6ZmFsc2UsInNvY2lhbF9zZXJ2aWNlX2FjY291bnQiOlt7ImNyZWF0ZWRfYXQiOiIyMDE4LTAyLTE1VDEwOjMyOjM4LjAxOVoiLCJpZCI6MTE1MzcsImJlbG9uZ3NfdG9fX3VzZXIiOnsiX19kZWZlcnJlZCI6eyJ1cmkiOiIvcmVzaW4vdXNlcigzNDA1MCkifSwiX19pZCI6MzQwNTB9LCJwcm92aWRlciI6ImdpdGh1YiIsInJlbW90ZV9pZCI6IjI5MjM0MTMiLCJkaXNwbGF5X25hbWUiOiJjZXJlYWxraWxsIiwiX19tZXRhZGF0YSI6eyJ1cmkiOiIvcmVzaW4vc29jaWFsX3NlcnZpY2VfYWNjb3VudCgxMTUzNykiLCJ0eXBlIjoiIn19XSwiaGFzUGFzc3dvcmRTZXQiOmZhbHNlLCJuZWVkc1Bhc3N3b3JkUmVzZXQiOmZhbHNlLCJwdWJsaWNfa2V5Ijp0cnVlLCJmZWF0dXJlcyI6W10sImludGVyY29tVXNlck5hbWUiOiJnaF9jZXJlYWxraWxsIiwiaW50ZXJjb21Vc2VySGFzaCI6IjkwYWZiZTRkZThkNmU5MDBmYWJiMTIyMzU1MjE4ZWMyNTkyOWRhYTY1NDMyYzcwZjQ0OGRkZWNlZDQxNmVkN2IiLCJwZXJtaXNzaW9ucyI6W10sImF1dGhUaW1lIjoxNTIyOTMwMTM5NTgyLCJhY3RvciI6MjU2MTAwMSwiaWF0IjoxNTIzNTMwOTMxLCJleHAiOjE1MjQxMzU3MzF9._wa2a86pa3t2ztasRoXW9cFni40JwT7ZwYy03lbw89Y'
+TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzQwNTAsInVzZXJuYW1lIjoiZ2hfY2VyZWFsa2lsbCIsImVtYWlsIjoiZGVwcmF6ekBnbWFpbC5jb20iLCJjcmVhdGVkX2F0IjoiMjAxOC0wMi0xNVQxMDozMjozOC4wMTlaIiwiZmlyc3RfbmFtZSI6IlBhdWwiLCJsYXN0X25hbWUiOiJEZXByYXoiLCJjb21wYW55IjoiIiwiYWNjb3VudF90eXBlIjoicGVyc29uYWwiLCJqd3Rfc2VjcmV0IjoiNkpZWVBUUEpSTDVaQTZRM0ZUUkE2VU1OQ0w3QVFEVlIiLCJoYXNfZGlzYWJsZWRfbmV3c2xldHRlciI6ZmFsc2UsInNvY2lhbF9zZXJ2aWNlX2FjY291bnQiOlt7ImNyZWF0ZWRfYXQiOiIyMDE4LTAyLTE1VDEwOjMyOjM4LjAxOVoiLCJpZCI6MTE1MzcsImJlbG9uZ3NfdG9fX3VzZXIiOnsiX19kZWZlcnJlZCI6eyJ1cmkiOiIvcmVzaW4vdXNlcigzNDA1MCkifSwiX19pZCI6MzQwNTB9LCJwcm92aWRlciI6ImdpdGh1YiIsInJlbW90ZV9pZCI6IjI5MjM0MTMiLCJkaXNwbGF5X25hbWUiOiJjZXJlYWxraWxsIiwiX19tZXRhZGF0YSI6eyJ1cmkiOiIvcmVzaW4vc29jaWFsX3NlcnZpY2VfYWNjb3VudCgxMTUzNykiLCJ0eXBlIjoiIn19XSwiaGFzUGFzc3dvcmRTZXQiOmZhbHNlLCJuZWVkc1Bhc3N3b3JkUmVzZXQiOmZhbHNlLCJwdWJsaWNfa2V5Ijp0cnVlLCJmZWF0dXJlcyI6W10sImludGVyY29tVXNlck5hbWUiOiJnaF9jZXJlYWxraWxsIiwiaW50ZXJjb21Vc2VySGFzaCI6IjkwYWZiZTRkZThkNmU5MDBmYWJiMTIyMzU1MjE4ZWMyNTkyOWRhYTY1NDMyYzcwZjQ0OGRkZWNlZDQxNmVkN2IiLCJwZXJtaXNzaW9ucyI6W10sImF1dGhUaW1lIjoxNTIyOTMwMTM5NTgyLCJhY3RvciI6MjU2MTAwMSwiaWF0IjoxNTIzNTQ2NzE4LCJleHAiOjE1MjQxNTE1MTh9.pc86M63tO7XmDUU5ZqL1Ee4U0-0Po5JElEcChLw1LXc'
 
 
-def read_config(app_id: str):
+def read_config():
+    """
+    Device variable must be added in the services variable field on resin.io dashboard.
+    Yeah, I know.
+    :param device_id: Device UUID from resin.io dashboard.
+    :return: Dict from json parsed string.
+    """
     resin = Resin()
-    # app_vars = resin.models.environment_variables.application.get_all(app_id)
-    # app_vars = resin.models.application.get_config(APP_ID)
     resin.auth.login_with_token(TOKEN)
-    app_vars = resin.models.environment_variables.device.get_all_by_application(app_id)
+    app_vars = resin.models.environment_variables.device.get_all(os.environ['RESIN_DEVICE_UUID'])
     config_json_string = next(var for var in app_vars if var['name'] == 'config')
     return json.loads(config_json_string['value'])
 
@@ -177,7 +182,7 @@ def print_consumption_results(config: Configuration, item: InputConfiguration):
 if __name__ == '__main__':
 
     infinite = True
-    configuration = config.parse(read_config(APP_ID))
+    configuration = config.parse(read_config())
     print('`•.,,.•´¯¯`•.,,.•´¯¯`•.,, Config ,,.•´¯¯`•.,,.•´¯¯`•.,,.•´\n')
     print_config()
 

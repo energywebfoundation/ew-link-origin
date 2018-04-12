@@ -112,8 +112,9 @@ def read_production_data(config: InputConfiguration, last_hash: str) -> Producti
     co2_saved = None
     energy = None
     if input_data.raw_carbon_emitted and input_data.raw_energy:
+        # x * y kg/Watts = xy kg/Watts
         calculated_co2 = input_data.raw_carbon_emitted.accumulated_co2 * input_data.raw_energy.accumulated_power
-        co2_saved = int(calculated_co2)
+        co2_saved = int(calculated_co2 * pow(10, 3))
         energy = int(input_data.raw_energy.accumulated_power)
     produced = {
         'energy': energy if energy else None,
