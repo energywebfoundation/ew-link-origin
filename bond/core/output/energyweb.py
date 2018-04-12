@@ -291,7 +291,7 @@ class LocalClientOriginProducer(OriginProducer):
         :param wallet_add: Network wallet address
         :param wallet_add: Network wallet password
         """
-        url = 'http://localhost:8545'
+        url = 'http://ewf-client:8545'
         super().__init__(contract_address, asset_id, wallet_add, wallet_pwd, url)
         self.wallet_address = self.import_keys()
 
@@ -308,7 +308,7 @@ class LocalClientOriginConsumer(OriginConsumer):
         :param wallet_add: Network wallet address
         :param wallet_add: Network wallet password
         """
-        url = 'http://localhost:8545'
+        url = 'http://ewf-client:8545'
         super().__init__(contract_address, asset_id, wallet_add, wallet_pwd, url)
         self.wallet_address = self.import_keys()
 
