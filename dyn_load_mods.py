@@ -13,7 +13,7 @@ from core.abstract.bond import InputConfiguration, Configuration
 
 PRODUCTION_CHAIN = 'production.pkl'
 CONSUMPTION_CHAIN = 'consumption.pkl'
-JSON = 'paul#0@slock.it.json'
+JSON = 'consumer.json'
 RESIN_DEVICE_UUID = '734e348be116e254fcc7a6f46708e96a'
 TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzQwNTAsInVzZXJuYW1lIjoiZ2hfY2VyZWFsa2lsbCIsImVtYWlsIjoiZGVwcmF6ekBnbWFpbC5jb20iLCJjcmVhdGVkX2F0IjoiMjAxOC0wMi0xNVQxMDozMjozOC4wMTlaIiwiZmlyc3RfbmFtZSI6IlBhdWwiLCJsYXN0X25hbWUiOiJEZXByYXoiLCJjb21wYW55IjoiIiwiYWNjb3VudF90eXBlIjoicGVyc29uYWwiLCJqd3Rfc2VjcmV0IjoiNkpZWVBUUEpSTDVaQTZRM0ZUUkE2VU1OQ0w3QVFEVlIiLCJoYXNfZGlzYWJsZWRfbmV3c2xldHRlciI6ZmFsc2UsInNvY2lhbF9zZXJ2aWNlX2FjY291bnQiOlt7ImNyZWF0ZWRfYXQiOiIyMDE4LTAyLTE1VDEwOjMyOjM4LjAxOVoiLCJpZCI6MTE1MzcsImJlbG9uZ3NfdG9fX3VzZXIiOnsiX19kZWZlcnJlZCI6eyJ1cmkiOiIvcmVzaW4vdXNlcigzNDA1MCkifSwiX19pZCI6MzQwNTB9LCJwcm92aWRlciI6ImdpdGh1YiIsInJlbW90ZV9pZCI6IjI5MjM0MTMiLCJkaXNwbGF5X25hbWUiOiJjZXJlYWxraWxsIiwiX19tZXRhZGF0YSI6eyJ1cmkiOiIvcmVzaW4vc29jaWFsX3NlcnZpY2VfYWNjb3VudCgxMTUzNykiLCJ0eXBlIjoiIn19XSwiaGFzUGFzc3dvcmRTZXQiOmZhbHNlLCJuZWVkc1Bhc3N3b3JkUmVzZXQiOmZhbHNlLCJwdWJsaWNfa2V5Ijp0cnVlLCJmZWF0dXJlcyI6W10sImludGVyY29tVXNlck5hbWUiOiJnaF9jZXJlYWxraWxsIiwiaW50ZXJjb21Vc2VySGFzaCI6IjkwYWZiZTRkZThkNmU5MDBmYWJiMTIyMzU1MjE4ZWMyNTkyOWRhYTY1NDMyYzcwZjQ0OGRkZWNlZDQxNmVkN2IiLCJwZXJtaXNzaW9ucyI6W10sImF1dGhUaW1lIjoxNTIyOTMwMTM5NTgyLCJhY3RvciI6MjU2MTAwMSwiaWF0IjoxNTIzNjA4ODg2LCJleHAiOjE1MjQyMTM2ODZ9.dNZFqkvt8OY9oPyyW14nubn5j6jHBTEafsT4ku0JuL8'
 
@@ -157,7 +157,7 @@ def print_consumption_results(config: Configuration, item: InputConfiguration):
         return
     try:
         print('Produced Energy:')
-        print(helper.convert_time(consumed_data.raw_energy.measurement_epoch))
+        print(consumed_data.raw_energy.measurement_epoch)
         print(consumed_data.raw_energy.accumulated_power)
         print('----------')
         print('Sending to Blockchain:')
@@ -204,7 +204,7 @@ def log():
 
 
 def schedule(scheduler):
-    time_sched = '17:46'
+    time_sched = '19:13'
     now = datetime.datetime.now()
     hour, min = tuple(time_sched.split(':'))
     future = now.replace(hour=int(hour), minute=int(min))
@@ -217,6 +217,7 @@ def schedule(scheduler):
 
 
 if __name__ == '__main__':
+    log()
     print_config()
     scheduler = sched.scheduler(time.time, time.sleep)
     schedule(scheduler)

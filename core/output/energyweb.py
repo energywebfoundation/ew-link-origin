@@ -134,7 +134,7 @@ class EnergyWeb(GeneralSmartContractClient):
         params = {
             "contracts": {
                 "producer": json.load(open('./assets/AssetProducingRegistryLogic.json')),
-                "consumer": json.load(open('./assets/AssetProducingRegistryLogic.json')),
+                "consumer": json.load(open('./assets/AssetConsumingRegistryLogic.json')),
                 "asset": json.load(open('./assets/AssetLogic.json'))
             },
             "provider": HTTPProvider(url),
@@ -326,7 +326,7 @@ class RemoteClientOriginProducer(OriginProducer):
         self.w3 = web3.Web3(HTTPProvider(url))
         self.contracts = {
             "producer": json.load(open('./assets/AssetProducingRegistryLogic.json')),
-            "consumer": json.load(open('./assets/AssetProducingRegistryLogic.json')),
+            "consumer": json.load(open('./assets/AssetConsumingRegistryLogic.json')),
             "asset": json.load(open('./assets/AssetLogic.json'))
         }
 
@@ -390,7 +390,7 @@ class RemoteClientOriginConsumer(OriginConsumer):
         self.w3 = web3.Web3(HTTPProvider(url))
         self.contracts = {
             "producer": json.load(open('./assets/AssetProducingRegistryLogic.json')),
-            "consumer": json.load(open('./assets/AssetProducingRegistryLogic.json')),
+            "consumer": json.load(open('./assets/AssetConsumingRegistryLogic.json')),
             "asset": json.load(open('./assets/AssetLogic.json'))
         }
 
@@ -425,7 +425,7 @@ class RemoteClientOriginConsumer(OriginConsumer):
 
         self.credentials = origin.wallet_add, origin.wallet_pwd
         receipt = self.send_raw('consumer', 'saveSmartMeterRead', origin, origin.asset_id, consumed_energy.energy,
-                                consumed_energy.is_meter_down, consumed_energy.previous_hash.encode())
+                                consumed_energy.previous_hash.encode(), consumed_energy.is_meter_down)
         if not receipt:
             raise ConnectionError
         return receipt

@@ -136,7 +136,6 @@ def read_consumption_data(config: InputConfiguration, last_hash: str) -> Consump
     """
     input_data_dict = {
         'raw_energy': __fetch_input_data(config.energy),
-        'raw_carbon_emitted': __fetch_input_data(config.carbon_emission),
         'consumed': None,
     }
     input_data = ConsumptionFileData(**input_data_dict)

@@ -45,8 +45,10 @@ class Wattime(CarbonEmissionDataSource):
         """
         endpoint = self.api_url + 'obtain-token-auth/'
         r = requests.post(endpoint, data=self.credentials)
+        if not r.status_code == 200:
+            raise AttributeError('Failed getting a new token.')
         ans = r.json()
-        if (not r.status_code == 200) or len(ans['token']) < 5:
+        if len(ans['token']) < 5:
             raise AttributeError('Failed getting a new token.')
         return ans['token']
 
@@ -112,7 +114,7 @@ class WattimeV2(CarbonEmissionDataSource):
         :param hours_from_now: Hours from the current time to check for CO emission. If none provided, will \
         get current day.
         """
-        self.credentials = {'username': usr, 'password': pwd}
+        self.credentials = (usr, pwd)
         self.api_url = 'https://api2.watttime.org/v2test/'
         self.ba = ba
         self.hours_from_now = hours_from_now
@@ -125,7 +127,7 @@ class WattimeV2(CarbonEmissionDataSource):
         # 2. Fetch marginal data
         raw = self.get_marginal(auth_token)
         # 3. Converts lb/MW to kg/W
-        accumulated_co2 = raw['marginal_carbon']['value'] * 0.453592 * pow(10, -6)
+        accumulated_co2 = raw['avg'] * 0.453592 * pow(10, -6)
         # 4. Converts time stamps to epoch
         now = datetime.datetime.now()
         access_epoch = calendar.timegm(now.timetuple())
@@ -139,9 +141,11 @@ class WattimeV2(CarbonEmissionDataSource):
         :return: Access token string suitable for passing as arg in other methods.
         """
         endpoint = self.api_url + 'login'
-        r = requests.post(endpoint, data=self.credentials)
+        r = requests.get(endpoint, auth=self.credentials)
+        if not r.status_code == 200:
+            raise AttributeError('Failed getting a new token.')
         ans = r.json()
-        if (not r.status_code == 200) or len(ans['token']) < 5:
+        if len(ans['token']) < 5:
             raise AttributeError('Failed getting a new token.')
         return ans['token']
 
