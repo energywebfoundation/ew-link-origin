@@ -58,7 +58,7 @@ class SPGroupAPI(EnergyDataSource):
 
         # get produced energy from filtered object
         # accumulated_power = specific_site['energy']['data']
-        accumulated_power = int(("%.2f" % specific_site['energy']['data']).replace('.', ''))
+        accumulated_power = specific_site['energy']['data']
 
         # instance of mini utc class (tzinfo)
         utc = UTC()

@@ -84,7 +84,7 @@ class GridSingularity(EnergyDataSource):
         device = Device(**device_meta)
 
         # get produced energy from filtered object
-        accumulated_power = int(("%.2f" % total_consumption).replace('.', ''))
+        accumulated_power = total_consumption
 
         # instance of mini utc class (tzinfo)
         utc = UTC()

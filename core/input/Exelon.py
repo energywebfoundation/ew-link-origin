@@ -55,7 +55,7 @@ class Exelon(EnergyDataSource):
 
         # get produced energy from filtered object
         # accumulated_power = specific_site['energy']['data']
-        accumulated_power = int(("%.2f" % specific_site['amount']).replace('.', ''))
+        accumulated_power = specific_site['amount']
 
         # instance of mini utc class (tzinfo)
         utc = UTC()

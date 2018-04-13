@@ -46,7 +46,7 @@ class Sonnen_consume(EnergyDataSource):
         device = Device(**device_meta)
 
         # get produced energy
-        accumulated_power = int(("%.2f" % (raw['data']['sum_charge_kWh'] * 1000)).replace('.', ''))
+        accumulated_power = raw['data']['sum_charge_kWh']
 
         utc = UTC()
 
@@ -122,7 +122,7 @@ class Sonnen_produce(EnergyDataSource):
         device = Device(**device_meta)
 
         # get produced energy
-        accumulated_power = int(("%.2f" % (raw['data']['sum_discharge_kWh'] * 1000)).replace('.', ''))
+        accumulated_power = raw['data']['sum_discharge_kWh']
 
         utc = UTC()
 
