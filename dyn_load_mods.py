@@ -1,7 +1,9 @@
 import json
+import sched
 import subprocess
 import time
 
+import datetime
 from resin import Resin
 
 import core.config_parser as config
@@ -13,7 +15,7 @@ PRODUCTION_CHAIN = 'production.pkl'
 CONSUMPTION_CHAIN = 'consumption.pkl'
 JSON = 'paul#0@slock.it.json'
 RESIN_DEVICE_UUID = '734e348be116e254fcc7a6f46708e96a'
-TOKEN = ''
+TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzQwNTAsInVzZXJuYW1lIjoiZ2hfY2VyZWFsa2lsbCIsImVtYWlsIjoiZGVwcmF6ekBnbWFpbC5jb20iLCJjcmVhdGVkX2F0IjoiMjAxOC0wMi0xNVQxMDozMjozOC4wMTlaIiwiZmlyc3RfbmFtZSI6IlBhdWwiLCJsYXN0X25hbWUiOiJEZXByYXoiLCJjb21wYW55IjoiIiwiYWNjb3VudF90eXBlIjoicGVyc29uYWwiLCJqd3Rfc2VjcmV0IjoiNkpZWVBUUEpSTDVaQTZRM0ZUUkE2VU1OQ0w3QVFEVlIiLCJoYXNfZGlzYWJsZWRfbmV3c2xldHRlciI6ZmFsc2UsInNvY2lhbF9zZXJ2aWNlX2FjY291bnQiOlt7ImNyZWF0ZWRfYXQiOiIyMDE4LTAyLTE1VDEwOjMyOjM4LjAxOVoiLCJpZCI6MTE1MzcsImJlbG9uZ3NfdG9fX3VzZXIiOnsiX19kZWZlcnJlZCI6eyJ1cmkiOiIvcmVzaW4vdXNlcigzNDA1MCkifSwiX19pZCI6MzQwNTB9LCJwcm92aWRlciI6ImdpdGh1YiIsInJlbW90ZV9pZCI6IjI5MjM0MTMiLCJkaXNwbGF5X25hbWUiOiJjZXJlYWxraWxsIiwiX19tZXRhZGF0YSI6eyJ1cmkiOiIvcmVzaW4vc29jaWFsX3NlcnZpY2VfYWNjb3VudCgxMTUzNykiLCJ0eXBlIjoiIn19XSwiaGFzUGFzc3dvcmRTZXQiOmZhbHNlLCJuZWVkc1Bhc3N3b3JkUmVzZXQiOmZhbHNlLCJwdWJsaWNfa2V5Ijp0cnVlLCJmZWF0dXJlcyI6W10sImludGVyY29tVXNlck5hbWUiOiJnaF9jZXJlYWxraWxsIiwiaW50ZXJjb21Vc2VySGFzaCI6IjkwYWZiZTRkZThkNmU5MDBmYWJiMTIyMzU1MjE4ZWMyNTkyOWRhYTY1NDMyYzcwZjQ0OGRkZWNlZDQxNmVkN2IiLCJwZXJtaXNzaW9ucyI6W10sImF1dGhUaW1lIjoxNTIyOTMwMTM5NTgyLCJhY3RvciI6MjU2MTAwMSwiaWF0IjoxNTIzNjA4ODg2LCJleHAiOjE1MjQyMTM2ODZ9.dNZFqkvt8OY9oPyyW14nubn5j6jHBTEafsT4ku0JuL8'
 
 
 def read_config():
@@ -181,16 +183,30 @@ def print_consumption_results(config: Configuration, item: InputConfiguration):
         return
 
 
-if __name__ == '__main__':
-
-    print('`•.,,.•´¯¯`•.,,.•´¯¯`•.,, Config ,,.•´¯¯`•.,,.•´¯¯`•.,,.•´\n')
-    configuration = config.parse_file(read_config())
-    print_config()
-
-    # start_ewf_client()
-
+def log():
     print('\n\n¸.•*´¨`*•.¸¸.•*´¨`*•.¸ Results ¸.•*´¨`*•.¸¸.•*´¨`*•.¸\n')
     if configuration.production:
         [print_production_results(configuration, item) for item in configuration.production]
     if configuration.consumption:
         [print_consumption_results(configuration, item) for item in configuration.consumption]
+
+
+if __name__ == '__main__':
+
+    scheduler = sched.scheduler(time.time, time.sleep)
+
+    infinite = True
+    future = datetime.datetime.now()
+    time_sched = '11:35'
+    hour, min = tuple(time_sched.split(':'))
+    future.replace(hour=hour, min=min)
+    while infinite:
+        print('===================== READING CONFIG ==================')
+        configuration = config.parse(json.load(open(JSON)))
+        # configuration = config.parse(read_config())
+        print('`•.,,.•´¯¯`•.,,.•´¯¯`•.,, Config ,,.•´¯¯`•.,,.•´¯¯`•.,,.•´\n')
+        print_config()
+
+        print('===================== WAITING ==================')
+        scheduler.enterabs(time=time.time() + 3, priority=1, action=log, argument=())
+        scheduler.run()

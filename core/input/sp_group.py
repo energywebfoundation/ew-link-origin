@@ -1,22 +1,20 @@
-'''
+"""
 Interface for the SPGroup api
 - SPGroup api delivers producing data
 - delivers production from the past hour
 - constructor takes the site_id as parameter
 - !!! Access by hardcoded api key !!!
-'''
-
-
-import calendar
+"""
 
 import requests
 import datetime
 from datetime import tzinfo, timedelta
 
-from core.abstract.input import ExternalDataSource, EnergyData, Device
+from core.abstract.input import EnergyData, Device, EnergyDataSource
+
 
 # producing asset
-class SPGroupAPI(ExternalDataSource):
+class SPGroupAPI(EnergyDataSource):
 
     def __init__(self, site_id: str):
 
@@ -82,7 +80,8 @@ class SPGroupAPI(ExternalDataSource):
             'end': 'now'
         }
         # sending header until we get usr pwd
-        provisional_header = {"Authorization":"Basic ZGdmanNkamoyMzIzMjM5ODc5ZGtma2gzZWhmazM6OTg3OTBpa2pmZGtmM2hrMmpoZGtqaGkza2RzYjM="}
+        provisional_header = {
+            "Authorization": "Basic ZGdmanNkamoyMzIzMjM5ODc5ZGtma2gzZWhmazM6OTg3OTBpa2pmZGtmM2hrMmpoZGtqaGkza2RzYjM="}
         endpoint = self.api_url + 'produced'
 
         r = requests.get(endpoint, params=marginal_query, headers=provisional_header, verify=False)
@@ -122,7 +121,9 @@ class SPGroup_t1(SPGroupAPI):
     def __init__(self):
         super().__init__(site_id='t1')
 
+
 ZERO = timedelta(0)
+
 
 class UTC(tzinfo):
     def utcoffset(self, dt):
