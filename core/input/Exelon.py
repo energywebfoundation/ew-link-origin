@@ -1,22 +1,20 @@
-'''
+"""
 Interface for the Exelon api
 - Exelon api delivers producing data
 - delivers production from the past hour
 - constructor takes the site_id as parameter
 - !!! Access by hardcoded api key !!!
-'''
-
-
-import calendar
+"""
 
 import requests
 import datetime
 from datetime import tzinfo, timedelta
 
-from core.abstract.input import ExternalDataSource, EnergyData, Device
+from core.abstract.input import EnergyDataSource, EnergyData, Device
+
 
 # producing asset - !! only returns data from before 2015
-class Exelon(ExternalDataSource):
+class Exelon(EnergyDataSource):
 
     def __init__(self, site_id: str):
 
@@ -84,7 +82,8 @@ class Exelon(ExternalDataSource):
             # 'end': date_one_hour_before.isoformat()  # timestamp
         }
 
-        provisional_header = {"X-Api-Key": "CFX8trB6cHZ9usMtFFwfQQVNr5jWze4EUFjz89DnQX6YHAjwU93trunF5pUqveTfyD6Uep5AQfrHuXEcsrBDbnbKmDVSW25JY5VA"}
+        provisional_header = {
+            "X-Api-Key": "CFX8trB6cHZ9usMtFFwfQQVNr5jWze4EUFjz89DnQX6YHAjwU93trunF5pUqveTfyD6Uep5AQfrHuXEcsrBDbnbKmDVSW25JY5VA"}
         endpoint = self.api_url + 'production'
         r = requests.get(endpoint, params=marginal_query, headers=provisional_header)
         ans = r.json()
@@ -101,6 +100,7 @@ class Exelon_1(Exelon):
 
 
 ZERO = timedelta(0)
+
 
 class UTC(tzinfo):
     def utcoffset(self, dt):

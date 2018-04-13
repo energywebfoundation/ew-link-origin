@@ -1,21 +1,19 @@
-'''
+"""
 Interface for the Sonnen api
 - Sonnen api delivers consuming and producing data which are processed separately
 - delivers consumption and production !!! from the previous day two hours behinde !!!
 - constructor takes the site_id as parameter
 - !!! Access by hardcoded api key !!!
-'''
-
-
-import calendar
+"""
 
 import requests
 import datetime
 from datetime import timezone, timedelta, tzinfo
-from core.abstract.input import ExternalDataSource, EnergyData, Device
+from core.abstract.input import EnergyData, Device, EnergyDataSource
+
 
 # consuming asset
-class Sonnen_consume(ExternalDataSource):
+class Sonnen_consume(EnergyDataSource):
 
     def __init__(self, site_id: str):
 
@@ -57,7 +55,9 @@ class Sonnen_consume(ExternalDataSource):
         access_timestamp = now.isoformat()
 
         # build measurement_epoch
-        measurement_timestamp = datetime.datetime.strptime(raw['data']['requested_date'] + 'T' + str(datetime.timedelta(hours=int(raw['data']['requested_hour']))), '%Y-%m-%dT%H:%M:%S')
+        measurement_timestamp = datetime.datetime.strptime(
+            raw['data']['requested_date'] + 'T' + str(datetime.timedelta(hours=int(raw['data']['requested_hour']))),
+            '%Y-%m-%dT%H:%M:%S')
         measurement_timestamp = measurement_timestamp.replace(tzinfo=utc).isoformat()
 
         return EnergyData(device, access_timestamp, raw, accumulated_power, measurement_timestamp)
@@ -70,7 +70,7 @@ class Sonnen_consume(ExternalDataSource):
         utc_offset = d.utcoffset()
 
         marginal_query = {
-            'date': str(datetime.date.today()-timedelta(days=1)),  # expects year-month-day
+            'date': str(datetime.date.today() - timedelta(days=1)),  # expects year-month-day
             'hour': datetime.datetime.now().hour - 2,  # the hour of day
             'utc_offset': utc_offset,
             'asset_id': self.site
@@ -89,7 +89,7 @@ class Sonnen_consume(ExternalDataSource):
 
 
 # producing asset
-class Sonnen_produce(ExternalDataSource):
+class Sonnen_produce(EnergyDataSource):
 
     def __init__(self, site_id: str):
 
@@ -131,7 +131,9 @@ class Sonnen_produce(ExternalDataSource):
         access_timestamp = now.isoformat()
 
         # build measurement_epoch
-        measurement_timestamp = datetime.datetime.strptime(raw['data']['requested_date'] + 'T' + str(datetime.timedelta(hours=int(raw['data']['requested_hour']))), '%Y-%m-%dT%H:%M:%S')
+        measurement_timestamp = datetime.datetime.strptime(
+            raw['data']['requested_date'] + 'T' + str(datetime.timedelta(hours=int(raw['data']['requested_hour']))),
+            '%Y-%m-%dT%H:%M:%S')
         measurement_timestamp = measurement_timestamp.replace(tzinfo=utc).isoformat()
 
         return EnergyData(device, access_timestamp, raw, accumulated_power, measurement_timestamp)
@@ -160,6 +162,7 @@ class Sonnen_produce(ExternalDataSource):
         if ans['message'] == 'Forbidden':
             raise AttributeError('Wrong auth')
         return ans
+
 
 # sonne 101 consume
 class Sonnen_101_c(Sonnen_consume):
@@ -190,6 +193,7 @@ class Sonnen_102_p(Sonnen_produce):
 
 
 ZERO = timedelta(0)
+
 
 class UTC(tzinfo):
     def utcoffset(self, dt):

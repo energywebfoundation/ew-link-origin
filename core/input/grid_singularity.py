@@ -1,22 +1,20 @@
-'''
+"""
 Interface for the Gridsingularity api
 - Gridsingularity api delivers consuming and producing data which are processed separately
 - delivers production from the past hour
 - constructor takes the site_id, client_id, client_secret, username and password as parameter
 - Access by using a requested token which is generated with each call
-'''
-
-
-import calendar
+"""
 
 import requests
 import datetime
 from datetime import tzinfo, timedelta
 
-from core.abstract.input import ExternalDataSource, EnergyData, Device
+from core.abstract.input import EnergyData, Device, EnergyDataSource
+
 
 # consumption asset
-class GridSingularity(ExternalDataSource):
+class GridSingularity(EnergyDataSource):
 
     def __init__(self, site_id: str, client_id: str, client_secret: str, username: str, password: str):
 
@@ -97,7 +95,8 @@ class GridSingularity(ExternalDataSource):
 
         # build measurement_timestamp
         # measurement_timestamp = datetime.datetime.strptime(str(latest_timestamp/1000), '%S')
-        measurement_timestamp = datetime.datetime.fromtimestamp(latest_timestamp/1000).strftime("%A, %B %d, %Y %I:%M:%S")
+        measurement_timestamp = datetime.datetime.fromtimestamp(latest_timestamp / 1000).strftime(
+            "%A, %B %d, %Y %I:%M:%S")
         measurement_timestamp = datetime.datetime.strptime(measurement_timestamp, '%A, %B %d, %Y %I:%M:%S')
         measurement_timestamp = measurement_timestamp.replace(tzinfo=utc).isoformat()
 
@@ -108,8 +107,8 @@ class GridSingularity(ExternalDataSource):
         d = datetime.datetime.utcnow()
         epoch = datetime.datetime(1970, 1, 1)
         # * 1000 parse int (no clue why grid is asking for that format)
-        time_now = int((d - epoch).total_seconds()*1000)
-        time_one_hour_ago = int(time_now - 3600*1000)
+        time_now = int((d - epoch).total_seconds() * 1000)
+        time_one_hour_ago = int(time_now - 3600 * 1000)
 
         marginal_query = {
             'aggregation': 2,
@@ -137,6 +136,7 @@ class GridSingularity_26145(GridSingularity):
 
 
 ZERO = timedelta(0)
+
 
 class UTC(tzinfo):
     def utcoffset(self, dt):

@@ -71,7 +71,7 @@ def print_production_results(config: Configuration, item: InputConfiguration):
             print(produced_data.raw_carbon_emitted.measurement_epoch)
             print(produced_data.raw_carbon_emitted.accumulated_co2)
         print('----------')
-        print('Sent to Blockchain:')
+        print('Sending to Blockchain:')
         print(produced_data.produced.to_dict())
         print('----------')
 
@@ -135,7 +135,7 @@ def print_consumption_results(config: Configuration, item: InputConfiguration):
         print(consumed_data.raw_energy.measurement_epoch)
         print(consumed_data.raw_energy.accumulated_power)
         print('----------')
-        print('Sent to Blockchain:')
+        print('Sending to Blockchain:')
         print(consumed_data.consumed.to_dict())
         print('----------')
 

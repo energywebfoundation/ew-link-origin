@@ -6,7 +6,7 @@ import time
 import datetime
 from resin import Resin
 
-import core.config_parser as config
+import core.config_parser as config_parser
 import core.data_access as dao
 import core.helper as helper
 from core.abstract.bond import InputConfiguration, Configuration
@@ -33,6 +33,9 @@ def read_config():
 
 
 def print_config():
+    # configuration = config_parser.parse(read_config())
+    configuration = config_parser.parse(json.load(open(JSON)))
+    print('\n\n`•.,,.•´¯¯`•.,,.•´¯¯`•.,, Config ,,.•´¯¯`•.,,.•´¯¯`•.,,.•´\n')
     if configuration.production is not None:
         for item in configuration.production:
             print('Energy Production Module: ' + item.energy.__class__.__name__)
@@ -40,6 +43,8 @@ def print_config():
     if configuration.consumption is not None:
         [print('Energy Consumption Module: ' + item.energy.__class__.__name__) for item in configuration.consumption]
     print('EWF Client: ' + configuration.client.__class__.__name__)
+    print('\n\n')
+    return configuration
 
 
 def start_ewf_client():
@@ -52,6 +57,8 @@ def start_ewf_client():
 
 def print_production_results(config: Configuration, item: InputConfiguration):
     print("==================== PRODUCTION INPUT READ ===========================")
+    print('Energy Production Module: ' + item.energy.__class__.__name__)
+    print('Carbon Emission Saved: ' + item.carbon_emission.__class__.__name__)
     try:
         production_local_chain = dao.DiskStorage(PRODUCTION_CHAIN)
         last_local_chain_hash = production_local_chain.get_last_hash()
@@ -121,6 +128,8 @@ def print_production_results(config: Configuration, item: InputConfiguration):
 
 def print_consumption_results(config: Configuration, item: InputConfiguration):
     print("==================== CONSUMPTION INPUT READ ===========================")
+    print('Energy Production Module: ' + item.energy.__class__.__name__)
+    print('Carbon Emission Saved: ' + item.carbon_emission.__class__.__name__)
     try:
         consumption_local_chain = dao.DiskStorage(CONSUMPTION_CHAIN)
         last_local_chain_hash = consumption_local_chain.get_last_hash()
@@ -184,29 +193,32 @@ def print_consumption_results(config: Configuration, item: InputConfiguration):
 
 
 def log():
+    configuration = print_config()
     print('\n\n¸.•*´¨`*•.¸¸.•*´¨`*•.¸ Results ¸.•*´¨`*•.¸¸.•*´¨`*•.¸\n')
     if configuration.production:
         [print_production_results(configuration, item) for item in configuration.production]
     if configuration.consumption:
         [print_consumption_results(configuration, item) for item in configuration.consumption]
+    scheduler = sched.scheduler(time.time, time.sleep)
+    schedule(scheduler)
+
+
+def schedule(scheduler):
+    time_sched = '17:07'
+    now = datetime.datetime.now()
+    hour, min = tuple(time_sched.split(':'))
+    future = now.replace(hour=int(hour), minute=int(min))
+    if now > future:
+        future = future + datetime.timedelta(days=1)
+    print('\n\n===================== WAITING ==================')
+    print('Next Event: ' + future.strftime('%d-%b-%Y %H:%M'))
+    scheduler.enterabs(time=time.mktime(future.timetuple()), priority=1, action=log, argument=())
+    scheduler.run()
 
 
 if __name__ == '__main__':
-
+    print_config()
     scheduler = sched.scheduler(time.time, time.sleep)
+    schedule(scheduler)
 
-    infinite = True
-    future = datetime.datetime.now()
-    time_sched = '11:35'
-    hour, min = tuple(time_sched.split(':'))
-    future.replace(hour=hour, min=min)
-    while infinite:
-        print('===================== READING CONFIG ==================')
-        configuration = config.parse(json.load(open(JSON)))
-        # configuration = config.parse(read_config())
-        print('`•.,,.•´¯¯`•.,,.•´¯¯`•.,, Config ,,.•´¯¯`•.,,.•´¯¯`•.,,.•´\n')
-        print_config()
 
-        print('===================== WAITING ==================')
-        scheduler.enterabs(time=time.time() + 3, priority=1, action=log, argument=())
-        scheduler.run()
