@@ -105,19 +105,16 @@ class Wattime(CarbonEmissionDataSource):
 
 class WattimeV2(CarbonEmissionDataSource):
 
-    def __init__(self, usr: str, pwd: str, ba: str, hours_from_now: int = 2):
+    def __init__(self, usr: str, pwd: str, ba: str):
         """
         Wattime API credentials. http://watttime.org/
         :param usr: Username used for login
         :param pwd: Users password
         :param ba: Balancing Authority. https://api.watttime.org/tutorials/#ba
-        :param hours_from_now: Hours from the current time to check for CO emission. If none provided, will \
-        get current day.
         """
         self.credentials = (usr, pwd)
         self.api_url = 'https://api2.watttime.org/v2test/'
         self.ba = ba
-        self.hours_from_now = hours_from_now
 
     def read_state(self) -> CarbonEmissionData:
         """
