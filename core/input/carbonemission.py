@@ -131,7 +131,7 @@ class WattimeV2(CarbonEmissionDataSource):
         # 4. Converts time stamps to epoch
         now = datetime.datetime.now()
         access_epoch = calendar.timegm(now.timetuple())
-        measurement_timestamp = datetime.datetime.strptime(raw['timestamp'], "%Y-%m-%dT%H:%M:%SZ")
+        measurement_timestamp = now
         measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
         return CarbonEmissionData(access_epoch, raw, accumulated_co2, measurement_epoch)
 
@@ -155,28 +155,12 @@ class WattimeV2(CarbonEmissionDataSource):
         :param auth_token: authentication token
         :return: Measured data in lb/MW plus other relevant raw metadata.
         """
-        base_time = datetime.datetime.now()
-        if self.hours_from_now:
-            start_time = base_time - datetime.timedelta(hours=self.hours_from_now)
-            start_at = start_time.strftime("%Y-%m-%dT%H:00:00")
-            end_at = base_time.strftime("%Y-%m-%dT%H:%M:%S")
-        else:
-            start_at = base_time.strftime("%Y-%m-%dT00:00:00")
-            end_at = base_time.strftime("%Y-%m-%dT23:59:59")
-
         marginal_query = {
-            'ba': self.ba,
-            'start_at': start_at,
-            'end_at': end_at,
-            'page_size': 1,
-            'market': 'RTHR'
+            'ba': self.ba
         }
-        endpoint = self.api_url + 'marginal/'
-        h = {'Authorization': 'Token ' + auth_token}
+        endpoint = self.api_url + 'insight/'
+        h = {'Authorization': 'Bearer ' + auth_token}
         r = requests.get(endpoint, headers=h, params=marginal_query)
-        ans = r.json()
-        if 'count' not in ans.keys() and 'detail' in ans.keys():
+        if not r.status_code == 200:
             raise AttributeError('Failed to login on api.')
-        if ans['count'] < 1:
-            raise AttributeError('Empty response from api.')
-        return ans['results'][0]
+        return r.json()
