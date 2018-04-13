@@ -1,6 +1,8 @@
+import json
 import subprocess
-
 import time
+
+from resin import Resin
 
 import core.config_parser as config
 import core.data_access as dao
@@ -10,6 +12,22 @@ from core.abstract.bond import InputConfiguration, Configuration
 PRODUCTION_CHAIN = 'production.pkl'
 CONSUMPTION_CHAIN = 'consumption.pkl'
 JSON = 'paul#0@slock.it.json'
+RESIN_DEVICE_UUID = '734e348be116e254fcc7a6f46708e96a'
+TOKEN = ''
+
+
+def read_config():
+    """
+    Device variable must be added in the services variable field on resin.io dashboard.
+    Yeah, I know.
+    :param device_id: Device UUID from resin.io dashboard.
+    :return: Dict from json parsed string.
+    """
+    resin = Resin()
+    resin.auth.login_with_token(TOKEN)
+    app_vars = resin.models.environment_variables.device.get_all(RESIN_DEVICE_UUID)
+    config_json_string = next(var for var in app_vars if var['env_var_name'] == 'config')
+    return json.loads(config_json_string['value'])
 
 
 def print_config():
@@ -166,7 +184,7 @@ def print_consumption_results(config: Configuration, item: InputConfiguration):
 if __name__ == '__main__':
 
     print('`•.,,.•´¯¯`•.,,.•´¯¯`•.,, Config ,,.•´¯¯`•.,,.•´¯¯`•.,,.•´\n')
-    configuration = config.parse_file(JSON)
+    configuration = config.parse_file(read_config())
     print_config()
 
     # start_ewf_client()
