@@ -5,9 +5,10 @@ from core.abstract.bond import InputConfiguration, Configuration
 
 
 def __get_input_configuration(configuration: dict) -> InputConfiguration:
+    emission = 'carbonemission' in configuration
     instance = {
         "energy": __get_class_instance(configuration['energy']),
-        "carbon_emission": __get_class_instance(configuration['carbonemission']),
+        "carbon_emission": __get_class_instance(configuration['carbonemission']) if emission else None,
         "origin": __get_class_instance(configuration['origin'])
     }
     return InputConfiguration(**instance)
