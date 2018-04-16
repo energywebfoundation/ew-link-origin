@@ -18,5 +18,10 @@ if __name__ == '__main__':
     infinite = True
     while infinite:
         configuration = core.print_config()
-        core.log(PRODUCTION_CHAIN, CONSUMPTION_CHAIN, configuration)
-        core.schedule()
+        config = {
+            "prod_chain_file": PRODUCTION_CHAIN,
+            "cons_chain_file": CONSUMPTION_CHAIN,
+            "configuration": configuration
+        }
+        core.log(**config)
+        core.schedule(config)
