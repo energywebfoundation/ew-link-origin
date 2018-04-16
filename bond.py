@@ -36,6 +36,8 @@ def start_ewf_client():
 
 def print_production_results(config: Configuration, item: InputConfiguration):
     print("==================== PRODUCTION INPUT READ ===========================")
+    print('Energy Production Module: ' + item.energy.__class__.__name__)
+    print('Carbon Emission Saved: ' + item.carbon_emission.__class__.__name__)
     try:
         production_local_chain = dao.DiskStorage(PRODUCTION_CHAIN)
         last_local_chain_hash = production_local_chain.get_last_hash()
@@ -47,11 +49,15 @@ def print_production_results(config: Configuration, item: InputConfiguration):
         print('Local and Remote chain sync:')
         print(last_local_chain_hash == last_remote_chain_hash)
         print('----------')
+        print('Last Blockchain state:')
+        last_remote_state = config.client.last_state(item.origin)
+        print(last_remote_state)
+        print('----------')
     except Exception as e:
         print('ERROR: Reading hash from blockchain')
         return
     try:
-        produced_data = dao.read_production_data(item, last_local_chain_hash)
+        produced_data = dao.read_production_data(item, last_local_chain_hash, last_remote_state)
     except Exception as e:
         print('ERROR: Reading from remote api.')
         return
@@ -85,8 +91,9 @@ def print_production_results(config: Configuration, item: InputConfiguration):
         tx_receipt = config.client.mint(produced_data.produced, item.origin)
         print('Receipt Block Number: ' + str(tx_receipt['blockNumber']))
         print('-------------------')
-        print('New Remote Hash:')
-        print(config.client.last_hash(item.origin))
+        print('New Blockchain state:')
+        last_remote_state = config.client.last_state(item.origin)
+        print(last_remote_state)
         print('----------')
     except Exception as e:
         print('ERROR: Reading or writing to the blockchain.')
@@ -105,6 +112,8 @@ def print_production_results(config: Configuration, item: InputConfiguration):
 
 def print_consumption_results(config: Configuration, item: InputConfiguration):
     print("==================== CONSUMPTION INPUT READ ===========================")
+    print('Energy Production Module: ' + item.energy.__class__.__name__)
+    print('Carbon Emission Saved: ' + item.carbon_emission.__class__.__name__)
     try:
         consumption_local_chain = dao.DiskStorage(CONSUMPTION_CHAIN)
         last_local_chain_hash = consumption_local_chain.get_last_hash()
@@ -131,7 +140,7 @@ def print_consumption_results(config: Configuration, item: InputConfiguration):
         print('ERROR: Writing to local chain of files.')
         return
     try:
-        print('Produced Energy:')
+        print('Consumed Energy:')
         print(consumed_data.raw_energy.measurement_epoch)
         print(consumed_data.raw_energy.accumulated_power)
         print('----------')
@@ -165,6 +174,7 @@ def print_consumption_results(config: Configuration, item: InputConfiguration):
     except Exception as e:
         print('ERROR: Reading from local chain of files.')
         return
+
 
 
 if __name__ == '__main__':
