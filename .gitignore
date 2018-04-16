@@ -103,3 +103,8 @@ ENV/
 
 # artik710-logger
 .idea
+tobalaba/
+
+# configs
+*.json
+configFun/

@@ -109,13 +109,12 @@ def read_production_data(config: InputConfiguration, last_hash: str) -> Producti
         'produced': None,
     }
     input_data = ProductionFileData(**input_data_dict)
-    co2_saved = 0
-    energy = 0
-    if input_data.raw_carbon_emitted and input_data.raw_energy:
-        # x * y kg/Watts = xy kg/Watts
-        calculated_co2 = input_data.raw_carbon_emitted.accumulated_co2 * input_data.raw_energy.accumulated_power
-        co2_saved = int(calculated_co2 * pow(10, 3))
-        energy = int(input_data.raw_energy.accumulated_power)
+    co2_saved = input_data.raw_carbon_emitted.accumulated_co2 if input_data.raw_carbon_emitted else 0
+    energy = input_data.raw_energy.accumulated_power if input_data.raw_energy else 0
+    # x * y kg/Watts = xy kg/Watts
+    calculated_co2 = energy * co2_saved
+    co2_saved = int(calculated_co2 * pow(10, 3))
+    energy = int(energy)
     produced = {
         'energy': energy,
         'is_meter_down': True if input_data.raw_energy is None else False,
