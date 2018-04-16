@@ -8,17 +8,18 @@ Interface for the Sonnen api
 
 import requests
 import datetime
-from datetime import timezone, timedelta, tzinfo
+from datetime import timezone
 from core.abstract.input import EnergyData, Device, EnergyDataSource
 
 
 # producing asset
 class Sonnen(EnergyDataSource):
 
-    def __init__(self, site_id: str, keyword: str):
+    def __init__(self, site_id: str, keyword: str, api_key: str, api_url: str):
 
         self.site = site_id
-        self.api_url = 'https://4ljl2ccd1i.execute-api.eu-central-1.amazonaws.com/dev/'
+        self.api_url = api_url
+        self.api_key = api_key
         self.keyword = keyword
 
     def read_state(self) -> EnergyData:
@@ -82,7 +83,7 @@ class Sonnen(EnergyDataSource):
             'asset_id': self.site
         }
 
-        provisional_header = {"x-api-key": "ldEwCUZscBaNXHgm9qoeR9RnUKnzhQ5t7umVRNfH"}
+        provisional_header = {"x-api-key": self.api_key}
         endpoint = self.api_url + 'charge_discharge'
 
         r = requests.get(endpoint, params=marginal_query, headers=provisional_header)
@@ -100,57 +101,43 @@ class Sonnen(EnergyDataSource):
 # consuming asset
 class Sonnen_consume(Sonnen):
 
-    def __init__(self, site_id: str):
-        super().__init__(site_id=site_id, keyword='sum_charge_kWh')
+    def __init__(self, site_id: str, api_key: str, api_url: str):
+        super().__init__(site_id=site_id, keyword='sum_charge_kWh', api_key=api_key, api_url=api_url)
 
 
 # producing asset
 class Sonnen_produce(Sonnen):
 
-    def __init__(self, site_id: str):
-        super().__init__(site_id=site_id, keyword='sum_discharge_kWh')
+    def __init__(self, site_id: str, api_key: str, api_url: str):
+        super().__init__(site_id=site_id, keyword='sum_discharge_kWh', api_key=api_key, api_url=api_url)
 
 
 # sonne 101 consume
 class Sonnen_101_c(Sonnen_consume):
 
-    def __init__(self):
-        super().__init__(site_id='101')
+    def __init__(self, api_key: str, api_url: str):
+        super().__init__(site_id='101', api_key=api_key, api_url=api_url)
 
 
 # sonne 101 produce
 class Sonnen_101_p(Sonnen_produce):
 
-    def __init__(self):
-        super().__init__(site_id='101')
+    def __init__(self, api_key: str, api_url: str):
+        super().__init__(site_id='101', api_key=api_key, api_url=api_url)
 
 
 # sonne 102 consume
 class Sonnen_102_c(Sonnen_consume):
 
-    def __init__(self):
-        super().__init__(site_id='102')
+    def __init__(self, api_key: str, api_url: str):
+        super().__init__(site_id='102', api_key=api_key, api_url=api_url)
 
 
 # sonne 102 produce
 class Sonnen_102_p(Sonnen_produce):
 
-    def __init__(self):
-        super().__init__(site_id='102')
-
-
-ZERO = timedelta(0)
-
-
-class UTC(tzinfo):
-    def utcoffset(self, dt):
-        return ZERO
-
-    def tzname(self, dt):
-        return "UTC"
-
-    def dst(self, dt):
-        return ZERO
+    def __init__(self, api_key: str, api_url: str):
+        super().__init__(site_id='102', api_key=api_key, api_url=api_url)
 
 
 if __name__ == '__main__':

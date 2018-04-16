@@ -76,10 +76,6 @@ class Exelon(EnergyDataSource):
         marginal_query = {
             'start': '2015-03-17T06:00:00.000Z',
             'end': '2015-03-18T04:59:59.999Z'
-
-            #  Exelon currently only provides data for the year 2015
-            # 'start': date_now,  # timestamp
-            # 'end': date_one_hour_before.isoformat()  # timestamp
         }
 
         provisional_header = {
@@ -99,18 +95,19 @@ class Exelon_1(Exelon):
         super().__init__(site_id)
 
 
-ZERO = timedelta(0)
-
-
 class UTC(tzinfo):
+
+    def __init__(self):
+        self.ZERO = timedelta(0)
+
     def utcoffset(self, dt):
-        return ZERO
+        return self.ZERO
 
     def tzname(self, dt):
         return "UTC"
 
     def dst(self, dt):
-        return ZERO
+        return self.ZERO
 
 
 if __name__ == '__main__':

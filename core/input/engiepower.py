@@ -85,32 +85,17 @@ class Fontanelles(SmireAPI):
         super().__init__(usr, pwd, 'fontanelles')
 
 
-ZERO = timedelta(0)
-TWO = timedelta(hours=2)
-
-class UTC(tzinfo):
-    def utcoffset(self, dt):
-        return ZERO
-
-    def tzname(self, dt):
-        return "UTC"
-
-    def dst(self, dt):
-        return ZERO
-
-
 class CEST(tzinfo):
+
+    def __init__(self):
+        self.ZERO = timedelta(0)
+        self.TWO = timedelta(hours=2)
+
     def utcoffset(self, dt):
-        return TWO
+        return self.TWO
 
     def tzname(self, dt):
         return "CEST"
 
     def dst(self, dt):
-        return TWO
-
-'''
-if __name__ == '__main__':
-    ex = Eget('', '')
-    ex.read_state()
-'''
+        return self.TWO

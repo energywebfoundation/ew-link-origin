@@ -16,21 +16,18 @@ from core.abstract.input import EnergyData, Device, EnergyDataSource
 # consumption asset
 class GridSingularity(EnergyDataSource):
 
-    def __init__(self, site_id: str, client_id: str, client_secret: str, username: str, password: str):
+    def __init__(self, api_url: str, site_id: str, client_id: str, client_secret: str, username: str, password: str):
 
         self.client_id = client_id
         self.client_secret = client_secret
         self.username = username
         self.password = password
         self.site = site_id
-        self.api_url = 'https://app1pub.smappee.net/dev/v1/servicelocation/'
+        self.api_url = api_url
 
     def read_state(self) -> EnergyData:
 
-        # do the access management (get access token)
-        # username: Gridsingularity
-        # password: Berlin_2017
-        token_request = 'https://app1pub.smappee.net/dev/v1/oauth2/token'
+        token_request = self.api_url + 'oauth2/token'
         marginal_query = {
             'grant_type': 'password',
             'client_id': self.client_id,
@@ -108,7 +105,7 @@ class GridSingularity(EnergyDataSource):
         epoch = datetime.datetime(1970, 1, 1)
         # * 1000 parse int (no clue why grid is asking for that format)
         time_now = int((d - epoch).total_seconds() * 1000)
-        time_one_hour_ago = int(time_now - 3600 * 1000)
+        time_one_hour_ago = int(time_now - 3600 * 1000 * 25)
 
         marginal_query = {
             'aggregation': 2,
@@ -117,7 +114,7 @@ class GridSingularity(EnergyDataSource):
         }
 
         # build the endpoint for the request
-        endpoint = self.api_url + self.site + '/consumption'
+        endpoint = self.api_url + 'servicelocation/' + self.site + '/consumption'
 
         provisional_header = {"Authorization": "Bearer " + authToken}
 
@@ -131,24 +128,20 @@ class GridSingularity(EnergyDataSource):
 
 class GridSingularity_26145(GridSingularity):
 
-    def __init__(self, client_id: str, client_secret: str, username: str, password: str):
-        super().__init__('26145', client_id, client_secret, username, password)
-
-
-ZERO = timedelta(0)
+    def __init__(self, api_url: str, client_id: str, client_secret: str, username: str, password: str):
+        super().__init__(api_url, '26145', client_id, client_secret, username, password)
 
 
 class UTC(tzinfo):
+
+    def __init__(self):
+        self.ZERO = timedelta(0)
+
     def utcoffset(self, dt):
-        return ZERO
+        return self.ZERO
 
     def tzname(self, dt):
         return "UTC"
 
     def dst(self, dt):
-        return ZERO
-
-
-if __name__ == '__main__':
-    gs = GridSingularity_26145('Gridsingularity', 'zatqZsCsfm', 'Gridsingularity', 'Berlin_2017')
-    gs.read_state()
+        return self.ZERO
