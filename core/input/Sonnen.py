@@ -12,17 +12,49 @@ from datetime import timezone, timedelta, tzinfo
 from core.abstract.input import EnergyData, Device, EnergyDataSource
 
 
-# consuming asset
-class Sonnen_consume(EnergyDataSource):
+# producing asset
+class Sonnen(EnergyDataSource):
 
-    def __init__(self, site_id: str):
+    def __init__(self, site_id: str, keyword: str):
 
         self.site = site_id
         self.api_url = 'https://4ljl2ccd1i.execute-api.eu-central-1.amazonaws.com/dev/'
+        self.keyword = keyword
 
     def read_state(self) -> EnergyData:
-        raw = self._get_daily_data()
-        '''
+
+        raw, accumulated_power = self._get_daily_data()
+
+        # build the device object
+        device_meta = {
+            'manufacturer': 'Unknown',
+            'model': 'Unknown',
+            'serial_number': 'Unknown',
+            'geolocation': (0, 0)
+        }
+        device = Device(**device_meta)
+
+        # build access_epoch
+        now = datetime.datetime.now().astimezone()
+        access_timestamp = now.isoformat()
+
+        # build measurement_epoch
+        measurement_timestamp = now - datetime.timedelta(hours=12)
+        measurement_timestamp = measurement_timestamp.isoformat()
+
+        return EnergyData(device, access_timestamp, raw, accumulated_power, measurement_timestamp)
+
+    def _get_daily_data(self, days_ago=1) -> tuple:
+        raw = []
+        accumulated_power = 0
+        for hours_ago in range(1, 25):
+            ans, power = self._get_hourly_data(days_ago, hours_ago)
+            raw.append(ans)
+            accumulated_power += power
+        return raw, accumulated_power
+
+    def _get_hourly_data(self, days_ago: int, hours_ago: int) -> tuple:
+        """
             {
                 "message": "Query executed sucessfully.",
                 "data": {
@@ -34,44 +66,18 @@ class Sonnen_consume(EnergyDataSource):
                     "requested_date": "2018-03-27"
                 }
             }
-        '''
-
-        # build the device object
-        device_meta = {
-            'manufacturer': 'Unknown',
-            'model': 'Unknown',
-            'serial_number': 'Unknown',
-            'geolocation': (0, 0)
-        }
-        device = Device(**device_meta)
-
-        # get produced energy
-        accumulated_power = raw['data']['sum_charge_kWh']
-
-        utc = UTC()
-
-        # build access_epoch
-        now = datetime.datetime.now().astimezone()
-        access_timestamp = now.isoformat()
-
-        # build measurement_epoch
-        measurement_timestamp = datetime.datetime.strptime(
-            raw['data']['requested_date'] + 'T' + str(datetime.timedelta(hours=int(raw['data']['requested_hour']))),
-            '%Y-%m-%dT%H:%M:%S')
-        measurement_timestamp = measurement_timestamp.replace(tzinfo=utc).isoformat()
-
-        return EnergyData(device, access_timestamp, raw, accumulated_power, measurement_timestamp)
-
-    def _get_daily_data(self) -> dict:
-
+        """
         # calculate the current time and one hour back from there
-
         d = datetime.datetime.now(timezone.utc).astimezone()
         utc_offset = d.utcoffset()
 
+        now = datetime.datetime.now()
+        start_date = now - datetime.timedelta(days=days_ago)
+        start_hour = now - datetime.timedelta(hours=hours_ago)
+
         marginal_query = {
-            'date': str(datetime.date.today() - timedelta(days=1)),  # expects year-month-day
-            'hour': datetime.datetime.now().hour - 2,  # the hour of day
+            'date': str(start_date.date()),  # expects year-month-day
+            'hour': start_hour.hour,  # the hour of day
             'utc_offset': utc_offset,
             'asset_id': self.site
         }
@@ -85,83 +91,24 @@ class Sonnen_consume(EnergyDataSource):
             raise AttributeError('Empty response from api.')
         if ans['message'] == 'Forbidden':
             raise AttributeError('Wrong auth')
-        return ans
+
+        # get produced energy anc convert kWh to Watt
+        power = ans['data'][self.keyword] * pow(10, 3)
+        return ans, power
+
+
+# consuming asset
+class Sonnen_consume(Sonnen):
+
+    def __init__(self, site_id: str):
+        super().__init__(site_id=site_id, keyword='sum_charge_kWh')
 
 
 # producing asset
-class Sonnen_produce(EnergyDataSource):
+class Sonnen_produce(Sonnen):
 
     def __init__(self, site_id: str):
-
-        self.site = site_id
-        self.api_url = 'https://4ljl2ccd1i.execute-api.eu-central-1.amazonaws.com/dev/'
-
-    def read_state(self) -> EnergyData:
-        raw = self._get_daily_data()
-        '''
-            {
-                "message": "Query executed sucessfully.",
-                "data": {
-                    "asset_id": 101,
-                    "sum_charge_kWh": 22.101,
-                    "utc_offset": "01:00",
-                    "sum_discharge_kWh": 11.101,
-                    "requested_hour": 11,
-                    "requested_date": "2018-03-27"
-                }
-            }
-        '''
-
-        # build the device object
-        device_meta = {
-            'manufacturer': 'Unknown',
-            'model': 'Unknown',
-            'serial_number': 'Unknown',
-            'geolocation': (0, 0)
-        }
-        device = Device(**device_meta)
-
-        # get produced energy
-        accumulated_power = raw['data']['sum_discharge_kWh']
-
-        utc = UTC()
-
-        # build access_epoch
-        now = datetime.datetime.now().astimezone()
-        access_timestamp = now.isoformat()
-
-        # build measurement_epoch
-        measurement_timestamp = datetime.datetime.strptime(
-            raw['data']['requested_date'] + 'T' + str(datetime.timedelta(hours=int(raw['data']['requested_hour']))),
-            '%Y-%m-%dT%H:%M:%S')
-        measurement_timestamp = measurement_timestamp.replace(tzinfo=utc).isoformat()
-
-        return EnergyData(device, access_timestamp, raw, accumulated_power, measurement_timestamp)
-
-    def _get_daily_data(self) -> dict:
-
-        # calculate the current time and one hour back from there
-
-        d = datetime.datetime.now(timezone.utc).astimezone()
-        utc_offset = d.utcoffset()
-
-        marginal_query = {
-            'date': str(datetime.date.today()),  # expects year-month-day
-            'hour': datetime.datetime.now().hour - 1,  # the hour of day
-            'utc_offset': utc_offset,
-            'asset_id': self.site
-        }
-
-        provisional_header = {"x-api-key": "ldEwCUZscBaNXHgm9qoeR9RnUKnzhQ5t7umVRNfH"}
-        endpoint = self.api_url + 'charge_discharge'
-
-        r = requests.get(endpoint, params=marginal_query, headers=provisional_header)
-        ans = r.json()
-        if len(ans['message']) < 1:
-            raise AttributeError('Empty response from api.')
-        if ans['message'] == 'Forbidden':
-            raise AttributeError('Wrong auth')
-        return ans
+        super().__init__(site_id=site_id, keyword='sum_discharge_kWh')
 
 
 # sonne 101 consume

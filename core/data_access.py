@@ -92,7 +92,7 @@ def __fetch_input_data(external_data_source: ExternalDataSource):
         if not issubclass(result.__class__, ExternalData):
             raise AssertionError
         return result
-    except Exception:
+    except Exception as e:
         return None
 
 
@@ -139,7 +139,7 @@ def read_consumption_data(config: InputConfiguration, last_hash: str) -> Consump
     }
     input_data = ConsumptionFileData(**input_data_dict)
     consumed = {
-        'energy': input_data.raw_energy.accumulated_power if input_data.raw_energy else None,
+        'energy': int(input_data.raw_energy.accumulated_power) if input_data.raw_energy else None,
         'is_meter_down': True if input_data.raw_energy is None else False,
         'previous_hash':  last_hash
     }
