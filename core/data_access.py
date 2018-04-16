@@ -132,7 +132,7 @@ def read_production_data(config: InputConfiguration, last_hash: str, last_state:
     return input_data
 
 
-def read_consumption_data(config: InputConfiguration, last_hash: str) -> ConsumptionFileData:
+def read_consumption_data(config: InputConfiguration, last_hash: str, last_state: list) -> ConsumptionFileData:
     """
     Reach for external data sources and return parsed consumed data
     :param last_hash: Last file hash
@@ -144,8 +144,14 @@ def read_consumption_data(config: InputConfiguration, last_hash: str) -> Consump
         'consumed': None,
     }
     input_data = ConsumptionFileData(**input_data_dict)
+    # add last measured energy in case it is not accumulated
+    # TODO: refactor this to the data input classes
+    energy = int(input_data.raw_energy.accumulated_power) if input_data.raw_energy else 0
+    if not (isinstance(config.energy, DataLoggerV1) or isinstance(config.energy, DataLoggerV2d1d1)):
+        last_energy = last_state[5]
+        energy += last_energy
     consumed = {
-        'energy': int(input_data.raw_energy.accumulated_power) if input_data.raw_energy else None,
+        'energy': energy,
         'is_meter_down': True if input_data.raw_energy is None else False,
         'previous_hash':  last_hash
     }

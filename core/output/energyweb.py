@@ -383,20 +383,17 @@ class RemoteClientOriginProducer(OriginProducer):
         Source:
             AssetLogic.sol
         Call stack:
-        function getAssetGeneral(uint _assetId) 
-            external
-            constant
-            returns(
-                address _smartMeter,
-                address _owner,
-                uint _operationalSince,
-                uint _lastSmartMeterReadWh,
-                bool _active,
-                bytes32 _lastSmartMeterReadFileHash
-                )
-            {
-                return AssetProducingRegistryDB(address(db)).getAssetGeneral(_assetId);
-            }
+            function getAssetGeneral(uint _assetId)
+                external
+                constant
+                returns(
+                    address _smartMeter,
+                    address _owner,
+                    uint _operationalSince,
+                    uint _lastSmartMeterReadWh,
+                    bool _active,
+                    bytes32 _lastSmartMeterReadFileHash
+                    )
         """
         receipt = self.call(origin.contract_address, 'producer', 'getAssetGeneral', origin.asset_id)
         if not receipt:
@@ -458,3 +455,32 @@ class RemoteClientOriginConsumer(OriginConsumer):
 
     def mint(self, consumed_energy: ConsumedChainData, origin: OriginCredentials) -> dict:
         return self.__mint_produced(consumed_energy, origin)
+
+    def last_hash(self, origin: OriginCredentials):
+        return self.__last_producer_file_hash(origin)
+
+    def last_state(self, origin: OriginCredentials):
+        """
+        Get last file hash registered from producer contract
+        Source:
+            AssetLogic.sol
+        Call stack:
+            function getAssetGeneral(uint _assetId)
+                external
+                constant
+                returns (
+                    address _smartMeter,
+                    address _owner,
+                    uint _operationalSince,
+                    uint _capacityWh,
+                    bool _maxCapacitySet,
+                    uint _lastSmartMeterReadWh,
+                    uint _certificatesUsedForWh,
+                    bool _active,
+                    bytes32 _lastSmartMeterReadFileHash
+                    )
+        """
+        receipt = self.call(origin.contract_address, 'consumer', 'getAssetGeneral', origin.asset_id)
+        if not receipt:
+            raise ConnectionError
+        return receipt
