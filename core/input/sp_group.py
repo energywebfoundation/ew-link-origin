@@ -24,15 +24,6 @@ class SPGroupAPI(EnergyDataSource):
         self.api_key = api_key
         self.schedule = sched.scheduler(time.time, time.sleep)
 
-    def schedule(self):
-        hour_from_now = datetime.datetime.now() + datetime.timedelta(minutes=1)
-        hour_from_now = hour_from_now.replace(minute=0)
-        future = time.mktime(hour_from_now.timetuple())
-        print('\n\n===================== WAITING SPGROUP ==================')
-        print('Next Event: ' + hour_from_now.strftime('%d-%b-%Y %H:%M'))
-        self.schedule.enterabs(time=future, priority=1, action=self.__get_hourly_data, argument=())
-        self.schedule.run()
-
     def read_state(self) -> EnergyData:
         raw = self._get_daily_data()
         '''

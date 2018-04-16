@@ -11,6 +11,7 @@ from resin import Resin
 import core.data_access as dao
 import core.config_parser as config_parser
 from core.abstract.bond import InputConfiguration, Configuration
+from core.input.sp_group import SPGroupAPI
 
 handler = colorlog.StreamHandler()
 handler.setFormatter(colorlog.ColoredFormatter('%(log_color)s%(message)s'))
@@ -80,44 +81,19 @@ def print_config(config_file: str = None):
     return configuration
 
 
-def print_production_results(config: Configuration, item: InputConfiguration, chain_file: str):
-    print("==================== PRODUCTION INPUT READ ===========================")
-    print('Energy Production Module: ' + item.energy.__class__.__name__)
-    print('Carbon Emission Saved: ' + item.carbon_emission.__class__.__name__)
-    print('----------')
+def _produce(chain_file, config, item) -> bool:
     try:
         production_local_chain = dao.DiskStorage(chain_file)
         last_local_chain_hash = production_local_chain.get_last_hash()
-    except Exception as e:
-        print('ERROR: Writing or reading files')
-        return
-    try:
         print('Last Blockchain state:')
         last_remote_state = config.client.last_state(item.origin)
         print(last_remote_state)
         print('----------')
-    except Exception as e:
-        print('ERROR: Reading hash from blockchain')
-        return
-    try:
         produced_data = dao.read_production_data(item, last_local_chain_hash, last_remote_state)
-    except Exception as e:
-        print('ERROR: Reading from remote api.')
-        return
-    try:
         file_name_created = production_local_chain.add_to_chain(produced_data)
-    except Exception as e:
-        print('ERROR: Writing to local chain of files.')
-        return
-    try:
         print('Sending to Blockchain:')
         print(produced_data.produced.to_dict())
         print('----------')
-
-    except Exception as e:
-        print('ERROR: Converting results to print.')
-        return
-    try:
         tx_receipt = config.client.mint(produced_data.produced, item.origin)
         print('Receipt Block Number: ' + str(tx_receipt['blockNumber']))
         print('-------------------')
@@ -125,93 +101,105 @@ def print_production_results(config: Configuration, item: InputConfiguration, ch
         last_remote_state = config.client.last_state(item.origin)
         print(last_remote_state)
         print('----------')
-    except Exception as e:
-        print('ERROR: Reading or writing to the blockchain.')
-        return
-    try:
         print('New Local File:')
         print(file_name_created)
         print('----------\n')
+        return True
     except Exception as e:
-        print('ERROR: Reading from local chain of files.')
-        return
+        print('[ERROR]')
+        print(e)
+        return False
+
+
+def print_production_results(config: Configuration, item: InputConfiguration, chain_file: str):
+    print("==================== PRODUCTION INPUT READ ===========================")
+    print('Energy Production Module: ' + item.energy.__class__.__name__)
+    print('Carbon Emission Saved: ' + item.carbon_emission.__class__.__name__)
+    print('----------')
+    for trial in range(3):
+        print('======== > Try #{}. (0, 1, 2)'.format(trial))
+        if _produce(chain_file, config, item):
+            return
+        time.sleep(300 * trial)
+
+
+def _consume(chain_file, config, item):
+    try:
+        consumption_local_chain = dao.DiskStorage(chain_file)
+        last_local_chain_hash = consumption_local_chain.get_last_hash()
+        print('Last Blockchain state:')
+        last_remote_state = config.client.last_state(item.origin)
+        print(last_remote_state)
+        print('----------')
+        consumed_data = dao.read_consumption_data(item, last_local_chain_hash, last_remote_state)
+        file_name_created = consumption_local_chain.add_to_chain(consumed_data)
+        print('Sending to Blockchain:')
+        print(consumed_data.consumed.to_dict())
+        print('----------')
+        tx_receipt = config.client.mint(consumed_data.consumed, item.origin)
+        print('Receipt Block Number: ' + str(tx_receipt['blockNumber']))
+        print('-------------------')
+        print('Last Blockchain state:')
+        last_remote_state = config.client.last_state(item.origin)
+        print(last_remote_state)
+        print('----------')
+        print('New Local File:')
+        print(file_name_created)
+        print('----------\n')
+        return True
+    except Exception as e:
+        print('[ERROR]')
+        print(e)
+        return False
 
 
 def print_consumption_results(config: Configuration, item: InputConfiguration, chain_file: str):
     print("==================== CONSUMPTION INPUT READ ===========================")
     print('Energy Production Module: ' + item.energy.__class__.__name__)
-    print('Carbon Emission Saved: ' + item.carbon_emission.__class__.__name__)
     print('----------')
-    try:
-        consumption_local_chain = dao.DiskStorage(chain_file)
-        last_local_chain_hash = consumption_local_chain.get_last_hash()
-    except Exception as e:
-        print('ERROR: Writing or reading files')
-        return
-    try:
-        print('Last Blockchain state:')
-        last_remote_state = config.client.last_state(item.origin)
-        print(last_remote_state)
-        print('----------')
-    except Exception as e:
-        print('ERROR: Reading hash from blockchain')
-        return
-    # Get the remote data.
-    try:
-        consumed_data = dao.read_consumption_data(item, last_local_chain_hash, last_remote_state)
-    except Exception as e:
-        print('ERROR: Reading from remote api.')
-        return
-    try:
-        file_name_created = consumption_local_chain.add_to_chain(consumed_data)
-    except Exception as e:
-        print('ERROR: Writing to local chain of files.')
-        return
-    try:
-        print('Sending to Blockchain:')
-        print(consumed_data.consumed.to_dict())
-        print('----------')
-
-    except Exception as e:
-        print('ERROR: Converting results to print.')
-        return
-    try:
-        tx_receipt = config.client.mint(consumed_data.consumed, item.origin)
-        print('Receipt Block Number: ' + str(tx_receipt['blockNumber']))
-        print('-------------------')
-    except Exception as e:
-        print('ERROR: Reading or writing to the blockchain.')
-        return
-    try:
-        print('Last Blockchain state:')
-        last_remote_state = config.client.last_state(item.origin)
-        print(last_remote_state)
-        print('----------')
-        print('New Local File:')
-        print(file_name_created)
-        print('----------\n')
-    except Exception as e:
-        print('ERROR: Reading from local chain of files.')
-        return
+    for trial in range(3):
+        print('======== > Try #{}. (0, 1, 2)'.format(trial))
+        if _consume(chain_file, config, item):
+            return
+        time.sleep(300 * trial)
 
 
 def log(prod_chain_file: str, cons_chain_file: str, configuration: Configuration):
-    print('\n\n¸.•*´¨`*•.¸¸.•*´¨`*•.¸ Results ¸.•*´¨`*•.¸¸.•*´¨`*•.¸\n')
+    now = datetime.datetime.now()
+    print('BIP BIP BIP: ' + now.strftime('%d-%b-%Y %H:%M'))
+    print('\n\nI am awaken!\n')
     if configuration.production:
-        [print_production_results(configuration, item, prod_chain_file) for item in configuration.production]
+        production = [item for item in configuration.production if not issubclass(item.energy.__class__, SPGroupAPI)]
+        [print_production_results(configuration, item, prod_chain_file) for item in production]
     if configuration.consumption:
         [print_consumption_results(configuration, item, cons_chain_file) for item in configuration.consumption]
 
 
-def schedule():
-    scheduler = sched.scheduler(time.time, time.sleep)
-    time_sched = '19:13'
+def log_sp(prod_chain_file: str, cons_chain_file: str, configuration: Configuration):
     now = datetime.datetime.now()
-    hour, min = tuple(time_sched.split(':'))
-    future = now.replace(hour=int(hour), minute=int(min))
-    if now > future:
-        future = future + datetime.timedelta(days=1)
-    print('\n\n===================== WAITING ==================')
-    print('Next Event: ' + future.strftime('%d-%b-%Y %H:%M'))
-    scheduler.enterabs(time=time.mktime(future.timetuple()), priority=1, action=log, argument=())
+    print('BIP BIP BIP: ' + now.strftime('%d-%b-%Y %H:%M'))
+    print('\n\nI am awaken!\n')
+    if configuration.production:
+        production = [item for item in configuration.production if issubclass(item.energy.__class__, SPGroupAPI)]
+        [print_production_results(configuration, item, prod_chain_file) for item in production]
+
+
+def schedule(kwargs):
+    scheduler = sched.scheduler(time.time, time.sleep)
+    today = datetime.datetime.now() + datetime.timedelta(hours=1)
+    tomorrow = datetime.datetime.now() + datetime.timedelta(days=1)
+    daily_wake = tomorrow.replace(hour=0, minute=31)
+    if datetime.datetime.now() > daily_wake:
+        daily_wake = daily_wake + datetime.timedelta(days=1)
+    print('\n\n===================== WAITING  ==================')
+    remaining_hours = set(range(24)) - set(range(today.hour))
+    for hour in list(remaining_hours):
+        sp_wake = today.replace(hour=hour, minute=1)
+        print('Next Event SP GROUP: ' + sp_wake.strftime('%d-%b-%Y %H:%M'))
+        scheduler.enterabs(time=time.mktime(sp_wake.timetuple()), priority=2, action=log_sp, kwargs=kwargs)
+    sp_wake = tomorrow.replace(hour=0, minute=1)
+    print('Next Event SP GROUP: ' + sp_wake.strftime('%d-%b-%Y %H:%M'))
+    scheduler.enterabs(time=time.mktime(sp_wake.timetuple()), priority=2, action=log_sp, kwargs=kwargs)
+    print('Next Event DAILY: ' + daily_wake.strftime('%d-%b-%Y %H:%M'))
+    scheduler.enterabs(time=time.mktime(daily_wake.timetuple()), priority=1, action=log, kwargs=kwargs)
     scheduler.run()
