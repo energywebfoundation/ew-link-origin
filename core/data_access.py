@@ -9,6 +9,7 @@ from core import base58
 from core.abstract.input import ExternalDataSource, ExternalData
 from core.abstract.bond import ChainLink, ChainFile, Configuration, ProductionFileData, ConsumptionFileData, \
     ProducedChainData, ConsumedChainData, ChainData, LocalFileData, InputConfiguration, OriginCredentials
+from core.input.eumel import DataLoggerV1, DataLoggerV2d1d1
 from core.output.energyweb import Origin
 
 
@@ -96,7 +97,7 @@ def __fetch_input_data(external_data_source: ExternalDataSource):
         return None
 
 
-def read_production_data(config: InputConfiguration, last_hash: str) -> ProductionFileData:
+def read_production_data(config: InputConfiguration, last_hash: str, last_state: list) -> ProductionFileData:
     """
     Reach for external data sources and return parsed consumed data
     :param last_hash: Last file hash
@@ -111,6 +112,11 @@ def read_production_data(config: InputConfiguration, last_hash: str) -> Producti
     input_data = ProductionFileData(**input_data_dict)
     co2_saved = input_data.raw_carbon_emitted.accumulated_co2 if input_data.raw_carbon_emitted else 0
     energy = input_data.raw_energy.accumulated_power if input_data.raw_energy else 0
+    # add last measured energy in case it is not accumulated
+    # TODO: refactor this to the data input classes
+    if not (isinstance(config.energy, DataLoggerV1) or isinstance(config.energy, DataLoggerV2d1d1)):
+        last_energy = last_state[3]
+        energy += last_energy
     # x * y kg/Watts = xy kg/Watts
     calculated_co2 = energy * co2_saved
     co2_saved = int(calculated_co2 * pow(10, 3))

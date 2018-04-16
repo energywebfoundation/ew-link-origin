@@ -48,13 +48,13 @@ class Sonnen(EnergyDataSource):
     def _get_daily_data(self, days_ago=1) -> tuple:
         raw = []
         accumulated_power = 0
-        for hours_ago in range(1, 25):
-            ans, power = self._get_hourly_data(days_ago, hours_ago)
+        for hour in range(24):
+            ans, power = self._get_hourly_data(days_ago, hour)
             raw.append(ans)
             accumulated_power += power
         return raw, accumulated_power
 
-    def _get_hourly_data(self, days_ago: int, hours_ago: int) -> tuple:
+    def _get_hourly_data(self, days_ago: int, hour: int) -> tuple:
         """
             {
                 "message": "Query executed sucessfully.",
@@ -72,13 +72,12 @@ class Sonnen(EnergyDataSource):
         d = datetime.datetime.now(timezone.utc).astimezone()
         utc_offset = d.utcoffset()
 
-        now = datetime.datetime.now()
+        now = datetime.datetime.now(timezone.utc)
         start_date = now - datetime.timedelta(days=days_ago)
-        start_hour = now - datetime.timedelta(hours=hours_ago)
 
         marginal_query = {
             'date': str(start_date.date()),  # expects year-month-day
-            'hour': start_hour.hour,  # the hour of day
+            'hour': hour,  # the hour of day
             'utc_offset': utc_offset,
             'asset_id': self.site
         }
