@@ -22,3 +22,34 @@ class JSONAble(object):
             return to_dict()
         else:
             return obj
+
+
+class CEST(datetime.tzinfo):
+
+    def __init__(self):
+        self.ZERO = datetime.timedelta(0)
+        self.TWO = datetime.timedelta(hours=2)
+
+    def utcoffset(self, dt):
+        return self.TWO
+
+    def tzname(self, dt):
+        return "CEST"
+
+    def dst(self, dt):
+        return self.TWO
+
+
+class UTC(datetime.tzinfo):
+
+    def __init__(self):
+        self.ZERO = datetime.timedelta(0)
+
+    def utcoffset(self, dt):
+        return self.ZERO
+
+    def tzname(self, dt):
+        return "UTC"
+
+    def dst(self, dt):
+        return self.ZERO

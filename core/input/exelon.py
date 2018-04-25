@@ -6,10 +6,10 @@ Interface for the Exelon api
 - !!! Access by hardcoded api key !!!
 """
 
-import requests
 import datetime
-from datetime import tzinfo, timedelta
+import requests
 
+from core.abstract import UTC
 from core.abstract.input import EnergyDataSource, EnergyData, Device
 
 
@@ -17,7 +17,10 @@ from core.abstract.input import EnergyDataSource, EnergyData, Device
 class Exelon(EnergyDataSource):
 
     def __init__(self, site_id: str):
-
+        """
+        TODO: remove url
+        :param site_id:
+        """
         self.site = site_id
         self.api_url = 'https://origin-dev.run.aws-usw02-pr.ice.predix.io/api/'
 
@@ -57,16 +60,13 @@ class Exelon(EnergyDataSource):
         # accumulated_power = specific_site['energy']['data']
         accumulated_power = specific_site['amount']
 
-        # instance of mini utc class (tzinfo)
-        utc = UTC()
-
         # build access_timestamp
         now = datetime.datetime.now().astimezone()
         access_timestamp = now.isoformat()
 
         # build measurement_timestamp
         measurement_timestamp = datetime.datetime.strptime(specific_site['endTime'], '%Y-%m-%dT%H:%M:%S.%fZ')
-        measurement_timestamp = measurement_timestamp.replace(tzinfo=utc).isoformat()
+        measurement_timestamp = measurement_timestamp.replace(tzinfo=UTC()).isoformat()
 
         return EnergyData(device, access_timestamp, raw, accumulated_power, measurement_timestamp)
 
@@ -93,21 +93,6 @@ class Exelon_1(Exelon):
 
     def __init__(self, site_id: str):
         super().__init__(site_id)
-
-
-class UTC(tzinfo):
-
-    def __init__(self):
-        self.ZERO = timedelta(0)
-
-    def utcoffset(self, dt):
-        return self.ZERO
-
-    def tzname(self, dt):
-        return "UTC"
-
-    def dst(self, dt):
-        return self.ZERO
 
 
 if __name__ == '__main__':

@@ -82,7 +82,7 @@ class SPGroupAPI(EnergyDataSource):
             'start': 'last_hour',
             'end': 'now'
         }
-        # sending header until we get usr pwd
+        # sending header until we get usr pwdimport from fabric.api import *
         provisional_header = {
             "Authorization": "Basic " + self.api_key}
         endpoint = self.api_url + 'produced'

@@ -23,5 +23,4 @@ if __name__ == '__main__':
             "cons_chain_file": CONSUMPTION_CHAIN,
             "configuration": configuration
         }
-        core.log(**config)
         core.schedule(config)
