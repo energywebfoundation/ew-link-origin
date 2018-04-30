@@ -70,14 +70,13 @@ def print_config(config_file: str = None):
     else:
         configuration = config_parser.parse(json.loads(os.environ['config']))
 
-    message = '[{}][CONF] meter: {} - co2: {}'
+    prod = '[PROD][CONF] meter: {} - co2: {}'
+    coms = '[COMS][CONF] meter: {}'
     if configuration.production is not None:
-        [print(message.format('PROD', item.energy.__class__.__name__, item.carbon_emission.__class__.__name__))
+        [print(prod.format(item.energy.__class__.__name__, item.carbon_emission.__class__.__name__))
          for item in configuration.production]
     if configuration.consumption is not None:
-        [print(message.format('COMS', item.energy.__class__.__name__)) for item in configuration.consumption]
-    print('EWF Client: ' + configuration.client.__class__.__name__)
-    print('\n\n')
+        [print(coms.format(item.energy.__class__.__name__)) for item in configuration.consumption]
     return configuration
 
 
