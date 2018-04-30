@@ -1,18 +1,8 @@
-import time
-import subprocess
-
 import core.helper as core
 
 PRODUCTION_CHAIN = 'production.pkl'
 CONSUMPTION_CHAIN = 'consumption.pkl'
-
-
-def start_ewf_client():
-    subprocess.Popen(["assets/ewf-client-arm", "--jsonrpc-apis", "all", "--reserved-peers", "assets/tobalaba-peers"],
-                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    print('waiting for ewf-client...\n\n')
-    time.sleep(60)
-
+d
 
 if __name__ == '__main__':
     infinite = True
@@ -23,4 +13,5 @@ if __name__ == '__main__':
             "cons_chain_file": CONSUMPTION_CHAIN,
             "configuration": configuration
         }
+        core.log(**config)
         core.schedule(config)
