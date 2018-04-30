@@ -2,7 +2,6 @@ import core.helper as core
 
 PRODUCTION_CHAIN = 'production.pkl'
 CONSUMPTION_CHAIN = 'consumption.pkl'
-d
 
 if __name__ == '__main__':
     infinite = True
