@@ -5,8 +5,8 @@ CONSUMPTION_CHAIN = 'consumption.pkl'
 
 if __name__ == '__main__':
     infinite = True
+    configuration = core.print_config()
     while infinite:
-        configuration = core.print_config()
         config = {
             "prod_chain_file": PRODUCTION_CHAIN,
             "cons_chain_file": CONSUMPTION_CHAIN,

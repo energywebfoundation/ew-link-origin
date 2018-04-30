@@ -69,14 +69,15 @@ def print_config(config_file: str = None):
         configuration = config_parser.parse(json.load(open(config_file)))
     else:
         configuration = config_parser.parse(json.loads(os.environ['config']))
-    # if configuration.production is not None:
-    #     for item in configuration.production:
-    #         print('Energy Production Module: ' + item.energy.__class__.__name__)
-    #         print('Carbon Emission Saved: ' + item.carbon_emission.__class__.__name__)
-    # if configuration.consumption is not None:
-    #     [print('Energy Consumption Module: ' + item.energy.__class__.__name__) for item in configuration.consumption]
-    # print('EWF Client: ' + configuration.client.__class__.__name__)
-    # print('\n\n')
+
+    message = '[{}][CONF] meter: {} - co2: {}'
+    if configuration.production is not None:
+        [print(message.format('PROD', item.energy.__class__.__name__, item.carbon_emission.__class__.__name__))
+         for item in configuration.production]
+    if configuration.consumption is not None:
+        [print(message.format('COMS', item.energy.__class__.__name__)) for item in configuration.consumption]
+    print('EWF Client: ' + configuration.client.__class__.__name__)
+    print('\n\n')
     return configuration
 
 
@@ -91,7 +92,7 @@ def _produce(chain_file, config, item) -> bool:
         class_name = item.energy.__class__.__name__
         data = produced_data.produced
         block_number = str(tx_receipt['blockNumber'])
-        message = 'Production: {} on-line: {} - {} Watts - {}kg Co2 Saved - Block: {} - File: {}.'
+        message = '[PROD] {} - online: {} - {} Watts - {}kg Co2 Saved - Block: {} - File: {}'
         print(message.format(class_name, data.is_meter_down, data.energy, data.co2_saved, block_number, created_file))
         return True
     except Exception as e:
@@ -104,7 +105,7 @@ def print_production_results(config: Configuration, item: InputConfiguration, ch
             return
         time.sleep(300 * trial)
         if trial == 2:
-            print("[Failed] Production of {}".format(item.energy.__class__.__name__))
+            print("[PROD][FAIL] {}".format(item.energy.__class__.__name__))
 
 
 def _consume(chain_file, config, item):
@@ -118,7 +119,7 @@ def _consume(chain_file, config, item):
         class_name = item.energy.__class__.__name__
         data = consumed_data.consumed
         block_number = str(tx_receipt['blockNumber'])
-        message = 'Comsumption: {} on-line: {}. {} Watts. Block: {}. File: {}.'
+        message = '[COMS] {} - online: {} - {} Watts - Block: {} - File: {}'
         print(message.format(class_name, data.is_meter_down, data.energy, block_number, created_file))
         return True
     except Exception as e:
@@ -131,13 +132,10 @@ def print_consumption_results(config: Configuration, item: InputConfiguration, c
             return
         time.sleep(300 * trial)
         if trial == 2:
-            print("[Failed] Comsumption of {}".format(item.energy.__class__.__name__))
+            print("[COMS][FAIL] {}".format(item.energy.__class__.__name__))
 
 
 def log(prod_chain_file: str, cons_chain_file: str, configuration: Configuration):
-    # now = datetime.datetime.now()
-    # print('BOP BOP: ' + now.strftime('%d-%b-%Y %H:%M'))
-    # print('\n\nI am awaken for the DAILY UPDATES!\n')
     if configuration.production:
         production = [item for item in configuration.production if not issubclass(item.energy.__class__, SPGroupAPI)]
         [print_production_results(configuration, item, prod_chain_file) for item in production]
@@ -146,9 +144,6 @@ def log(prod_chain_file: str, cons_chain_file: str, configuration: Configuration
 
 
 def log_sp(prod_chain_file: str, cons_chain_file: str, configuration: Configuration):
-    # now = datetime.datetime.now()
-    # print('BIP BIP BIP: ' + now.strftime('%d-%b-%Y %H:%M'))
-    # print('\n\nI am awaken for HOURLY updates!\n')
     if configuration.production:
         production = [item for item in configuration.production if issubclass(item.energy.__class__, SPGroupAPI)]
         [print_production_results(configuration, item, prod_chain_file) for item in production]
@@ -163,12 +158,9 @@ def schedule(kwargs):
         daily_wake = daily_wake + datetime.timedelta(days=1)
     remaining_hours = set(range(24)) - set(range(today.hour))
     for hour in list(remaining_hours):
-        sp_wake = today.replace(hour=hour, minute=1)
-        # print('Next Event SP GROUP: ' + sp_wake.strftime('%d-%b-%Y %H:%M'))
-        scheduler.enterabs(time=time.mktime(sp_wake.timetuple()), priority=2, action=log_sp, kwargs=kwargs)
-    sp_wake = tomorrow.replace(hour=0, minute=1)
-    # print('Next Event SP GROUP: ' + sp_wake.strftime('%d-%b-%Y %H:%M'))
-    scheduler.enterabs(time=time.mktime(sp_wake.timetuple()), priority=2, action=log_sp, kwargs=kwargs)
-    # print('Next Event DAILY: ' + daily_wake.strftime('%d-%b-%Y %H:%M'))
+        hourly_wake = today.replace(hour=hour, minute=1)
+        scheduler.enterabs(time=time.mktime(hourly_wake.timetuple()), priority=2, action=log_sp, kwargs=kwargs)
+    hourly_wake = tomorrow.replace(hour=0, minute=1)
+    scheduler.enterabs(time=time.mktime(hourly_wake.timetuple()), priority=2, action=log_sp, kwargs=kwargs)
     scheduler.enterabs(time=time.mktime(daily_wake.timetuple()), priority=1, action=log, kwargs=kwargs)
     scheduler.run()
