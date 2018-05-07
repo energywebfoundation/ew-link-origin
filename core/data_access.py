@@ -1,21 +1,21 @@
-import hashlib
-import json
 import os
+import json
 import pickle
-
+import hashlib
 import datetime
 
 from core import base58
+
 from core.abstract.input import ExternalDataSource, ExternalData
-from core.abstract.bond import ChainLink, ChainFile, Configuration, ProductionFileData, ConsumptionFileData, \
-    ProducedChainData, ConsumedChainData, ChainData, LocalFileData, InputConfiguration, OriginCredentials
+from core.abstract.bond import ChainLink, ChainFile, ProductionFileData, ConsumptionFileData, ProducedChainData, \
+    ConsumedChainData, LocalFileData, InputConfiguration
+
 from core.input.eumel import DataLoggerV1, DataLoggerV2d1d1
-from core.output.energyweb import Origin
 
 
 class DiskStorage:
 
-    def __init__(self, chain_file_name: str, path_to_files: str = './tobalaba/'):
+    def __init__(self, chain_file_name: str, path_to_files: str = '/mnt/data/tobalaba/'):
         """
         :param chain_file_name:
         :param path_to_files:

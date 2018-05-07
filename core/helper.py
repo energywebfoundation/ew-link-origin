@@ -2,6 +2,7 @@ import os
 import json
 import time
 import sched
+import syslog
 import logging
 import colorlog
 import datetime
@@ -18,18 +19,9 @@ handler = colorlog.StreamHandler()
 handler.setFormatter(colorlog.ColoredFormatter('%(log_color)s%(message)s'))
 
 # Default color scheme is 'example'
-tty_logger = colorlog.getLogger('example')
-tty_logger.addHandler(handler)
-tty_logger.setLevel(logging.ERROR)
-
-
-file_logger = logging.getLogger('spam_application')
-file_logger.setLevel(logging.DEBUG)
-fh = logging.FileHandler('./bond.log')
-fh.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-fh.setFormatter(formatter)
-file_logger.addHandler(fh)
+logger = colorlog.getLogger('example')
+logger.addHandler(handler)
+logger.setLevel(logging.DEBUG)
 
 
 class AsyncClientError(EnvironmentError):
@@ -73,10 +65,10 @@ def print_config(config_file: str = None):
     prod = '[PROD][CONF] meter: {} - co2: {}'
     coms = '[COMS][CONF] meter: {}'
     if configuration.production is not None:
-        [print(prod.format(item.energy.__class__.__name__, item.carbon_emission.__class__.__name__))
+        [logger.debug(prod.format(item.energy.__class__.__name__, item.carbon_emission.__class__.__name__))
          for item in configuration.production]
     if configuration.consumption is not None:
-        [print(coms.format(item.energy.__class__.__name__)) for item in configuration.consumption]
+        [logger.debug(coms.format(item.energy.__class__.__name__)) for item in configuration.consumption]
     return configuration
 
 
@@ -90,11 +82,12 @@ def _produce(chain_file, config, item) -> bool:
         tx_receipt = config.client.mint(produced_data.produced, item.origin)
         class_name = item.energy.__class__.__name__
         data = produced_data.produced
-        block_number = str(tx_receipt['blockNumber'])
-        message = '[PROD] {} - online: {} - {} Watts - {}kg Co2 Saved - Block: {} - File: {}'
-        print(message.format(class_name, data.is_meter_down, data.energy, data.co2_saved, block_number, created_file))
+        bn = str(tx_receipt['blockNumber'])
+        msg = '[PROD] {} - offline: {} - {} Watts - {}kg Co2 Saved - Block: {} - File: {}'
+        logger.info(msg.format(class_name, data.is_meter_down, data.energy, data.co2_saved, bn, created_file))
         return True
     except Exception as e:
+        syslog.syslog(syslog.LOG_ERR, "[BOND][PROD] meter: {} - stack: {}".format(item.energy.__class__.__name__, e))
         return False
 
 
@@ -104,7 +97,7 @@ def print_production_results(config: Configuration, item: InputConfiguration, ch
             return
         time.sleep(300 * trial)
         if trial == 2:
-            print("[PROD][FAIL] {}".format(item.energy.__class__.__name__))
+            logger.critical("[COMS][FAIL] meter: {} - Check syslog [BOND][PROD].".format(item.energy.__class__.__name__))
 
 
 def _consume(chain_file, config, item):
@@ -118,10 +111,11 @@ def _consume(chain_file, config, item):
         class_name = item.energy.__class__.__name__
         data = consumed_data.consumed
         block_number = str(tx_receipt['blockNumber'])
-        message = '[COMS] {} - online: {} - {} Watts - Block: {} - File: {}'
-        print(message.format(class_name, data.is_meter_down, data.energy, block_number, created_file))
+        message = '[COMS] {} - offline: {} - {} Watts - Block: {} - File: {}'
+        logger.info(message.format(class_name, data.is_meter_down, data.energy, block_number, created_file))
         return True
     except Exception as e:
+        syslog.syslog(syslog.LOG_ERR, "[BOND][COMS] meter: {} - stack: {}".format(item.energy.__class__.__name__, e))
         return False
 
 
@@ -131,7 +125,7 @@ def print_consumption_results(config: Configuration, item: InputConfiguration, c
             return
         time.sleep(300 * trial)
         if trial == 2:
-            print("[COMS][FAIL] {}".format(item.energy.__class__.__name__))
+            logger.critical("[COMS][FAIL] meter: {} - Check syslog [BOND][COMS].".format(item.energy.__class__.__name__))
 
 
 def log(prod_chain_file: str, cons_chain_file: str, configuration: Configuration):
