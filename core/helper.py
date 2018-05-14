@@ -18,6 +18,8 @@ PERSISTENCE = '/mnt/data/tobalaba/'
 
 tty_handler = colorlog.StreamHandler()
 tty_handler.setFormatter(colorlog.ColoredFormatter('%(log_color)s%(message)s'))
+if not os.path.exists(PERSISTENCE):
+    os.makedirs(PERSISTENCE)
 file_handler = logging.FileHandler(PERSISTENCE + 'bond.log')
 file_handler.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s]%(message)s'))
 
