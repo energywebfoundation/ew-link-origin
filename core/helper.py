@@ -2,7 +2,6 @@ import os
 import json
 import time
 import sched
-import syslog
 import logging
 import colorlog
 import datetime
@@ -15,12 +14,17 @@ from core.input.sp_group import SPGroupAPI
 
 from resin import Resin
 
-handler = colorlog.StreamHandler()
-handler.setFormatter(colorlog.ColoredFormatter('%(log_color)s%(message)s'))
+PERSISTENCE = '/mnt/data/tobalaba/'
+
+tty_handler = colorlog.StreamHandler()
+tty_handler.setFormatter(colorlog.ColoredFormatter('%(log_color)s%(message)s'))
+file_handler = logging.FileHandler(PERSISTENCE + 'bond.log')
+file_handler.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s]%(message)s'))
 
 # Default color scheme is 'example'
 logger = colorlog.getLogger('example')
-logger.addHandler(handler)
+logger.addHandler(tty_handler)
+logger.addHandler(file_handler)
 logger.setLevel(logging.DEBUG)
 
 
@@ -57,24 +61,26 @@ def read_config(token: str, resin_device_uuid: str):
 
 
 def print_config(config_file: str = None):
+    prod = '[PROD][CONF] meter: {} - co2 source: {}'
+    coms = '[COMS][CONF] meter: {}'
+    logger.debug('[CONF] path to logs: {}'.format(PERSISTENCE))
+
     if config_file:
         configuration = config_parser.parse(json.load(open(config_file)))
     else:
         configuration = config_parser.parse(json.loads(os.environ['config']))
-
-    prod = '[PROD][CONF] meter: {} - co2: {}'
-    coms = '[COMS][CONF] meter: {}'
     if configuration.production is not None:
         [logger.debug(prod.format(item.energy.__class__.__name__, item.carbon_emission.__class__.__name__))
          for item in configuration.production]
     if configuration.consumption is not None:
         [logger.debug(coms.format(item.energy.__class__.__name__)) for item in configuration.consumption]
+
     return configuration
 
 
 def _produce(chain_file, config, item) -> bool:
     try:
-        production_local_chain = dao.DiskStorage(chain_file)
+        production_local_chain = dao.DiskStorage(chain_file, PERSISTENCE)
         last_local_chain_hash = production_local_chain.get_last_hash()
         last_remote_state = config.client.last_state(item.origin)
         produced_data = dao.read_production_data(item, last_local_chain_hash, last_remote_state)
@@ -82,12 +88,15 @@ def _produce(chain_file, config, item) -> bool:
         tx_receipt = config.client.mint(produced_data.produced, item.origin)
         class_name = item.energy.__class__.__name__
         data = produced_data.produced
-        bn = str(tx_receipt['blockNumber'])
-        msg = '[PROD] {} - offline: {} - {} Watts - {}kg Co2 Saved - Block: {} - File: {}'
-        logger.info(msg.format(class_name, data.is_meter_down, data.energy, data.co2_saved, bn, created_file))
+        block_number = str(tx_receipt['blockNumber'])
+        msg = '[PROD] meter: {} - {} watts - {} kg of Co2 - block: {}'
+        if data.is_meter_down:
+            logger.warning(msg.format(class_name, data.energy, data.co2_saved, block_number))
+        else:
+            logger.info(msg.format(class_name, data.energy, data.co2_saved, block_number))
         return True
     except Exception as e:
-        syslog.syslog(syslog.LOG_ERR, "[BOND][PROD] meter: {} - stack: {}".format(item.energy.__class__.__name__, e))
+        logger.exception("[BOND][PROD] meter: {} - stack: {}".format(item.energy.__class__.__name__, e))
         return False
 
 
@@ -97,12 +106,12 @@ def print_production_results(config: Configuration, item: InputConfiguration, ch
             return
         time.sleep(300 * trial)
         if trial == 2:
-            logger.critical("[COMS][FAIL] meter: {} - Check syslog [BOND][PROD].".format(item.energy.__class__.__name__))
+            logger.critical("[COMS][FAIL] meter: {} - Check syslog [BOND][PROD]".format(item.energy.__class__.__name__))
 
 
 def _consume(chain_file, config, item):
     try:
-        consumption_local_chain = dao.DiskStorage(chain_file)
+        consumption_local_chain = dao.DiskStorage(chain_file, PERSISTENCE)
         last_local_chain_hash = consumption_local_chain.get_last_hash()
         last_remote_state = config.client.last_state(item.origin)
         consumed_data = dao.read_consumption_data(item, last_local_chain_hash, last_remote_state)
@@ -111,11 +120,14 @@ def _consume(chain_file, config, item):
         class_name = item.energy.__class__.__name__
         data = consumed_data.consumed
         block_number = str(tx_receipt['blockNumber'])
-        message = '[COMS] {} - offline: {} - {} Watts - Block: {} - File: {}'
-        logger.info(message.format(class_name, data.is_meter_down, data.energy, block_number, created_file))
+        message = '[COMS] meter: {} - {} watts - block: {}'
+        if data.is_meter_down:
+            logger.warning(message.format(class_name, data.energy, block_number))
+        else:
+            logger.info(message.format(class_name, data.energy, block_number))
         return True
     except Exception as e:
-        syslog.syslog(syslog.LOG_ERR, "[BOND][COMS] meter: {} - stack: {}".format(item.energy.__class__.__name__, e))
+        logger.exception("[BOND][COMS] meter: {} - stack: {}".format(item.energy.__class__.__name__, e))
         return False
 
 
@@ -125,7 +137,7 @@ def print_consumption_results(config: Configuration, item: InputConfiguration, c
             return
         time.sleep(300 * trial)
         if trial == 2:
-            logger.critical("[COMS][FAIL] meter: {} - Check syslog [BOND][COMS].".format(item.energy.__class__.__name__))
+            logger.critical("[COMS][FAIL] meter: {} - Check syslog [BOND][COMS]".format(item.energy.__class__.__name__))
 
 
 def log(prod_chain_file: str, cons_chain_file: str, configuration: Configuration):

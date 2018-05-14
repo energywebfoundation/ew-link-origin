@@ -26,4 +26,4 @@ if __name__ == '__main__':
         "configuration": configuration
     }
     core.log(**config)
-    core.schedule(config)
+    # core.schedule(config)

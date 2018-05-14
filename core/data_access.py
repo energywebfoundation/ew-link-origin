@@ -15,7 +15,7 @@ from core.input.eumel import DataLoggerV1, DataLoggerV2d1d1
 
 class DiskStorage:
 
-    def __init__(self, chain_file_name: str, path_to_files: str = '/mnt/data/tobalaba/'):
+    def __init__(self, chain_file_name: str, path_to_files: str):
         """
         :param chain_file_name:
         :param path_to_files:
