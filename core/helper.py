@@ -21,13 +21,20 @@ tty_handler.setFormatter(colorlog.ColoredFormatter('%(log_color)s%(message)s'))
 if not os.path.exists(PERSISTENCE):
     os.makedirs(PERSISTENCE)
 file_handler = logging.FileHandler(PERSISTENCE + 'bond.log')
-file_handler.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s]%(message)s'))
+formatter = logging.Formatter('%(asctime)s [%(levelname)s]%(message)s')
+file_handler.setFormatter(formatter)
 
 # Default color scheme is 'example'
 logger = colorlog.getLogger('example')
 logger.addHandler(tty_handler)
 logger.addHandler(file_handler)
 logger.setLevel(logging.DEBUG)
+
+error_log = logging.getLogger()
+error_file_handler = logging.FileHandler(PERSISTENCE + 'error.log')
+error_file_handler.setFormatter(formatter)
+error_log.addHandler(file_handler)
+error_log.setLevel(logging.ERROR)
 
 
 class AsyncClientError(EnvironmentError):
@@ -98,7 +105,7 @@ def _produce(chain_file, config, item) -> bool:
             logger.info(msg.format(class_name, data.energy, data.co2_saved, block_number))
         return True
     except Exception as e:
-        logger.exception("[BOND][PROD] meter: {} - stack: {}".format(item.energy.__class__.__name__, e))
+        error_log.exception("[BOND][PROD] meter: {} - stack: {}".format(item.energy.__class__.__name__, e))
         return False
 
 
@@ -108,7 +115,7 @@ def print_production_results(config: Configuration, item: InputConfiguration, ch
             return
         time.sleep(300 * trial)
         if trial == 2:
-            logger.critical("[COMS][FAIL] meter: {} - Check syslog [BOND][PROD]".format(item.energy.__class__.__name__))
+            logger.critical("[COMS][FAIL] meter: {} - Check error.log".format(item.energy.__class__.__name__))
 
 
 def _consume(chain_file, config, item):
@@ -129,7 +136,7 @@ def _consume(chain_file, config, item):
             logger.info(message.format(class_name, data.energy, block_number))
         return True
     except Exception as e:
-        logger.exception("[BOND][COMS] meter: {} - stack: {}".format(item.energy.__class__.__name__, e))
+        error_log.exception("[BOND][COMS] meter: {} - stack: {}".format(item.energy.__class__.__name__, e))
         return False
 
 
@@ -139,7 +146,7 @@ def print_consumption_results(config: Configuration, item: InputConfiguration, c
             return
         time.sleep(300 * trial)
         if trial == 2:
-            logger.critical("[COMS][FAIL] meter: {} - Check syslog [BOND][COMS]".format(item.energy.__class__.__name__))
+            logger.critical("[COMS][FAIL] meter: {} - Check error.log".format(item.energy.__class__.__name__))
 
 
 def log(prod_chain_file: str, cons_chain_file: str, configuration: Configuration):
