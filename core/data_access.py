@@ -26,8 +26,11 @@ class DiskStorage:
             os.makedirs(path_to_files)
         if not os.path.exists(self.chain_file):
             self.__memory = None
-        else:
+            return
+        try:
             self.__memory = pickle.load(open(self.chain_file, 'rb'))
+        except EOFError:
+            self.__memory = None
 
     @property
     def chain(self) -> ChainLink:
