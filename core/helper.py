@@ -149,18 +149,20 @@ def print_consumption_results(config: Configuration, item: InputConfiguration, c
             logger.critical("[COMS][FAIL] meter: {} - Check error.log".format(item.energy.__class__.__name__))
 
 
-def log(prod_chain_file: str, cons_chain_file: str, configuration: Configuration):
+def log(configuration: Configuration):
+    fn = '{}.pkl'
     if configuration.production:
         production = [item for item in configuration.production if not issubclass(item.energy.__class__, SPGroupAPI)]
-        [print_production_results(configuration, item, prod_chain_file) for item in production]
+        [print_production_results(configuration, item, fn.format(item.name)) for item in production]
     if configuration.consumption:
-        [print_consumption_results(configuration, item, cons_chain_file) for item in configuration.consumption]
+        [print_consumption_results(configuration, item, fn.format(item.name)) for item in configuration.consumption]
 
 
-def log_sp(prod_chain_file: str, cons_chain_file: str, configuration: Configuration):
+def log_sp(configuration: Configuration):
+    fn = '{}.pkl'
     if configuration.production:
         production = [item for item in configuration.production if issubclass(item.energy.__class__, SPGroupAPI)]
-        [print_production_results(configuration, item, prod_chain_file) for item in production]
+        [print_production_results(configuration, item, fn.format(item.name)) for item in production]
 
 
 def schedule(kwargs):
