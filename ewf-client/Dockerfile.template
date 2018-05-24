@@ -8,4 +8,4 @@ ADD ./tobalaba-peers /
 
 EXPOSE 30303 8545 8546 5001 8083 8082 8008
 
-CMD ["-d /mnt/data/tobalaba",""--cache '256'","--no-warp","--light","--jsonrpc-apis","all","--reserved-peers","/tobalaba-peers"]
+CMD ["-d /mnt/data/tobalaba","--no-warp","--light","--jsonrpc-apis all","--reserved-peers /tobalaba-peers","--cache '256'"]

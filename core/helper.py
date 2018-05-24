@@ -33,7 +33,7 @@ logger.setLevel(logging.DEBUG)
 error_log = logging.getLogger()
 error_file_handler = logging.FileHandler(PERSISTENCE + 'error.log')
 error_file_handler.setFormatter(formatter)
-error_log.addHandler(file_handler)
+error_log.addHandler(error_file_handler)
 error_log.setLevel(logging.DEBUG)
 
 
