@@ -37,7 +37,7 @@ class DataLoggerV1(EnergyDataSource):
             serial_number=tree_header['sn'])
         access_timestamp = int(time.time())
         time_format = '%Y-%m-%dT%H:%M:%SZ'
-        accumulated_power = int(tree_leaves['TotWhImp'].replace('.', ''))
+        accumulated_power = float(tree_leaves['TotWhImp'].replace('.', ''))
         measurement_timestamp = int(time.mktime(time.strptime(tree_header['t'], time_format)))
         return EnergyData(device, access_timestamp, raw, accumulated_power, measurement_timestamp)
 
@@ -75,6 +75,6 @@ class DataLoggerV2d1d1(EnergyDataSource):
             geolocation=None)
         access_timestamp = int(time.time())
         time_format = '%Y-%m-%dT%H:%M:%SZ'
-        accumulated_power = int(tree_leaves['TotWhImp'].replace('.', ''))
+        accumulated_power = float(tree_leaves['TotWhImp'])
         measurement_timestamp = int(time.mktime(time.strptime(tree_header['t'], time_format)))
         return EnergyData(device, access_timestamp, str(raw), accumulated_power, measurement_timestamp)

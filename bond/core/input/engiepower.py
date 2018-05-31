@@ -8,8 +8,8 @@ Interface for the Engie api
 
 import requests
 import datetime
-from datetime import tzinfo, timedelta
 
+from core.abstract import CEST
 from core.abstract.input import EnergyDataSource, EnergyData, Device
 
 
@@ -83,34 +83,3 @@ class Fontanelles(SmireAPI):
 
     def __init__(self, usr: str, pwd: str):
         super().__init__(usr, pwd, 'fontanelles')
-
-
-ZERO = timedelta(0)
-TWO = timedelta(hours=2)
-
-class UTC(tzinfo):
-    def utcoffset(self, dt):
-        return ZERO
-
-    def tzname(self, dt):
-        return "UTC"
-
-    def dst(self, dt):
-        return ZERO
-
-
-class CEST(tzinfo):
-    def utcoffset(self, dt):
-        return TWO
-
-    def tzname(self, dt):
-        return "CEST"
-
-    def dst(self, dt):
-        return TWO
-
-'''
-if __name__ == '__main__':
-    ex = Eget('', '')
-    ex.read_state()
-'''

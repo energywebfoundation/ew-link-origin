@@ -94,16 +94,17 @@ class OriginCredentials(JSONAble):
 
 class InputConfiguration:
 
-    def __init__(self, energy: EnergyDataSource, origin: OriginCredentials, carbon_emission: CarbonEmissionDataSource = None):
+    def __init__(self, energy: EnergyDataSource, origin: OriginCredentials, carbon_emission: CarbonEmissionDataSource, name: str):
         if not isinstance(energy, EnergyDataSource):
             raise AttributeError
         if not isinstance(origin, OriginCredentials):
             raise AttributeError
-        if not None and not isinstance(carbon_emission, CarbonEmissionDataSource):
+        if carbon_emission is not None and not isinstance(carbon_emission, CarbonEmissionDataSource):
             raise AttributeError
         self.energy = energy
         self.origin = origin
         self.carbon_emission = carbon_emission
+        self.name = name
 
 
 class Configuration:

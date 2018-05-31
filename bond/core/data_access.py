@@ -1,20 +1,21 @@
-import hashlib
-import json
 import os
+import json
 import pickle
-
+import hashlib
 import datetime
 
 from core import base58
+
 from core.abstract.input import ExternalDataSource, ExternalData
-from core.abstract.bond import ChainLink, ChainFile, Configuration, ProductionFileData, ConsumptionFileData, \
-    ProducedChainData, ConsumedChainData, ChainData, LocalFileData, InputConfiguration, OriginCredentials
-from core.output.energyweb import Origin
+from core.abstract.bond import ChainLink, ChainFile, ProductionFileData, ConsumptionFileData, ProducedChainData, \
+    ConsumedChainData, LocalFileData, InputConfiguration
+
+from core.input.eumel import DataLoggerV1, DataLoggerV2d1d1
 
 
 class DiskStorage:
 
-    def __init__(self, chain_file_name: str, path_to_files: str = './tobalaba/'):
+    def __init__(self, chain_file_name: str, path_to_files: str):
         """
         :param chain_file_name:
         :param path_to_files:
@@ -25,8 +26,11 @@ class DiskStorage:
             os.makedirs(path_to_files)
         if not os.path.exists(self.chain_file):
             self.__memory = None
-        else:
+            return
+        try:
             self.__memory = pickle.load(open(self.chain_file, 'rb'))
+        except EOFError:
+            self.__memory = None
 
     @property
     def chain(self) -> ChainLink:
@@ -92,11 +96,11 @@ def __fetch_input_data(external_data_source: ExternalDataSource):
         if not issubclass(result.__class__, ExternalData):
             raise AssertionError
         return result
-    except Exception:
+    except Exception as e:
         return None
 
 
-def read_production_data(config: InputConfiguration, last_hash: str) -> ProductionFileData:
+def read_production_data(config: InputConfiguration, last_hash: str, last_state: list) -> ProductionFileData:
     """
     Reach for external data sources and return parsed consumed data
     :param last_hash: Last file hash
@@ -109,15 +113,19 @@ def read_production_data(config: InputConfiguration, last_hash: str) -> Producti
         'produced': None,
     }
     input_data = ProductionFileData(**input_data_dict)
-    co2_saved = None
-    energy = None
-    if input_data.raw_carbon_emitted and input_data.raw_energy:
-        # x * y kg/Watts = xy kg/Watts
-        calculated_co2 = input_data.raw_carbon_emitted.accumulated_co2 * input_data.raw_energy.accumulated_power
-        co2_saved = int(calculated_co2 * pow(10, 3))
-        energy = int(input_data.raw_energy.accumulated_power)
+    co2_saved = input_data.raw_carbon_emitted.accumulated_co2 if input_data.raw_carbon_emitted else 0
+    energy = input_data.raw_energy.accumulated_power if input_data.raw_energy else 0
+    # add last measured energy in case it is not accumulated
+    # TODO: refactor this to the data input classes
+    if not (isinstance(config.energy, DataLoggerV1) or isinstance(config.energy, DataLoggerV2d1d1)):
+        last_energy = last_state[3]
+        energy += last_energy
+    # x * y kg/Watts = xy kg/Watts
+    calculated_co2 = energy * co2_saved
+    co2_saved = int(calculated_co2 * pow(10, 3))
+    energy = int(energy)
     produced = {
-        'energy': energy if energy else None,
+        'energy': energy,
         'is_meter_down': True if input_data.raw_energy is None else False,
         'previous_hash': last_hash,
         'co2_saved': co2_saved,
@@ -127,7 +135,7 @@ def read_production_data(config: InputConfiguration, last_hash: str) -> Producti
     return input_data
 
 
-def read_consumption_data(config: InputConfiguration, last_hash: str) -> ConsumptionFileData:
+def read_consumption_data(config: InputConfiguration, last_hash: str, last_state: list) -> ConsumptionFileData:
     """
     Reach for external data sources and return parsed consumed data
     :param last_hash: Last file hash
@@ -136,12 +144,17 @@ def read_consumption_data(config: InputConfiguration, last_hash: str) -> Consump
     """
     input_data_dict = {
         'raw_energy': __fetch_input_data(config.energy),
-        'raw_carbon_emitted': __fetch_input_data(config.carbon_emission),
         'consumed': None,
     }
     input_data = ConsumptionFileData(**input_data_dict)
+    # add last measured energy in case it is not accumulated
+    # TODO: refactor this to the data input classes
+    energy = int(input_data.raw_energy.accumulated_power) if input_data.raw_energy else 0
+    if not (isinstance(config.energy, DataLoggerV1) or isinstance(config.energy, DataLoggerV2d1d1)):
+        last_energy = last_state[5]
+        energy += last_energy
     consumed = {
-        'energy': input_data.raw_energy.accumulated_power if input_data.raw_energy else None,
+        'energy': energy,
         'is_meter_down': True if input_data.raw_energy is None else False,
         'previous_hash':  last_hash
     }

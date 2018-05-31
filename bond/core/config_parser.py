@@ -1,15 +1,19 @@
-import importlib
 import json
+import importlib
 
 from core.abstract.bond import InputConfiguration, Configuration
 
 
 def __get_input_configuration(configuration: dict) -> InputConfiguration:
+    emission = 'carbonemission' in configuration
     instance = {
         "energy": __get_class_instance(configuration['energy']),
-        "carbon_emission": __get_class_instance(configuration['carbonemission']),
-        "origin": __get_class_instance(configuration['origin'])
+        "carbon_emission": __get_class_instance(configuration['carbonemission']) if emission else None,
+        "origin": __get_class_instance(configuration['origin']),
+        "name": configuration['name']
     }
+    if not instance['name']:
+        raise ImportError('Configuration lacks `name` field.')
     return InputConfiguration(**instance)
 
 

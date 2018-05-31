@@ -1,27 +1,28 @@
-'''
+"""
 Interface for the SPGroup api
 - SPGroup api delivers producing data
 - delivers production from the past hour
 - constructor takes the site_id as parameter
 - !!! Access by hardcoded api key !!!
-'''
-
-
-import calendar
-
+"""
+import time
+import sched
 import requests
 import datetime
 from datetime import tzinfo, timedelta
 
-from core.abstract.input import ExternalDataSource, EnergyData, Device
+from core.abstract.input import EnergyData, Device, EnergyDataSource
+
 
 # producing asset
-class SPGroupAPI(ExternalDataSource):
+class SPGroupAPI(EnergyDataSource):
 
-    def __init__(self, site_id: str):
+    def __init__(self, site_id: str, api_url: str, api_key: str):
 
         self.site = site_id
-        self.api_url = 'https://lighthouse-api-master.apps.vpcf-qa.spdigital.io/v1/'
+        self.api_url = api_url
+        self.api_key = api_key
+        self.schedule = sched.scheduler(time.time, time.sleep)
 
     def read_state(self) -> EnergyData:
         raw = self._get_daily_data()
@@ -60,7 +61,7 @@ class SPGroupAPI(ExternalDataSource):
 
         # get produced energy from filtered object
         # accumulated_power = specific_site['energy']['data']
-        accumulated_power = int(("%.2f" % specific_site['energy']['data']).replace('.', ''))
+        accumulated_power = specific_site['energy']['data']
 
         # instance of mini utc class (tzinfo)
         utc = UTC()
@@ -82,7 +83,8 @@ class SPGroupAPI(ExternalDataSource):
             'end': 'now'
         }
         # sending header until we get usr pwd
-        provisional_header = {"Authorization":"Basic ZGdmanNkamoyMzIzMjM5ODc5ZGtma2gzZWhmazM6OTg3OTBpa2pmZGtmM2hrMmpoZGtqaGkza2RzYjM="}
+        provisional_header = {
+            "Authorization": "Basic " + self.api_key}
         endpoint = self.api_url + 'produced'
 
         r = requests.get(endpoint, params=marginal_query, headers=provisional_header, verify=False)
@@ -95,34 +97,36 @@ class SPGroupAPI(ExternalDataSource):
 # needs a site_id
 class SPGroup_b1(SPGroupAPI):
 
-    def __init__(self):
-        super().__init__(site_id='b1')
+    def __init__(self, api_url: str, api_key: str):
+        super().__init__(site_id='b1', api_url=api_url, api_key=api_key)
 
 
 class SPGroup_k1(SPGroupAPI):
 
-    def __init__(self):
-        super().__init__(site_id='k1')
+    def __init__(self, api_url: str, api_key: str):
+        super().__init__(site_id='k1', api_url=api_url, api_key=api_key)
 
 
 class SPGroup_s1(SPGroupAPI):
 
-    def __init__(self):
-        super().__init__(site_id='s1')
+    def __init__(self, api_url: str, api_key: str):
+        super().__init__(site_id='s1', api_url=api_url, api_key=api_key)
 
 
 class SPGroup_s2(SPGroupAPI):
 
-    def __init__(self):
-        super().__init__(site_id='s2')
+    def __init__(self, api_url: str, api_key: str):
+        super().__init__(site_id='s2', api_url=api_url, api_key=api_key)
 
 
 class SPGroup_t1(SPGroupAPI):
 
-    def __init__(self):
-        super().__init__(site_id='t1')
+    def __init__(self, api_url: str, api_key: str):
+        super().__init__(site_id='t1', api_url=api_url, api_key=api_key)
+
 
 ZERO = timedelta(0)
+
 
 class UTC(tzinfo):
     def utcoffset(self, dt):

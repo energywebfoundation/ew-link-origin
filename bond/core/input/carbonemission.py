@@ -19,7 +19,6 @@ class Wattime(CarbonEmissionDataSource):
         """
         self.credentials = {'username': usr, 'password': pwd}
         self.api_url = 'https://api.watttime.org/api/v1/'
-        self.auth_token = self.get_auth_token()
         self.ba = ba
         self.hours_from_now = hours_from_now
 
@@ -27,8 +26,9 @@ class Wattime(CarbonEmissionDataSource):
         """
         Reach wattime api, parse and convert to CarbonEmissionData.
         """
+        auth_token = self.get_auth_token()
         # 2. Fetch marginal data
-        raw = self.get_marginal(self.auth_token)
+        raw = self.get_marginal(auth_token)
         # 3. Converts lb/MW to kg/W
         accumulated_co2 = raw['marginal_carbon']['value'] * 0.453592 * pow(10, -6)
         # 4. Converts time stamps to epoch
@@ -45,8 +45,10 @@ class Wattime(CarbonEmissionDataSource):
         """
         endpoint = self.api_url + 'obtain-token-auth/'
         r = requests.post(endpoint, data=self.credentials)
+        if not r.status_code == 200:
+            raise AttributeError('Failed getting a new token.')
         ans = r.json()
-        if (not r.status_code == 200) or len(ans['token']) < 5:
+        if len(ans['token']) < 5:
             raise AttributeError('Failed getting a new token.')
         return ans['token']
 
@@ -99,3 +101,63 @@ class Wattime(CarbonEmissionDataSource):
         r = requests.get(endpoint, headers=h, params=geo_query)
         ans = r.json()
         return ans['abbrev']
+
+
+class WattimeV2(CarbonEmissionDataSource):
+
+    def __init__(self, usr: str, pwd: str, ba: str):
+        """
+        Wattime API credentials. http://watttime.org/
+        :param usr: Username used for login
+        :param pwd: Users password
+        :param ba: Balancing Authority. https://api.watttime.org/tutorials/#ba
+        """
+        self.credentials = (usr, pwd)
+        self.api_url = 'https://api2.watttime.org/v2test/'
+        self.ba = ba
+
+    def read_state(self) -> CarbonEmissionData:
+        """
+        Reach wattime api, parse and convert to CarbonEmissionData.
+        """
+        auth_token = self.get_auth_token()
+        # 2. Fetch marginal data
+        raw = self.get_marginal(auth_token)
+        # 3. Converts lb/MW to kg/W
+        accumulated_co2 = raw['avg'] * 0.453592 * pow(10, -6)
+        # 4. Converts time stamps to epoch
+        now = datetime.datetime.now()
+        access_epoch = calendar.timegm(now.timetuple())
+        measurement_timestamp = now
+        measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
+        return CarbonEmissionData(access_epoch, raw, accumulated_co2, measurement_epoch)
+
+    def get_auth_token(self) -> str:
+        """
+        Exchange credentials for an access token.
+        :return: Access token string suitable for passing as arg in other methods.
+        """
+        endpoint = self.api_url + 'login'
+        r = requests.get(endpoint, auth=self.credentials)
+        if not r.status_code == 200:
+            raise AttributeError('Failed getting a new token.')
+        ans = r.json()
+        if len(ans['token']) < 5:
+            raise AttributeError('Failed getting a new token.')
+        return ans['token']
+
+    def get_marginal(self, auth_token: str) -> dict:
+        """
+        Gets marginal carbon emission based on real time energy source mix of the grid.
+        :param auth_token: authentication token
+        :return: Measured data in lb/MW plus other relevant raw metadata.
+        """
+        marginal_query = {
+            'ba': self.ba
+        }
+        endpoint = self.api_url + 'insight/'
+        h = {'Authorization': 'Bearer ' + auth_token}
+        r = requests.get(endpoint, headers=h, params=marginal_query)
+        if not r.status_code == 200:
+            raise AttributeError('Failed to login on api.')
+        return r.json()

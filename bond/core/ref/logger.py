@@ -16,7 +16,7 @@ EUMEL_ENDPOINT = EUMEL_IP + '/rest'
 
 ABI = json.load(open('abi.json', 'r'))
 
-w3 = web3.Web3(web3.HTTPProvider('http://ewf-client:8545'))
+w3 = web3.Web3(web3.HTTPProvider('http://localhost:8545'))
 
 # Contract instance in concise mode
 contract_instance = w3.eth.contract(ABI, CONTRACT, ContractFactoryClass=web3.contract.ConciseContract)
