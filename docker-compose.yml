@@ -1,4 +1,9 @@
 version: '2'
 services:
   bond:
-    build: ./
+    build: ./bond
+    depends_on:
+      - ewf-client
+  ewf-client:
+    build: ./ewf-client
+    mem_limit: 600m

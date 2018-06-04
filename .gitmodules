@@ -1,5 +1,5 @@
 [submodule "certificate_of_origin"]
-	path = certificate_of_origin
+	path = bond/certificate_of_origin
 	url = git@github.com:energywebfoundation/certificate_of_origin.git
 [submodule "resin-sdk-python"]
 	path = resin-sdk-python
