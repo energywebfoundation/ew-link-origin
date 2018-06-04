@@ -6,9 +6,11 @@ ADD ./health /
 
 ADD ./tobalaba-peers /
 
+ADD ./chain.json /
+
 EXPOSE 30303 8545 8546 5001 8083 8082 8008
 
 HEALTHCHECK --start-period=10s --timeout=10s --interval=30s --retries=10 \
 	CMD /health
 
-CMD ["--jsonrpc-apis","all","--reserved-peers","/tobalaba-peers"]
+CMD ["--jsonrpc-apis","all","--chain","/chain.json","--reserved-peers","/tobalaba-peers"]
