@@ -136,11 +136,4 @@ class Sonnen_102_c(Sonnen_consume):
 class Sonnen_102_p(Sonnen_produce):
 
     def __init__(self, api_key: str, api_url: str):
-        super().__init__(site_id='102', api_key=api_key, api_url=api_url)
-
-
-if __name__ == '__main__':
-    sp1 = Sonnen_102_c()
-    sp1.read_state()
-    sp2 = Sonnen_102_p()
-    sp2.read_state()
+        super().__init__

@@ -127,16 +127,3 @@ class Wasserwerk1a2(TWLFile):
         self.usr = usr
         self.pwd = pwd
         super().__init__(host, port, usr, pwd, r'TWL_Wasserwerk_1_PV_Anlage_2')
-
-
-if __name__ == '__main__':
-    ass = AG('46.101.99.49', 5022, 'twl', 't2qy8z3275djm6adny')
-    print(ass.read_state().accumulated_power)
-    ass = Lager('46.101.99.49', 5022, 'twl', 't2qy8z3275djm6adny')
-    print(ass.read_state().accumulated_power)
-    ass = Wasserwerk1a1('46.101.99.49', 5022, 'twl', 't2qy8z3275djm6adny')
-    print(ass.read_state().accumulated_power)
-    ass = Wasserwerk1a2('46.101.99.49', 5022, 'twl', 't2qy8z3275djm6adny')
-    print(ass.read_state().accumulated_power)
-    ass = Wasserwerk2('46.101.99.49', 5022, 'twl', 't2qy8z3275djm6adny')
-    print(ass.read_state().accumulated_power)

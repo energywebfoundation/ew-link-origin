@@ -26,19 +26,6 @@ class Exelon(EnergyDataSource):
 
     def read_state(self) -> EnergyData:
         raw = self._get_daily_data()
-        '''
-        {
-            "production": [
-                {
-                    "assetPublicAddress": "0x6e953cc665e527d10989172def6a91fd489e7cf11",
-                    "amount": 6876.4,
-                    "startTime": "2015-03-17T06:00:00.000Z",
-                    "endTime": "2015-03-17T06:59:59.999Z"
-                },
-                ...
-            ]
-        }
-        '''
         # get the object with the right site_id
         state = {}
 
@@ -93,8 +80,3 @@ class Exelon_1(Exelon):
 
     def __init__(self, site_id: str):
         super().__init__(site_id)
-
-
-if __name__ == '__main__':
-    ex = Exelon_1('0x6e953cc665e527d10989172def6a91fd489e7cf11')
-    ex.read_state()
