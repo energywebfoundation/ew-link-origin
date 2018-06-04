@@ -108,3 +108,4 @@ tobalaba/
 # configs
 *.json
 configFun/
+.DS_Store
