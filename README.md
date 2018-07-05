@@ -45,6 +45,7 @@ Even though the core library is designed to be platform agnostic, `bond.py` is d
     1. [Energyweb client](https://energyweb.org/blockchain/) installed and running.
     2. [Parity](https://github.com/paritytech/parity/releases)  v1.10.8 or later with `parity --jsonrpc-apis all --reserved-peers /assets/tobalaba-peers --chain tobalaba`.
     3. Docker version of Parity `docker run parity/parity:latest --chain tobalaba --jsonrpc-apis all`.
+    4. More stable Docker version of Parity, change directory to `ewf-client\` and run `docker run -v $(pwd):/data parity/parity:v1.9.3 --jsonrpc-apis all --reserved-peers /data/tobalaba-peers --chain /data/chain.json`.
 2. [COO](https://github.com/energywebfoundation/certificate_of_origin) contract deployed on the designated blockchain.
 3. Python 3 and dependencies installed. Follow the [guide](#installing-dependencies) bellow.
 4. Edit `local-producer.json` on `carbonemission` with [Wattime](http://watttime.org/) credentials.

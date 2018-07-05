@@ -1,5 +1,6 @@
+
 #!/bin/sh
-  
+
 set -ex
 
 [ -d /run/parity/ ] || mkdir -p /run/parity
@@ -8,11 +9,11 @@ set -ex
 [ -e /run/parity/starting-block ] || echo 0x0 > /run/parity/starting-block
 
 curl -X POST \
-        --data '{"jsonrpc":"2.0",
-                 "method":"eth_syncing",
-                 "params":[],"id":1}' \
-        -H Content-Type:application/json \
-        http://localhost:8545 > /run/parity/result
+	--data '{"jsonrpc":"2.0",
+	         "method":"eth_syncing",
+	         "params":[],"id":1}' \
+	-H Content-Type:application/json \
+	http://localhost:8545 > /run/parity/result
 
 currentBlock=`cat /run/parity/current-block`
 highBlock=`cat /run/parity/current-block`
