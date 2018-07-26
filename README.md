@@ -10,6 +10,12 @@ Further development and contribution enhancing generalization of the tool is muc
 ### Configuration
 Bond needs a `json` file to know which modules to load and read the modules configuration. Designed with reflection in mind, the configuration file needs to have a list of `consumption` or `production` and a `client`. These keywords are objects describing python-like `module` path, case-sensitive `class_name` and a dictionary of `class_parameters` that are required in the chosen class constructor.
 
+### Core Classes
+![Core Library Class Diagram](https://github.com/energywebfoundation/bond/blob/master/media/core-class-diagram.png)
+
+### Origin App
+![Origin App Entity-Controller-Boundry Diagram](https://github.com/energywebfoundation/bond/blob/master/media/origin-ecb.png)
+
 ### Over simplified lifecycle
 1. Read or Create `PERSISTENCE` path pointed at `core\helper.py`.
 2. Open and parse the designated configuration file.
