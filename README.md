@@ -1,20 +1,10 @@
-# Bond: An energy data oracle for blockchain smart contracts
+# EWF-link for [COO](https://github.com/energywebfoundation/ewf-coo)
 Service designed to be a general oracle for reading, parsing and writing energy industry related data to and from the blockchain.
 
-Bond is currently deployed on `x86_64`, `arm64` and `armv8` architecture devices where it logs carbon emission and generated power data into [certificate of origin](https://github.com/energywebfoundation/certificate_of_origin) smart-contracts. The COO repository is still private but may become available soon. To require access, please refer to the EWF Slack as an affiliate.
-
-The main component of the `bond` code is the [core](https://github.com/energywebfoundation/bond/tree/master/bond/core) library, organized into `abstract`, `input` and `output`. Abstract defines all classes and interfaces to be inherited and implemented by input and output classes. As the names imply the software consists of loading and reading one or many input modules and write formatted data to output modules.
-
-Further development and contribution enhancing generalization of the tool is much welcome, please contribute with issues and pull requests. :)
-
-### Configuration
-Bond needs a `json` file to know which modules to load and read the modules configuration. Designed with reflection in mind, the configuration file needs to have a list of `consumption` or `production` and a `client`. These keywords are objects describing python-like `module` path, case-sensitive `class_name` and a dictionary of `class_parameters` that are required in the chosen class constructor.
-
-### Core Classes
-![Core Library Class Diagram](https://github.com/energywebfoundation/bond/blob/master/media/core-class-diagram.png)
+EWF-link Origin is currently deployed on `x86_64`, `arm64` and `armv8` architecture devices using [resin.io](resin.io). The devices logs carbon emission and generated/consumed power data into [certificate of origin](https://github.com/energywebfoundation/certificate_of_origin) smart-contracts.
 
 ### Origin App
-![Origin App Entity-Controller-Boundry Diagram](https://github.com/energywebfoundation/bond/blob/master/media/origin-ecb.png)
+![Origin App Entity-Controller-Boundry Diagram](https://github.com/energywebfoundation/ewf-link-origin/blob/master/media/origin-ecb.png)
 
 ### Over simplified lifecycle
 1. Read or Create `PERSISTENCE` path pointed at `core\helper.py`.
@@ -59,7 +49,7 @@ Even though the core library is designed to be platform agnostic, `bond.py` is d
 6. If the path `\mnt\data\tobalaba` does not exist it will be created at runtime. To change it edit the `PERSISTENCE` constant in `core/helper.py`.
 7. With the virtual environment activated run `python local-producer.py` on the root folder of this repo.
 8. Try repeating the steps with `local-consumer.json` and `local-consumer.py`.
-9. Check the transactions on a [block explorer](https://tobalaba.etherscan.com/).
+9. Check the transactions on the [block explorer](https://tobalaba.etherscan.com/).
 
 ### Installing dependencies
 Install python 3 and libraries from the os package manager. Here is an example using `apt` but different ones might apply.

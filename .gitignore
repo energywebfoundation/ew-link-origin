@@ -101,11 +101,10 @@ ENV/
 # mypy
 .mypy_cache/
 
-# artik710-logger
+# origin
 .idea
-tobalaba/
+origin/app/assets/configFun
+origin/tobalaba
+origin/venv/
 
-# configs
-configFun/
 .DS_Store
-*.sh
