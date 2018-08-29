@@ -1,0 +1,54 @@
+{
+  "consumption":
+    {
+      "my-home": {
+        "energy-meter": {
+          "module": "origin.input.simulator",
+          "class_name": "EnergyMeter",
+          "class_parameters": {
+          }
+        },
+        "coo-producer-smart-contract": {
+          "module": "core.config",
+          "class_name": "OriginConsumerClient",
+          "class_parameters": {
+            "asset_id": 4,
+            "url": "http://tobalaba-rpc.slock.it",
+            "wallet_add": "0x0074AD67550a8B0690EeE3E0CA99f406bEab678c",
+            "wallet_pwd": "574e43825f7217cb2de43d6a3d34d3d1a5e77d28aac36ee191282fc0a14c34e4"
+          }
+        }
+      }
+    },
+  "production":
+    {
+      "my-solar-panels": {
+      "energy-meter": {
+        "module": "core.input.simulator",
+        "class_name": "EnergyMeter",
+        "class_parameters": {
+        }
+      },
+      "carbon-emission": {
+        "module": "core.input.carbonemission",
+        "class_name": "Wattime",
+        "class_parameters": {
+          "usr": "your_user_here",
+          "pwd": "password_of_your_user",
+          "ba": "FR",
+          "hours_from_now": 24
+        }
+      },
+      "coo-consumer-smart-contract": {
+        "module": "core.abstract.bond",
+        "class_name": "OriginProducerClient",
+        "class_parameters": {
+          "asset_id": 3,
+          "url": "http://tobalaba-rpc.slock.it",
+          "wallet_add": "0x0074AD67550a8B0690EeE3E0CA99f406bEab678c",
+          "wallet_pwd": "574e43825f7217cb2de43d6a3d34d3d1a5e77d28aac36ee191282fc0a14c34e4"
+        }
+      }
+    }
+  }
+}
