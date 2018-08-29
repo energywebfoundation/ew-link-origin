@@ -9,7 +9,7 @@ Interface for the Sonnen api
 import requests
 import datetime
 from datetime import timezone
-from core.input import EnergyData, Device, EnergyDataSource
+from core.abstract.input import EnergyData, Device, EnergyDataSource
 
 
 # producing asset

@@ -1,11 +1,7 @@
-import time
-
 import datetime
 import unittest
 
-from bond.origin import origin as input_simulator, origin as input_co2, origin as input_eumel
-
-from core.input import Device, EnergyData, CarbonEmissionData
+from core.abstract.input import Device, EnergyData, CarbonEmissionData
 
 
 class VerboseTest(unittest.TestCase):
@@ -95,71 +91,3 @@ class CarbonEmissionDataTest(unittest.TestCase):
         self.assertIsInstance(measurement_datetime, datetime.datetime)
         self.assertTrue(self.now.year - 1 <= measurement_datetime.year)
         self.assertTrue(self.now.year + 1 >= measurement_datetime.year)
-
-
-class EnergyMeterTest(VerboseTest):
-
-    def setUp(self):
-        self.meter = input_simulator.EnergyMeter()
-        VerboseTest.setUp(self)
-
-    def simple(self):
-        energy_data_test = EnergyDataTest()
-        energy_data_test.simple(self.meter.read_state())
-
-    def extended(self):
-        energy_data_test = EnergyDataTest()
-        energy_data_test.extended(self.meter.read_state())
-        state_one = self.meter.read_state()
-        time.sleep(1)
-        state_two = self.meter.read_state()
-        self.assertTrue(state_one.measurement_epoch < state_two.measurement_epoch)
-        self.assertTrue(state_one.accumulated_power < state_two.accumulated_power)
-        self.assertNotEqual(state_one.raw, state_two.raw)
-
-
-class WattimeTest(VerboseTest):
-
-    def setUp(self):
-        self.meter = input_co2.Wattime('usr', 'pwd', 24)
-        VerboseTest.setUp(self)
-
-    def simple(self):
-        self.assertIsInstance(self.meter.read_state('National+Grid'), CarbonEmissionData)
-
-    def extended(self):
-        self.simple()
-        co2_data_test = CarbonEmissionDataTest()
-        co2_data_test.extended(self.meter.read_state('National+Grid'))
-        co2_data_test.extended(self.meter.read_state('FR'))
-        self.assertRaises(self.meter.read_state('BR'))
-        # TODO: Add all methods and check outputs against api doc.
-        pass
-
-
-class Eumelv1Test(VerboseTest):
-
-    def setUp(self):
-        self.meter = input_eumel.DataLoggerV1('', self.usr, self.pwd)
-
-    def simple(self):
-        energy_data_test = EnergyDataTest()
-        energy_data_test.simple(self.meter.read_state())
-
-    def extended(self):
-        energy_data_test = EnergyDataTest()
-        energy_data_test.extended(self.meter.read_state())
-
-
-class Eumelv2d2d1Test(VerboseTest):
-
-    def setUp(self):
-        self.meter = input_eumel.DataLoggerV2d1d1('', self.usr, self.pwd)
-
-    def simple(self):
-        energy_data_test = EnergyDataTest()
-        energy_data_test.simple(self.meter.read_state())
-
-    def extended(self):
-        energy_data_test = EnergyDataTest()
-        energy_data_test.extended(self.meter.read_state())

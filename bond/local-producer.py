@@ -1,8 +1,9 @@
 import subprocess
 import time
-from bond.origin import origin as origin
 
-JSON = 'origin/assets/local-consumer.json'
+import core.helper as core
+
+JSON = 'assets/local-producer.json'
 
 
 # Helper to spawn an Tobalaba client on execution
@@ -19,5 +20,5 @@ def start_ewf_client():
 # to the client also specified on the json file.
 # This method jumps the scheduling process, logs the data on time of execution and exits.
 if __name__ == '__main__':
-    configuration = origin.print_config(JSON)
-    origin.log(configuration)
+    configuration = core.print_config(JSON)
+    core.log(configuration)

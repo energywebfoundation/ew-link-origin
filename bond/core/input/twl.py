@@ -7,7 +7,7 @@ import paramiko
 
 from collections import namedtuple
 from core.abstract import CEST
-from core.input import EnergyDataSource, EnergyData, Device
+from core.abstract.input import EnergyDataSource, EnergyData, Device
 
 
 class TWLFile(EnergyDataSource):

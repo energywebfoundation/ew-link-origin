@@ -10,7 +10,7 @@ import requests
 import datetime
 
 from core.abstract import CEST
-from core.input import EnergyDataSource, EnergyData, Device
+from core.abstract.input import EnergyDataSource, EnergyData, Device
 
 
 class SmireAPI(EnergyDataSource):

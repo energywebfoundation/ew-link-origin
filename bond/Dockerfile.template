@@ -27,4 +27,4 @@ COPY . ./
 ENV PYTHONWARNINGS="ignore"
 
 # bond.py will run when container starts up on the device
-CMD ["python","origin.py"]
+CMD ["python","bond.py"]

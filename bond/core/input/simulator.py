@@ -1,7 +1,7 @@
 import random
 import time
 
-from core.input import EnergyDataSource, EnergyData, Device
+from core.abstract.input import EnergyDataSource, EnergyData, Device
 
 
 # Todo: Review, this is base only

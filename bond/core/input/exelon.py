@@ -10,7 +10,7 @@ import datetime
 import requests
 
 from core.abstract import UTC
-from core.input import EnergyDataSource, EnergyData, Device
+from core.abstract.input import EnergyDataSource, EnergyData, Device
 
 
 # producing asset - !! only returns data from before 2015

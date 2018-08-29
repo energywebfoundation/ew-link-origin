@@ -10,7 +10,7 @@ import requests
 import datetime
 from datetime import tzinfo, timedelta
 
-from core.input import EnergyData, Device, EnergyDataSource
+from core.abstract.input import EnergyData, Device, EnergyDataSource
 
 
 # consumption asset
