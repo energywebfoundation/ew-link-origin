@@ -1,7 +1,6 @@
 import calendar
-
-import requests
 import datetime
+import requests
 
 from core.abstract.input import CarbonEmissionDataSource, CarbonEmissionData
 
@@ -36,7 +35,8 @@ class Wattime(CarbonEmissionDataSource):
         access_epoch = calendar.timegm(now.timetuple())
         measurement_timestamp = datetime.datetime.strptime(raw['timestamp'], "%Y-%m-%dT%H:%M:%SZ")
         measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
-        return CarbonEmissionData(access_epoch, raw, accumulated_co2, measurement_epoch)
+        return CarbonEmissionData(access_epoch=access_epoch, raw=raw, accumulated_co2=accumulated_co2,
+                                  measurement_epoch=measurement_epoch)
 
     def get_auth_token(self) -> str:
         """

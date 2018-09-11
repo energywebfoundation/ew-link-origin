@@ -60,7 +60,7 @@ class EnergyData(ExternalData):
         :param device: Metadata about the measurement device
         :param access_epoch: Time the external API was accessed
         :param raw: Raw data collected
-        :param accumulated_power: Registered in Mega Watts
+        :param accumulated_power: Registered in Megawatt-Hour
         :param measurement_epoch: Time of measurement at the source
         """
         self.device = device

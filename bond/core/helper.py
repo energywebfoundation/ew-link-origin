@@ -12,8 +12,6 @@ import core.config_parser as config_parser
 from core.abstract.bond import InputConfiguration, Configuration
 from core.input.sp_group import SPGroupAPI
 
-from resin import Resin
-
 PERSISTENCE = '/mnt/data/tobalaba/'
 
 tty_handler = colorlog.StreamHandler()
@@ -52,21 +50,6 @@ class AllGasUsedWarning(Warning):
 def convert_time(epoch: int):
     access_time = datetime.datetime.fromtimestamp(epoch)
     return access_time.strftime("%Y-%m-%d  %H:%M:%S")
-
-
-def read_config(token: str, resin_device_uuid: str):
-    """
-    Device variable must be added in the services variable field on resin.io dashboard.
-    Yeah, I know.
-    :param token: Resin io token
-    :param resin_device_uuid: Device UUID from resin.io dashboard.
-    :return: Dict from json parsed string.
-    """
-    resin = Resin()
-    resin.auth.login_with_token(token)
-    app_vars = resin.models.environment_variables.device.get_all(resin_device_uuid)
-    config_json_string = next(var for var in app_vars if var['env_var_name'] == 'config')
-    return json.loads(config_json_string['value'])
 
 
 def print_config(config_file: str = None):

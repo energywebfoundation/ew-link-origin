@@ -1,12 +1,11 @@
-import time
-from xml.etree import ElementTree
-
+import calendar
+import datetime
 import requests
 
+from xml.etree import ElementTree
 from core.abstract.input import EnergyDataSource, EnergyData, Device
 
 
-# Todo: Review, this is base only
 class DataLoggerV1(EnergyDataSource):
     """
     Eumel DataLogger api access implementation
@@ -22,8 +21,11 @@ class DataLoggerV1(EnergyDataSource):
         self.auth = (user, password)
 
     def read_state(self, path=None) -> EnergyData:
+        # raw
         if path:
             tree = ElementTree.parse('test_examples/EumelXMLOutput.xml')
+            with open(path) as file:
+                raw = file.read()
         else:
             http_packet = requests.get(self.eumel_api_url, auth=self.auth)
             raw = http_packet.content.decode()
@@ -31,15 +33,22 @@ class DataLoggerV1(EnergyDataSource):
         tree_root = tree.getroot()
         tree_header = tree_root[0].attrib
         tree_leaves = {child.attrib['id']: child.text for child in tree_root[0][0]}
+        # device
         device = Device(
             manufacturer=tree_header['man'],
             model=tree_header['mod'],
-            serial_number=tree_header['sn'])
-        access_timestamp = int(time.time())
-        time_format = '%Y-%m-%dT%H:%M:%SZ'
-        accumulated_power = float(tree_leaves['TotWhImp'].replace('.', ''))
-        measurement_timestamp = int(time.mktime(time.strptime(tree_header['t'], time_format)))
-        return EnergyData(device, access_timestamp, raw, accumulated_power, measurement_timestamp)
+            serial_number=tree_header['sn'],
+            geolocation=None)
+        # accumulated power in Wh
+        accumulated_power = float(tree_leaves['TotWhImp'].replace('.', '')) * pow(10, -6)
+        # access_epoch
+        now = datetime.datetime.now().astimezone()
+        access_epoch = calendar.timegm(now.timetuple())
+        # measurement epoch
+        measurement_timestamp = datetime.datetime.strptime(tree_header['t'], "%Y-%m-%dT%H:%M:%S%z")
+        measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
+        return EnergyData(device=device, access_epoch=access_epoch, raw=str(raw), accumulated_power=accumulated_power,
+                          measurement_epoch=measurement_epoch)
 
 
 class DataLoggerV2d1d1(EnergyDataSource):
@@ -57,6 +66,7 @@ class DataLoggerV2d1d1(EnergyDataSource):
         self.auth = (user, password)
 
     def read_state(self, path=None) -> EnergyData:
+        # raw
         if path:
             tree = ElementTree.parse('test_examples/EumelXMLv2.1.1.xml')
             with open(path) as file:
@@ -68,13 +78,19 @@ class DataLoggerV2d1d1(EnergyDataSource):
         tree_root = tree.getroot()
         tree_header = tree_root[0].attrib
         tree_leaves = {child.attrib['id']: child.text for child in tree_root[0][1]}
+        # device
         device = Device(
             manufacturer=tree_header['man'],
             model=tree_header['mod'],
             serial_number=tree_header['sn'],
             geolocation=None)
-        access_timestamp = int(time.time())
-        time_format = '%Y-%m-%dT%H:%M:%SZ'
+        # accumulated power
         accumulated_power = float(tree_leaves['TotWhImp'])
-        measurement_timestamp = int(time.mktime(time.strptime(tree_header['t'], time_format)))
-        return EnergyData(device, access_timestamp, str(raw), accumulated_power, measurement_timestamp)
+        # access_epoch
+        now = datetime.datetime.now().astimezone()
+        access_epoch = calendar.timegm(now.timetuple())
+        # measurement epoch
+        measurement_timestamp = datetime.datetime.strptime(tree_header['t'], "%Y-%m-%dT%H:%M:%S%z")
+        measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
+        return EnergyData(device=device, access_epoch=access_epoch, raw=str(raw), accumulated_power=accumulated_power,
+                          measurement_epoch=measurement_epoch)

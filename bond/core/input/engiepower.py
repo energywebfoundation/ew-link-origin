@@ -5,19 +5,18 @@ Interface for the Engie api
 - constructor takes the site_id, username and password as parameters
 - Access by username and password
 """
-
-import requests
+import calendar
 import datetime
+import requests
 
-from core.abstract import CEST
 from core.abstract.input import EnergyDataSource, EnergyData, Device
 
 
-class SmireAPI(EnergyDataSource):
+class SmireTestAPI(EnergyDataSource):
 
     def __init__(self, usr: str, pwd: str, site: str):
         """
-        Blue Saphire Smire API. https://test.smire.bluesafire.io
+        Blue Saphire Test Smire API. https://test.smire.bluesafire.io
         :param usr: Username used for login
         :param pwd: Passphrase
         """
@@ -26,8 +25,10 @@ class SmireAPI(EnergyDataSource):
         self.api_url = 'https://test.smire.bluesafire.io/api/'
 
     def read_state(self, days=1) -> EnergyData:
+        # raw
         raw = self._get_daily_data(days)
-        state = [{'date': a, 'produced': b} for a, b in zip(raw['datetime'], raw['production'])]
+        data = [{'date': a, 'produced': b} for a, b in zip(raw['datetime'], raw['production'])]
+        # device
         device_meta = {
             'manufacturer': 'Unknown',
             'model': 'Unknown',
@@ -35,18 +36,16 @@ class SmireAPI(EnergyDataSource):
             'geolocation': (raw['site']['latitude'], raw['site']['longitude'])
         }
         device = Device(**device_meta)
-        accumulated_power = state[-1]['produced'] * pow(10, 3)
-
-        # instance of mini utc class (tzinfo)
-        cest = CEST()
-
+        # accumulated power in KWh
+        accumulated_power = data[-1]['produced'] * pow(10, -3)
+        # access_epoch
         now = datetime.datetime.now().astimezone()
-        access_timestamp = now.isoformat()
-
-        measurement_timestamp = datetime.datetime.strptime(state[-1]['date'], "%Y-%m-%d")
-        measurement_timestamp = measurement_timestamp.replace(tzinfo=cest).isoformat()  # forcing the france timezone
-
-        return EnergyData(device, access_timestamp, raw, accumulated_power, measurement_timestamp)
+        access_epoch = calendar.timegm(now.timetuple())
+        # measurement epoch
+        measurement_timestamp = datetime.datetime.strptime(data[-1]['date'], "%Y-%m-%d")
+        measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
+        return EnergyData(device=device, access_epoch=access_epoch, raw=raw, accumulated_power=accumulated_power,
+                          measurement_epoch=measurement_epoch)
 
     def _get_daily_data(self, days) -> dict:
         marginal_query = {
@@ -60,26 +59,45 @@ class SmireAPI(EnergyDataSource):
             raise AttributeError('Empty response from api.')
         return ans
 
+    def __sample_data(self):
+        """
+        TODO: Engie smire api sample json
+        """
+        return {}
 
-class Eget(SmireAPI):
+
+class Eget(SmireTestAPI):
 
     def __init__(self, usr: str, pwd: str):
         super().__init__(usr, pwd, 'eget')
 
 
-class Frasnes(SmireAPI):
+class Frasnes(SmireTestAPI):
 
     def __init__(self, usr: str, pwd: str):
         super().__init__(usr, pwd, 'frasnes')
 
 
-class Burgum(SmireAPI):
+class Burgum(SmireTestAPI):
 
     def __init__(self, usr: str, pwd: str):
         super().__init__(usr, pwd, 'burgum')
 
 
-class Fontanelles(SmireAPI):
+class Fontanelles(SmireTestAPI):
 
     def __init__(self, usr: str, pwd: str):
         super().__init__(usr, pwd, 'fontanelles')
+
+
+class SmireAPI(EnergyDataSource):
+    """
+    import future
+    TODO: New smire api
+    """
+
+    def __init__(self):
+        """
+        Blue Saphire Smire API. https://smire.bluesafire.io
+        """
+        raise NotImplementedError

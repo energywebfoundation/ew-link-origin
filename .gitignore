@@ -106,5 +106,6 @@ ENV/
 origin/app/assets/configFun
 origin/tobalaba
 origin/venv/
-
+bond/assets/consumer.json
+bond/assets/producer.json
 .DS_Store
