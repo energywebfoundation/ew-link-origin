@@ -32,7 +32,8 @@ class LoxoneV1(EnergyDataSource):
         now = datetime.datetime.now().astimezone()
         access_epoch = calendar.timegm(now.timetuple())
         # measurement epoch
-        measurement_timestamp = datetime.datetime.strptime(data['Head']['Timestamp'], "%Y-%m-%dT%H:%M:%S%z")
+        measurement_timestamp = data['Head']['Timestamp'][:-6]
+        measurement_timestamp = datetime.datetime.strptime(measurement_timestamp, "%Y-%m-%dT%H:%M:%S")
         measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
         return EnergyData(device=device, access_epoch=access_epoch, raw=raw, accumulated_power=accumulated_power,
                           measurement_epoch=measurement_epoch)
