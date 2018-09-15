@@ -113,7 +113,7 @@ class WattimeV2(CarbonEmissionDataSource):
         :param ba: Balancing Authority. https://api.watttime.org/tutorials/#ba
         """
         self.credentials = (usr, pwd)
-        self.api_url = 'https://api2.watttime.org/v2test/'
+        self.api_url = 'https://api2.watttime.org/v2/'
         self.ba = ba
 
     def read_state(self) -> CarbonEmissionData:
@@ -137,7 +137,7 @@ class WattimeV2(CarbonEmissionDataSource):
         Exchange credentials for an access token.
         :return: Access token string suitable for passing as arg in other methods.
         """
-        endpoint = self.api_url + 'login'
+        endpoint = self.api_url + 'login/'
         r = requests.get(endpoint, auth=self.credentials)
         if not r.status_code == 200:
             raise AttributeError('Failed getting a new token.')
@@ -161,3 +161,34 @@ class WattimeV2(CarbonEmissionDataSource):
         if not r.status_code == 200:
             raise AttributeError('Failed to login on api.')
         return r.json()
+
+    def set_ba(self, auth_token: str, lat: float, lon: float):
+        """
+        Sets balancing authority code from gps coordinates
+        :param lat: GPS latitude of the Asset
+        :param lon: GPS longitude of the Asset
+        :param auth_token: authentication token
+        """
+        marginal_query = {
+            'latitude': lat,
+            'longitude': lon
+        }
+        endpoint = self.api_url + 'ba-from-loc/'
+        h = {'Authorization': 'Bearer ' + auth_token}
+        r = requests.get(endpoint, headers=h, params=marginal_query)
+        if not r.status_code == 200:
+            raise AttributeError('Failed to get balancing authority on api.')
+        ans = r.json()
+        self.ba = ans['abbrev']
+
+if __name__ == '__main__':
+    penis = {
+        "usr": "energyweb",
+        "pwd": "en3rgy!web",
+        "ba": "DE_AMPRION",
+          "hours_from_now": 24
+    }
+    w = Wattime(**penis)
+    auth_token = w.get_auth_token()
+    # 2. Fetch marginal data
+    anus = w.get_marginal(auth_token=auth_token)

@@ -29,7 +29,7 @@ class DataLoggerV1(EnergyDataSource):
         else:
             http_packet = requests.get(self.eumel_api_url, auth=self.auth)
             raw = http_packet.content.decode()
-            tree = ElementTree.parse(raw)
+            tree = ElementTree.fromstring(raw)
         tree_root = tree.getroot()
         tree_header = tree_root[0].attrib
         tree_leaves = {child.attrib['id']: child.text for child in tree_root[0][0]}
@@ -74,7 +74,7 @@ class DataLoggerV2d1d1(EnergyDataSource):
         else:
             http_packet = requests.get(self.eumel_api_url, auth=self.auth)
             raw = http_packet.content.decode()
-            tree = ElementTree.ElementTree(ElementTree.fromstring(raw))
+            tree = ElementTree.fromstring(raw)
         tree_root = tree.getroot()
         tree_header = tree_root[0].attrib
         tree_leaves = {child.attrib['id']: child.text for child in tree_root[0][1]}

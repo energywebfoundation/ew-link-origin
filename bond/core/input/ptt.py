@@ -3,46 +3,57 @@ import re
 import csv
 import locale
 import datetime
+import calendar
 import paramiko
 
 from collections import namedtuple
-from core.abstract import CEST
 from core.abstract.input import EnergyDataSource, EnergyData, Device
 
 
 class PTTftp(EnergyDataSource):
     """
     PTT solar plant integration. Servers on Azure in diff subnets. Needs VPN access.
+
     """
 
     def __init__(self, host: str, port: int, usr: str, pwd: str, site_exp: str):
+        # TODO
         self.host = host
         self.port = port
         self.usr = usr
         self.pwd = pwd
         self.site_exp = site_exp
+        csv.register_dialect('ptt', delimiter=';', quoting=csv.QUOTE_NONE)
 
     def read_state(self) -> EnergyData:
-        file_list = self.__get_files()
-        raw = self.__parse_data(file_list)
+        # raw
+        raw, file_list = self._reach_source()
+        # device
         device_meta = {
             'manufacturer': 'Unknown',
             'model': 'Unknown',
             'serial_number': 'Unknown',
-            'geolocation': (0, 0)
+            'geolocation': ('Unknown', 'Unknown')
         }
         device = Device(**device_meta)
-        locale.setlocale(locale.LC_NUMERIC, 'de_DE')
-        accumulated_power = sum(locale.atof(twl_data.p_minus) for twl_data in raw if twl_data.p_minus) * pow(10, 3)
-        locale.setlocale(locale.LC_NUMERIC, '')
+        # accumulated power in Wh
+        accumulated_power = sum(locale.atof(power.p_minus) for power in raw if power.p_minus) * pow(10, -6)
+        # access_epoch
         now = datetime.datetime.now().astimezone()
-        access_timestamp = now.isoformat()
-        measurement_timestamp = datetime.datetime.strptime(raw[-1].timestamp, "%Y-%m-%d %H:%M:%S")
-        measurement_timestamp = measurement_timestamp.replace(tzinfo=CEST()).isoformat()
-        self.__del_files(file_list)
-        return EnergyData(device, access_timestamp, raw, accumulated_power, measurement_timestamp)
+        access_epoch = calendar.timegm(now.timetuple())
+        # measurement epoch
+        measurement_timestamp = datetime.datetime.strptime(raw[-1].timestamp, "%Y-%m-%dT%H:%M:%S")
+        measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
+        self._del_files(file_list)
+        return EnergyData(device=device, access_epoch=access_epoch, raw=str(raw), accumulated_power=accumulated_power,
+                          measurement_epoch=measurement_epoch)
 
-    def __get_files(self) -> [tuple]:
+    def _reach_source(self):
+        file_list = self._get_files()
+        raw = self._parse_data(file_list)
+        return raw, file_list
+
+    def _get_files(self) -> [tuple]:
         """
         Log in to sftp service, filter files by date and site, copy them to local, delete them in remote, return local
         file list names with path.
@@ -61,7 +72,7 @@ class PTTftp(EnergyDataSource):
         transport.close()
         return file_list_tuple
 
-    def __del_files(self, file_list: [tuple]):
+    def _del_files(self, file_list: [tuple]):
         # remove local files
         [os.remove(file_name_tuple[1]) for file_name_tuple in file_list if os.path.isfile(file_name_tuple[1])]
         # remove remote files
@@ -72,17 +83,17 @@ class PTTftp(EnergyDataSource):
         transport.close()
 
     @staticmethod
-    def __parse_data(file_list: [tuple]):
-        csv.register_dialect('twl', delimiter=';', quoting=csv.QUOTE_NONE)
+    def _parse_data(file_list: [tuple]):
         twl_data = []
         for file_name_tuple in file_list:
             TWLData = namedtuple('TWLData', 'timestamp, p_plus, pre_plus, p_minus, pre_minus')
-            raw_parsed_file = [l for l in map(TWLData._make, csv.reader(open(file_name_tuple[1]), dialect='twl'))]
+            raw_parsed_file = [l for l in map(TWLData._make, csv.reader(open(file_name_tuple[1]), dialect='ptt'))]
             twl_data.extend(raw_parsed_file[5:])
         return twl_data
 
 
-class AG(TWLFile):
+class AG(PTTftp):
+        # TODO
 
     def __init__(self, host: str, port: int, usr: str, pwd: str):
         self.host = host
@@ -90,3 +101,12 @@ class AG(TWLFile):
         self.usr = usr
         self.pwd = pwd
         super().__init__(host, port, usr, pwd, r'TWL_AG_PV')
+
+
+class PTTftpTest(PTTftp):
+
+    def _reach_source(self):
+        # TODO
+        file_list = ''
+        raw = ''
+        return raw, file_list
