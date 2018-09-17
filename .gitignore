@@ -109,3 +109,4 @@ origin/venv/
 bond/assets/consumer.json
 bond/assets/producer.json
 .DS_Store
+ignore/
