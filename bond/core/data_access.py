@@ -114,11 +114,11 @@ def read_production_data(config: InputConfiguration, last_hash: str, last_state:
     }
     input_data = ProductionFileData(**input_data_dict)
     co2_saved = input_data.raw_carbon_emitted.accumulated_co2 if input_data.raw_carbon_emitted else 0
-    energy = input_data.raw_energy.accumulated_power if input_data.raw_energy else 0
+    energy = int(input_data.raw_energy.accumulated_power) if input_data.raw_energy else 0
     # add last measured energy in case it is not accumulated
     # TODO: refactor this to the data input classes
     if not (isinstance(config.energy, DataLoggerV1) or isinstance(config.energy, DataLoggerV2d1d1)):
-        last_energy = last_state[3]
+        last_energy = int(last_state[3])
         energy += last_energy
     # x * y kg/Watts = xy kg/Watts
     calculated_co2 = energy * co2_saved
@@ -151,7 +151,7 @@ def read_consumption_data(config: InputConfiguration, last_hash: str, last_state
     # TODO: refactor this to the data input classes
     energy = int(input_data.raw_energy.accumulated_power) if input_data.raw_energy else 0
     if not (isinstance(config.energy, DataLoggerV1) or isinstance(config.energy, DataLoggerV2d1d1)):
-        last_energy = last_state[5]
+        last_energy = int(last_state[5])
         energy += last_energy
     consumed = {
         'energy': energy,
