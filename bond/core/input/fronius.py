@@ -29,7 +29,7 @@ class FroniusV1(EnergyDataSource):
         }
         device = Device(**device_meta)
         # accumulated power in Wh
-        accumulated_power = data['Body']['Data']['TOTAL_ENERGY']['Value'] * pow(10, -6)
+        accumulated_power = int(data['Body']['Data']['TOTAL_ENERGY']['Value']) * pow(10, -6)
         # access_epoch
         now = datetime.datetime.now().astimezone()
         access_epoch = calendar.timegm(now.timetuple())
@@ -129,7 +129,7 @@ class Loxone(EnergyDataSource):
         }
         device = Device(**device_meta)
         # accumulated power in Wh
-        accumulated_power = float(data['accumulated_power']) * pow(10, -6)
+        accumulated_power = int(data['accumulated_power']) * pow(10, -6)
         # access_epoch
         now = datetime.datetime.now().astimezone()
         access_epoch = calendar.timegm(now.timetuple())
