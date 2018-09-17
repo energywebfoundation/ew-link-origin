@@ -1,0 +1,44 @@
+{
+  "production": [
+    {
+      "energy": {
+        "module": "core.input.fronius",
+        "class_name": "Loxone",
+        "class_parameters": {
+          "ip": "http://10.0.0.1:51234",
+          "source": "Produced",
+          "user": "EWF",
+          "password": "ewf"
+        }
+      },
+      "carbonemission": {
+        "module": "core.input.carbonemission",
+        "class_name": "Wattime",
+        "class_parameters": {
+          "usr": "energyweb",
+          "pwd": "en3rgy!web",
+          "ba": "FR",
+          "hours_from_now": 24
+        }
+      },
+      "origin": {
+        "module": "core.abstract.bond",
+        "class_name": "OriginCredentials",
+        "class_parameters": {
+          "asset_id": 1,
+          "contract_address": "0x90EaE2895d941c58eada25bDBe46e98Cd67A0819",
+          "wallet_add": "0x4A616994A229565f7f7E96161eFd78b780bf24e2",
+          "wallet_pwd": "1b17e7cb5879a18fb6c9e7aee03a66841f2aa10102bd537752ecbdb5b6252d2f"
+        }
+      },
+      "name": "Rutzenmoos"
+    }
+  ],
+  "client": {
+    "module": "core.output.energyweb",
+    "class_name": "RemoteClientOriginProducer",
+    "class_parameters": {
+      "url": "https://tobalaba.slock.it/rpc:8545"
+    }
+  }
+}

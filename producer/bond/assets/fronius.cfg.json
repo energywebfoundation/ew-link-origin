@@ -1,0 +1,307 @@
+{
+    "topAdminPrivateKey": "8da129f46c635726d6442fe7299cdb6bdf394d83a663bf8f98b638d9f1d1af96",
+    "matcherPrivateKey": "e9a63e116f72c2e368376eb88c22fecf2a5e94a93464ff8802cf97caac657548",
+    "flow": [
+        {
+            "type": "CREATE_ACCOUNT",
+            "data": {
+                "firstName": "User",
+                "surname": "Admin",
+                "organization": "Fronius",
+                "street": "Main Street",
+                "number": 1,
+                "zip": "01234",
+                "city": "Anytown",
+                "country": "USA",
+                "state": "Anystate",
+                "address": "0x71c31ff1faa17b1cb5189fd845e0cca650d215d3",
+                "privateKey": "0xbfb423a193614c6712efd02951289192c20d70b3fc8a8b7cdee73603fcead486",
+                "rights": 2
+            }
+        },
+        {
+            "type": "CREATE_ACCOUNT",
+            "data": {
+                "firstName": "Asset",
+                "surname": "Admin",
+                "organization": "Fronius",
+                "street": "Main Street",
+                "number": 2,
+                "zip": "01234",
+                "city": "Anytown",
+                "country": "USA",
+                "state": "Anystate",
+                "address": "0xcea1c413a570654fa85e78f7c17b755563fec5a5",
+                "privateKey": "0x5c0b28bff67916a879953c50b25c73827ae0b777a2ad13abba2e4b67f843294e",
+                "rights": 4
+            }
+        },
+        {
+            "type": "CREATE_ACCOUNT",
+            "data": {
+                "firstName": "Agreement",
+                "surname": "Admin",
+                "organization": "Fronius",
+                "street": "Main Street",
+                "number": 3,
+                "zip": "01234",
+                "city": "Anytown",
+                "country": "USA",
+                "state": "Anystate",
+                "address": "0x583b3e16a27f3db4bdc4c1a5452eeed14619c8da",
+                "privateKey": "0x37b3b1d577f61fac7afc161a12669361a7f308ad42c7b093dc10ff1781bb618d",
+                "rights": 8
+            }
+        },
+        {
+            "type": "CREATE_ACCOUNT",
+            "data": {
+                "firstName": "Prosumer",
+                "surname": "1",
+                "organization": "Fronius",
+                "street": "Gierling",
+                "number": 5,
+                "zip": "4621",
+                "city": "Sipbachzell",
+                "country": "Austria",
+                "state": "Wels-Land",
+                "address": "0x0e03Ac0E9976d999E670fc03CC0986Afc363F195",
+                "privateKey": "0xe8372d3d6466d77add780fc8ea55268690627e858f00e708836e32cd7d4f6499",
+                "rights": 48
+            }
+        },
+        {
+            "type": "CREATE_ACCOUNT",
+            "data": {
+                "firstName": "Prosumer",
+                "surname": "2",
+                "organization": "Fronius",
+                "street": "Waldstrasse ",
+                "number": 4,
+                "zip": "4845",
+                "city": "Rutzenmoos",
+                "country": "Austria",
+                "state": "Upper Austria",
+                "address": "0x07685519eAc077045fD68eF128410CE1b32A7A56",
+                "privateKey": "0x889061a400d3c031b1c89802093f72157bb7ae6bd60320d18a3dde2c758d3cd4",
+                "rights": 48
+            }
+        },
+        {
+            "type": "CREATE_ACCOUNT",
+            "data": {
+                "firstName": "Consumer",
+                "surname": "1",
+                "organization": "Fronius",
+                "street": "Aich",
+                "number": 69,
+                "zip": "4845",
+                "city": "Taufkirchen",
+                "country": "Austria",
+                "state": "Upper Austria",
+                "address": "0xa75e9A7270796Bd9977aF1bc5C241c2e81c844af",
+                "privateKey": "0xa70d4103a7f45f1c5a0883e3bdc88e8cac9c16f1829be7d5cf767175f3e1f8fd",
+                "rights": 48
+            }
+        },
+        {
+            "type": "CREATE_ACCOUNT",
+            "data": {
+                "firstName": "Consumer",
+                "surname": "2",
+                "organization": "Fronius",
+                "street": "Stockergasse ",
+                "number": 14,
+                "zip": "4845",
+                "city": "Adlwang",
+                "country": "Austria",
+                "state": "Upper Austria",
+                "address": "0xa75e9A7270796Bd9977aF1bc5C241c2e81c844af",
+                "privateKey": "0xa70d4103a7f45f1c5a0883e3bdc88e8cac9c16f1829be7d5cf767175f3e1f8fd",
+                "rights": 48
+            }
+        },
+        {
+            "type": "CREATE_ACCOUNT",
+            "data": {
+                "firstName": "Trader",
+                "surname": "ESS",
+                "organization": "Trader Organization",
+                "street": "Main Street",
+                "number": 6,
+                "zip": "01234",
+                "city": "Anytown",
+                "country": "USA",
+                "state": "Anystate",
+                "address": "0xfeebf1e463e39d09d5f8a40a6ed08d604ab01360",
+                "privateKey": "0x6ee02c057cda3019132c670b425e6caea4f055ac8f64377d2463f123e71babec",
+                "rights": 32
+            }
+        },
+        {
+            "type": "CREATE_ACCOUNT",
+            "data": {
+                "firstName": "Jonas",
+                "surname": "Dammen",
+                "organization": "Matcher Organization",
+                "street": "Main Street",
+                "number": 7,
+                "zip": "01234",
+                "city": "Anytown",
+                "country": "USA",
+                "state": "Anystate",
+                "address": "0x585cc5c7829b1fd303ef5c019ed23815a205a59e",
+                "privateKey": "0xe9a63e116f72c2e368376eb88c22fecf2a5e94a93464ff8802cf97caac657548",
+                "rights": 64
+            }
+        },
+        {
+            "type": "CREATE_PRODUCING_ASSET",
+            "data": {
+                "smartMeter": "0xD3d6285c621D0310426E45E15480cc8054602690",
+                "smartMeterPK": "42ff8dd7c3ced6aada168b4cf3a9fcf4ffad86a6abb517db05187c0e3c90e220",
+                "owner": "0x0e03Ac0E9976d999E670fc03CC0986Afc363F195",
+                "operationalSince": 1514764800,
+                "capacityWh": 5000,
+                "lastSmartMeterReadWh": 0,
+                "active": true,
+                "lastSmartMeterReadFileHash": "",
+                "country": "Austria",
+                "region": "Upper Austria",
+                "zip": "4621",
+                "city": "Sipbachzell",
+                "street": "Gierling",
+                "houseNumber": "5",
+                "gpsLatitude": "48.091195",
+                "gpsLongitude": "14.095142",
+                "assetType": "Solar",
+                "certificatesCreatedForWh": 0,
+                "lastSmartMeterCO2OffsetRead": 0,
+                "cO2UsedForCertificate": 0,
+                "complianceRegistry": "none",
+                "otherGreenAttributes": "N.A.",
+                "typeOfPublicSupport": "N.A"
+            }
+        },
+        {
+            "type": "CREATE_PRODUCING_ASSET",
+            "data": {
+                "smartMeter": "0x4A616994A229565f7f7E96161eFd78b780bf24e2",
+                "smartMeterPK": "1b17e7cb5879a18fb6c9e7aee03a66841f2aa10102bd537752ecbdb5b6252d2f",
+                "owner": "0x07685519eAc077045fD68eF128410CE1b32A7A56",
+                "operationalSince": 1483228800,
+                "capacityWh": 5000,
+                "lastSmartMeterReadWh": 0,
+                "active": true,
+                "lastSmartMeterReadFileHash": "",
+                "country": "Austria",
+                "region": "Upper Austria",
+                "zip": "4845",
+                "city": "Rutzenmoos",
+                "street": "Waldstrasse",
+                "houseNumber": "4",
+                "gpsLatitude": "47.982103",
+                "gpsLongitude": "13.714003",
+                "assetType": "Solar",
+                "certificatesCreatedForWh": 0,
+                "lastSmartMeterCO2OffsetRead": 0,
+                "cO2UsedForCertificate": 0,
+                "complianceRegistry": "none",
+                "otherGreenAttributes": "N.A.",
+                "typeOfPublicSupport": "N.A"
+            }
+        },
+        {
+            "type": "CREATE_CONSUMING_ASSET",
+            "data": {
+                "smartMeter": "0x793e7dA14dc3627474fAA8c78b479e9A86d67604",
+                "smartMeterPK": "aa028e39341e27bdd231132187ad995b35e0cfe52a77d8b074216a9d929a9d6d",
+                "owner": "0xa75e9A7270796Bd9977aF1bc5C241c2e81c844af",
+                "operationalSince": "1529971200",
+                "capacityWh": 5000,
+                "lastSmartMeterReadWh": 0,
+                "active": true,
+                "lastSmartMeterReadFileHash": "",
+                "country": "Austria",
+                "region": "Upper Austria",
+                "zip": "01234",
+                "city": "Taufkirchen",
+                "street": "Aich",
+                "houseNumber": "69",
+                "gpsLatitude": "48.245826",
+                "gpsLongitude": "13.745364",
+                "maxCapacitySet": false,
+                "certificatesUsedForWh": 0
+            }
+        },
+        {
+            "type": "CREATE_CONSUMING_ASSET",
+            "data": {
+                "smartMeter": "0x793e7dA14dc3627474fAA8c78b479e9A86d67604",
+                "smartMeterPK": "aa028e39341e27bdd231132187ad995b35e0cfe52a77d8b074216a9d929a9d6d",
+                "owner": "0x07685519eAc077045fD68eF128410CE1b32A7A56",
+                "operationalSince": "1529971200",
+                "capacityWh": 5000,
+                "lastSmartMeterReadWh": 0,
+                "active": true,
+                "lastSmartMeterReadFileHash": "",
+                "country": "Austria",
+                "region": "Upper Austria",
+                "zip": "01234",
+                "city": "Adlwang",
+                "street": "Stockergasse",
+                "houseNumber": "14",
+                "gpsLatitude": "48.021219",
+                "gpsLongitude": "14.230514",
+                "maxCapacitySet": false,
+                "certificatesUsedForWh": 0
+            }
+        },
+        {
+            "type": "CREATE_CONSUMING_ASSET",
+            "data": {
+                "smartMeter": "0xDC52418f46c7C186eB31d8881F8d8A7Fb3Cb899b",
+                "smartMeterPK": "0477434918183aa279fea6fd5e305986d84c0b97af2243dfe59000dacf85fbf0",
+                "owner": "0x0e03Ac0E9976d999E670fc03CC0986Afc363F195",
+                "operationalSince": "1529971200",
+                "capacityWh": 5000,
+                "lastSmartMeterReadWh": 0,
+                "active": true,
+                "lastSmartMeterReadFileHash": "",
+                "country": "Austria",
+                "region": "Upper Austria",
+                "zip": "4621",
+                "city": "Sipbachzell",
+                "street": "Gierling",
+                "houseNumber": "5",
+                "gpsLatitude": "48.091195",
+                "gpsLongitude": "14.095142",
+                "maxCapacitySet": false,
+                "certificatesUsedForWh": 0
+            }
+        },
+        {
+            "type": "CREATE_CONSUMING_ASSET",
+            "data": {
+                "smartMeter": "0x68F89f072A37c9571733E899EFF7219a03d51bb0",
+                "smartMeterPK": "f97120b63afc4a6c622a4131687ac6d3ef068590beec04276a3d13bc4148c12b",
+                "owner": "0x07685519eAc077045fD68eF128410CE1b32A7A56",
+                "operationalSince": "1529971200",
+                "capacityWh": 5000,
+                "lastSmartMeterReadWh": 0,
+                "active": true,
+                "lastSmartMeterReadFileHash": "",
+                "country": "Austria",
+                "region": "Upper Austria",
+                "zip": "4845",
+                "city": "Rutzenmoos",
+                "street": "Waldstrasse",
+                "houseNumber": "4",
+                "gpsLatitude": "47.982103",
+                "gpsLongitude": "13.714003",
+                "maxCapacitySet": false,
+                "certificatesUsedForWh": 0
+            }
+        }
+    ]
+}

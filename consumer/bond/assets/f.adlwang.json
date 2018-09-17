@@ -1,0 +1,34 @@
+{
+  "consumption": [
+    {
+      "energy": {
+        "module": "core.input.fronius",
+        "class_name": "Loxone",
+        "class_parameters": {
+          "ip": "http://10.0.0.11",
+          "source": "Consumed",
+          "user": "EWF",
+          "password": "ewf"
+        }
+      },
+      "origin": {
+        "module": "core.abstract.bond",
+        "class_name": "OriginCredentials",
+        "class_parameters": {
+          "asset_id": 1,
+          "contract_address": "0x8De517a4a7F58bbC288969778274376381644c45",
+          "wallet_add": "0x793e7dA14dc3627474fAA8c78b479e9A86d67604",
+          "wallet_pwd": "aa028e39341e27bdd231132187ad995b35e0cfe52a77d8b074216a9d929a9d6d"
+        }
+      },
+      "name": "Adlwang"
+    }
+  ],
+  "client": {
+    "module": "core.output.energyweb",
+    "class_name": "RemoteClientOriginConsumer",
+    "class_parameters": {
+      "url": "https://tobalaba.slock.it/rpc:8545"
+    }
+  }
+}
