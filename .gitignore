@@ -106,7 +106,7 @@ ENV/
 origin/app/assets/configFun
 origin/tobalaba
 origin/venv/
-bond/assets/consumer.json
-bond/assets/producer.json
+t.c.json
+t.p.json
 .DS_Store
 ignore/
