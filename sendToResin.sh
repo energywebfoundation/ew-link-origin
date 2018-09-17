@@ -1,6 +1,5 @@
 git submodule update --recursive --remote
-cp -v ./bond/certificate_of_origin/build/contracts/AssetConsumingRegistryLogic.json ./bond/assets/
-cp -v ./bond/certificate_of_origin/build/contracts/AssetProducingRegistryLogic.json ./bond/assets/
-cp -v ./bond/certificate_of_origin/build/contracts/AssetLogic.json ./bond/assets/
+cp -r -v ./bond ./producer/bond
+cp -r -v ./bond ./consumer/bond
 git push
 git push resin master
