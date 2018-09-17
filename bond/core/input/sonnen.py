@@ -30,8 +30,8 @@ class Sonnen(EnergyDataSource):
             'geolocation': (0, 0)
         }
         device = Device(**device_meta)
-        # accumulated power in KWh
-        accumulated_power = measured_power * pow(10, -3)
+        # accumulated power in KWh to Mh
+        accumulated_power = int(measured_power * pow(10, 3))
         # access_epoch
         now = datetime.datetime.now().astimezone()
         access_epoch = calendar.timegm(now.timetuple())

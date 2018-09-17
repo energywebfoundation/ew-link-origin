@@ -36,7 +36,7 @@ class SPGroupAPI(EnergyDataSource):
         }
         device = Device(**device_meta)
         # accumulated power in Wh
-        accumulated_power = data['energy']['data'] * pow(10, -6)
+        accumulated_power = int(data['energy']['data'])
         # access_epoch
         now = datetime.datetime.now().astimezone()
         access_epoch = calendar.timegm(now.timetuple())

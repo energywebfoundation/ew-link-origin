@@ -52,22 +52,17 @@ def convert_time(epoch: int):
     return access_time.strftime("%Y-%m-%d  %H:%M:%S")
 
 
-def print_config(config_file: str = None):
+def print_config(configuration_file):
     prod = '[PROD][CONF] meter: {} - co2 source: {}'
     coms = '[COMS][CONF] meter: {}'
     logger.debug('[CONF] path to logs: {}'.format(PERSISTENCE))
-
-    if config_file:
-        configuration = config_parser.parse(json.load(open(config_file)))
-    else:
-        configuration = config_parser.parse(json.loads(os.environ['config']))
+    configuration = config_parser.parse(configuration_file)
     if configuration.production is not None:
         [logger.debug(prod.format(item.energy.__class__.__name__, item.carbon_emission.__class__.__name__))
          for item in configuration.production]
     if configuration.consumption is not None:
         [logger.debug(coms.format(item.energy.__class__.__name__)) for item in configuration.consumption]
-
-    return configuration
+    return {"configuration": configuration}
 
 
 def _produce(chain_file, config, item) -> bool:
@@ -132,13 +127,15 @@ def print_consumption_results(config: Configuration, item: InputConfiguration, c
             logger.critical("[COMS][FAIL] meter: {} - Check error.log".format(item.energy.__class__.__name__))
 
 
-def log(configuration: Configuration):
+def log_production(configuration: Configuration):
     fn = '{}.pkl'
-    if configuration.production:
-        production = [item for item in configuration.production if not issubclass(item.energy.__class__, SPGroupAPI)]
-        [print_production_results(configuration, item, fn.format(item.name)) for item in production]
-    if configuration.consumption:
-        [print_consumption_results(configuration, item, fn.format(item.name)) for item in configuration.consumption]
+    production = [item for item in configuration.production if not issubclass(item.energy.__class__, SPGroupAPI)]
+    [print_production_results(configuration, item, fn.format(item.name)) for item in production]
+
+
+def log_consumption(configuration: Configuration):
+    fn = '{}.pkl'
+    [print_consumption_results(configuration, item, fn.format(item.name)) for item in configuration.consumption]
 
 
 def log_sp(configuration: Configuration):
@@ -160,6 +157,7 @@ def schedule(kwargs):
         hourly_wake = today.replace(hour=hour, minute=1)
         scheduler.enterabs(time=time.mktime(hourly_wake.timetuple()), priority=2, action=log_sp, kwargs=kwargs)
     hourly_wake = tomorrow.replace(hour=0, minute=1)
-    scheduler.enterabs(time=time.mktime(hourly_wake.timetuple()), priority=2, action=log_sp, kwargs=kwargs)
-    scheduler.enterabs(time=time.mktime(daily_wake.timetuple()), priority=1, action=log, kwargs=kwargs)
+    scheduler.enterabs(time=time.mktime(hourly_wake.timetuple()), priority=3, action=log_sp, kwargs=kwargs)
+    scheduler.enterabs(time=time.mktime(daily_wake.timetuple()), priority=2, action=log_consumption, kwargs=kwargs)
+    scheduler.enterabs(time=time.mktime(daily_wake.timetuple()), priority=1, action=log_production, kwargs=kwargs)
     scheduler.run()

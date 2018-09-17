@@ -1,4 +1,6 @@
 version: '2'
 services:
-  bond:
-    build: ./bond
+  origin-consumer:
+    build: ./consumer
+  origin-producer:
+    build: ./producer

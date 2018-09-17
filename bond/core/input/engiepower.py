@@ -36,8 +36,8 @@ class SmireTestAPI(EnergyDataSource):
             'geolocation': (raw['site']['latitude'], raw['site']['longitude'])
         }
         device = Device(**device_meta)
-        # accumulated power in KWh
-        accumulated_power = data[-1]['produced'] * pow(10, -3)
+        # accumulated power in KWh to Wh
+        accumulated_power = int(data[-1]['produced'] * pow(10, 3))
         # access_epoch
         now = datetime.datetime.now().astimezone()
         access_epoch = calendar.timegm(now.timetuple())

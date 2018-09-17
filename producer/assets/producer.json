@@ -1,0 +1,540 @@
+{
+  "production": [
+    {
+      "energy": {
+        "module": "core.input.engiepower",
+        "class_name": "Frasnes",
+        "class_parameters": {
+          "usr": "jens.griesing@energyweb.org",
+          "pwd": "origin!app"
+        }
+      },
+      "carbonemission": {
+        "module": "core.input.carbonemission",
+        "class_name": "Wattime",
+        "class_parameters": {
+          "usr": "energyweb",
+          "pwd": "en3rgy!web",
+          "ba": "FR",
+          "hours_from_now": 24
+        }
+      },
+      "origin": {
+        "module": "core.abstract.bond",
+        "class_name": "OriginCredentials",
+        "class_parameters": {
+          "asset_id": 0,
+          "contract_address": "0xc73728651f498682ab56a2a82ca700e06949b9b4",
+          "wallet_add": "0x0074AD67550a8B0210EeE3E0CA44f406bEab678c",
+          "wallet_pwd": "574e43825f7857cb2de43d6a3d34d3d1a5e65d28aac36ee191282fc0a14c34e4"
+        }
+      },
+      "name": "prod_engie_frasnes"
+    },
+    {
+      "energy": {
+        "module": "core.input.engiepower",
+        "class_name": "Eget",
+        "class_parameters": {
+          "usr": "jens.griesing@energyweb.org",
+          "pwd": "origin!app"
+        }
+      },
+      "carbonemission": {
+        "module": "core.input.carbonemission",
+        "class_name": "Wattime",
+        "class_parameters": {
+          "usr": "energyweb",
+          "pwd": "en3rgy!web",
+          "ba": "FR",
+          "hours_from_now": 24
+        }
+      },
+      "origin": {
+        "module": "core.abstract.bond",
+        "class_name": "OriginCredentials",
+        "class_parameters": {
+          "asset_id": 1,
+          "contract_address": "0xc73728651f498682ab56a2a82ca700e06949b9b4",
+          "wallet_add": "0x0030653eFE3961E2D090986E85bB52BF7b0FCcB2",
+          "wallet_pwd": "e595dca62967804801d209e7930d4f1c8719acd03b09783fdc7f18b133cea74e"
+        }
+      },
+      "name": "prod_engie_eget"
+    },
+    {
+      "energy": {
+        "module": "core.input.engiepower",
+        "class_name": "Burgum",
+        "class_parameters": {
+          "usr": "jens.griesing@energyweb.org",
+          "pwd": "origin!app"
+        }
+      },
+      "carbonemission": {
+        "module": "core.input.carbonemission",
+        "class_name": "Wattime",
+        "class_parameters": {
+          "usr": "energyweb",
+          "pwd": "en3rgy!web",
+          "ba": "FR",
+          "hours_from_now": 24
+        }
+      },
+      "origin": {
+        "module": "core.abstract.bond",
+        "class_name": "OriginCredentials",
+        "class_parameters": {
+          "asset_id": 2,
+          "contract_address": "0xc73728651f498682ab56a2a82ca700e06949b9b4",
+          "wallet_add": "0x00C4D3aaB56dC8Be0dFE3AD7B1d418210172C578",
+          "wallet_pwd": "ea793f1e52af6d9dc650ee91bb6f0b701bff5f60b021cb06b1cb78574954ae91"
+        }
+      },
+      "name": "prod_engie_burgum"
+    },
+    {
+      "energy": {
+        "module": "core.input.eumel",
+        "class_name": "DataLoggerV2d1d1",
+        "class_parameters": {
+          "ip": "http://sarnau5myhome.spdns.de:8002",
+          "user": "admin",
+          "password": "123gsy456!"
+        }
+      },
+      "carbonemission": {
+        "module": "core.input.carbonemission",
+        "class_name": "WattimeV2",
+        "class_parameters": {
+          "usr": "ewfuser",
+          "pwd": "cE0VndU1UN3R",
+          "ba": "DE_TENNET"
+        }
+      },
+      "origin": {
+        "module": "core.abstract.bond",
+        "class_name": "OriginCredentials",
+        "class_parameters": {
+          "asset_id": 4,
+          "contract_address": "0xc73728651f498682ab56a2a82ca700e06949b9b4",
+          "wallet_add": "0x00cF3B87B5CFfe8E5149280b260B77851853Bc3C",
+          "wallet_pwd": "070ecd1b6ada2e0d8b6cc6925d95875e1b135acd620bc9947f5fea69fdccecd2"
+        }
+      },
+      "name": "prod_pvt_ktheis"
+    },
+    {
+      "energy": {
+        "module": "core.input.twl",
+        "class_name": "AG",
+        "class_parameters": {
+          "host": "46.101.99.49",
+          "port": 5022,
+          "usr": "twl",
+          "pwd": "t2qy8z3275djm6adny"
+        }
+      },
+      "carbonemission": {
+        "module": "core.input.carbonemission",
+        "class_name": "WattimeV2",
+        "class_parameters": {
+          "usr": "ewfuser",
+          "pwd": "cE0VndU1UN3R",
+          "ba": "DE_50HZT"
+        }
+      },
+      "origin": {
+        "module": "core.abstract.bond",
+        "class_name": "OriginCredentials",
+        "class_parameters": {
+          "asset_id": 6,
+          "contract_address": "0xc73728651f498682ab56a2a82ca700e06949b9b4",
+          "wallet_add": "0x00d631c01eE47e256ffec4774FCf5818d8316D5F",
+          "wallet_pwd": "b4880e96287bc80a80abe04df82c62fa58983334d2a1d2f782b3e2b44d96d34b"
+        }
+      },
+      "name": "prod_twl_ag"
+    },
+    {
+      "energy": {
+        "module": "core.input.twl",
+        "class_name": "Lager",
+        "class_parameters": {
+          "host": "46.101.99.49",
+          "port": 5022,
+          "usr": "twl",
+          "pwd": "t2qy8z3275djm6adny"
+        }
+      },
+      "carbonemission": {
+        "module": "core.input.carbonemission",
+        "class_name": "WattimeV2",
+        "class_parameters": {
+          "usr": "ewfuser",
+          "pwd": "cE0VndU1UN3R",
+          "ba": "DE_50HZT"
+        }
+      },
+      "origin": {
+        "module": "core.abstract.bond",
+        "class_name": "OriginCredentials",
+        "class_parameters": {
+          "asset_id": 7,
+          "contract_address": "0xc73728651f498682ab56a2a82ca700e06949b9b4",
+          "wallet_add": "0x00FE9Cc1FeC1B778623b19759293d828c333e4C0",
+          "wallet_pwd": "d6a9eea13776e5bec865f71d94d92f8a5f3e48e5c05c1c97cd7fdaf003f5b45a"
+        }
+      },
+      "name": "prod_twl_lager"
+    },
+    {
+      "energy": {
+        "module": "core.input.twl",
+        "class_name": "Wasserwerk2",
+        "class_parameters": {
+          "host": "46.101.99.49",
+          "port": 5022,
+          "usr": "twl",
+          "pwd": "t2qy8z3275djm6adny"
+        }
+      },
+      "carbonemission": {
+        "module": "core.input.carbonemission",
+        "class_name": "WattimeV2",
+        "class_parameters": {
+          "usr": "ewfuser",
+          "pwd": "cE0VndU1UN3R",
+          "ba": "DE_50HZT"
+        }
+      },
+      "origin": {
+        "module": "core.abstract.bond",
+        "class_name": "OriginCredentials",
+        "class_parameters": {
+          "asset_id": 8,
+          "contract_address": "0xc73728651f498682ab56a2a82ca700e06949b9b4",
+          "wallet_add": "0x00F9f869Dcf9169919852057b5D7e2aC5f6fB782",
+          "wallet_pwd": "113eee8074eb6699271103b802365156463e86d22424a4b12e886d23eaf1387c"
+        }
+      },
+      "name": "prod_twl_wasserwerk2"
+    },
+    {
+      "energy": {
+        "module": "core.input.twl",
+        "class_name": "Wasserwerk1a1",
+        "class_parameters": {
+          "host": "46.101.99.49",
+          "port": 5022,
+          "usr": "twl",
+          "pwd": "t2qy8z3275djm6adny"
+        }
+      },
+      "carbonemission": {
+        "module": "core.input.carbonemission",
+        "class_name": "WattimeV2",
+        "class_parameters": {
+          "usr": "ewfuser",
+          "pwd": "cE0VndU1UN3R",
+          "ba": "DE_50HZT"
+        }
+      },
+      "origin": {
+        "module": "core.abstract.bond",
+        "class_name": "OriginCredentials",
+        "class_parameters": {
+          "asset_id": 9,
+          "contract_address": "0xc73728651f498682ab56a2a82ca700e06949b9b4",
+          "wallet_add": "0x002EA88149599290C09f764c4038BfbeeE80798A",
+          "wallet_pwd": "bfbbbcec5886ec52198b77941311fe35652320685a5bfb0e4fe2f344cced744d"
+        }
+      },
+      "name": "prod_twl_wasserwerk1a1"
+    },
+    {
+      "energy": {
+        "module": "core.input.twl",
+        "class_name": "Wasserwerk1a2",
+        "class_parameters": {
+          "host": "46.101.99.49",
+          "port": 5022,
+          "usr": "twl",
+          "pwd": "t2qy8z3275djm6adny"
+        }
+      },
+      "carbonemission": {
+        "module": "core.input.carbonemission",
+        "class_name": "WattimeV2",
+        "class_parameters": {
+          "usr": "ewfuser",
+          "pwd": "cE0VndU1UN3R",
+          "ba": "DE_50HZT"
+        }
+      },
+      "origin": {
+        "module": "core.abstract.bond",
+        "class_name": "OriginCredentials",
+        "class_parameters": {
+          "asset_id": 10,
+          "contract_address": "0xc73728651f498682ab56a2a82ca700e06949b9b4",
+          "wallet_add": "0x0071e0526041472494f710cFB36c71B219dF70ef",
+          "wallet_pwd": "90d94ec35f071ede7951398fc98daaca8be5c48327a66feeb22595bfc308c5d6"
+        }
+      },
+      "name": "prod_twl_wasserwerk1a2"
+    },
+    {
+      "energy": {
+        "module": "core.input.sp_group",
+        "class_name": "SPGroup_b1",
+        "class_parameters": {
+          "api_url": "https://lighthouse-api-master.apps.vpcf-qa.spdigital.io/v1/",
+          "api_key": "ZGdmanNkamoyMzIzMjM5ODc5ZGtma2gzZWhmazM6OTg3OTBpa2pmZGtmM2hrMmpoZGtqaGkza2RzYjM="
+        }
+      },
+      "carbonemission": {
+        "module": "core.input.carbonemission",
+        "class_name": "Wattime",
+        "class_parameters": {
+          "usr": "energyweb",
+          "pwd": "en3rgy!web",
+          "ba": "noneAv",
+          "hours_from_now": 24
+        }
+      },
+      "origin": {
+        "module": "core.abstract.bond",
+        "class_name": "OriginCredentials",
+        "class_parameters": {
+          "asset_id": 11,
+          "contract_address": "0xc73728651f498682ab56a2a82ca700e06949b9b4",
+          "wallet_add": "0x00Cc98692308246ae56efFAcE5628f137fd8915b",
+          "wallet_pwd": "599116faac7d3745c581cb2617a2b3eda38f2428bdad8ea33e0fcb635a15d63f"
+        }
+      },
+      "name": "prod_spgroup_b1"
+    },
+    {
+      "energy": {
+        "module": "core.input.sp_group",
+        "class_name": "SPGroup_k1",
+        "class_parameters": {
+          "api_url": "https://lighthouse-api-master.apps.vpcf-qa.spdigital.io/v1/",
+          "api_key": "ZGdmanNkamoyMzIzMjM5ODc5ZGtma2gzZWhmazM6OTg3OTBpa2pmZGtmM2hrMmpoZGtqaGkza2RzYjM="
+        }
+      },
+      "carbonemission": {
+        "module": "core.input.carbonemission",
+        "class_name": "Wattime",
+        "class_parameters": {
+          "usr": "energyweb",
+          "pwd": "en3rgy!web",
+          "ba": "noneAv",
+          "hours_from_now": 24
+        }
+      },
+      "origin": {
+        "module": "core.abstract.bond",
+        "class_name": "OriginCredentials",
+        "class_parameters": {
+          "asset_id": 12,
+          "contract_address": "0xc73728651f498682ab56a2a82ca700e06949b9b4",
+          "wallet_add": "0x00FdF1e7Db6b660f6c65c116d45f663B47b60a37",
+          "wallet_pwd": "7aa9a85dd9396c6fd824b96f95e048eab6027d49a0e316052322f11eae02957e"
+        }
+      },
+      "name": "prod_spgroup_k1"
+    },
+    {
+      "energy": {
+        "module": "core.input.sp_group",
+        "class_name": "SPGroup_s1",
+        "class_parameters": {
+          "api_url": "https://lighthouse-api-master.apps.vpcf-qa.spdigital.io/v1/",
+          "api_key": "ZGdmanNkamoyMzIzMjM5ODc5ZGtma2gzZWhmazM6OTg3OTBpa2pmZGtmM2hrMmpoZGtqaGkza2RzYjM="
+        }
+      },
+      "carbonemission": {
+        "module": "core.input.carbonemission",
+        "class_name": "Wattime",
+        "class_parameters": {
+          "usr": "energyweb",
+          "pwd": "en3rgy!web",
+          "ba": "noneAv",
+          "hours_from_now": 24
+        }
+      },
+      "origin": {
+        "module": "core.abstract.bond",
+        "class_name": "OriginCredentials",
+        "class_parameters": {
+          "asset_id": 13,
+          "contract_address": "0xc73728651f498682ab56a2a82ca700e06949b9b4",
+          "wallet_add": "0x00F200e70917AEc896591b021871e6F9e17eC6CD",
+          "wallet_pwd": "b7d9316bca2ccd2c490d02a7a53b1f3926d7578e3b7fffc288cb480813434161"
+        }
+      },
+      "name": "prod_spgroup_s1"
+    },
+    {
+      "energy": {
+        "module": "core.input.sp_group",
+        "class_name": "SPGroup_s2",
+        "class_parameters": {
+          "api_url": "https://lighthouse-api-master.apps.vpcf-qa.spdigital.io/v1/",
+          "api_key": "ZGdmanNkamoyMzIzMjM5ODc5ZGtma2gzZWhmazM6OTg3OTBpa2pmZGtmM2hrMmpoZGtqaGkza2RzYjM="
+        }
+      },
+      "carbonemission": {
+        "module": "core.input.carbonemission",
+        "class_name": "Wattime",
+        "class_parameters": {
+          "usr": "energyweb",
+          "pwd": "en3rgy!web",
+          "ba": "noneAv",
+          "hours_from_now": 24
+        }
+      },
+      "origin": {
+        "module": "core.abstract.bond",
+        "class_name": "OriginCredentials",
+        "class_parameters": {
+          "asset_id": 14,
+          "contract_address": "0xc73728651f498682ab56a2a82ca700e06949b9b4",
+          "wallet_add": "0x001b2C1d667Bb334BAdAE6CDa8B18b0A7a2b4d8F",
+          "wallet_pwd": "08cd6f2f5bd140edc01aa19aa0e904ba8928c12068012d6c129238f3a0729728"
+        }
+      },
+      "name": "prod_spgroup_s2"
+    },
+    {
+      "energy": {
+        "module": "core.input.sp_group",
+        "class_name": "SPGroup_t1",
+        "class_parameters": {
+          "api_url": "https://lighthouse-api-master.apps.vpcf-qa.spdigital.io/v1/",
+          "api_key": "ZGdmanNkamoyMzIzMjM5ODc5ZGtma2gzZWhmazM6OTg3OTBpa2pmZGtmM2hrMmpoZGtqaGkza2RzYjM="
+        }
+      },
+      "carbonemission": {
+        "module": "core.input.carbonemission",
+        "class_name": "Wattime",
+        "class_parameters": {
+          "usr": "energyweb",
+          "pwd": "en3rgy!web",
+          "ba": "noneAv",
+          "hours_from_now": 24
+        }
+      },
+      "origin": {
+        "module": "core.abstract.bond",
+        "class_name": "OriginCredentials",
+        "class_parameters": {
+          "asset_id": 15,
+          "contract_address": "0xc73728651f498682ab56a2a82ca700e06949b9b4",
+          "wallet_add": "0x004D27ebD0105d55612cEA6F76384424F59d146e",
+          "wallet_pwd": "670a0406b09115a5d3d2ac4ff02c06bca56d659e0dd4c028ac720384999e36aa"
+        }
+      },
+      "name": "prod_spgroup_t1"
+    },
+    {
+      "energy": {
+        "module": "core.input.sonnen",
+        "class_name": "Sonnen_101_p",
+        "class_parameters": {
+          "api_url": "https://4ljl2ccd1i.execute-api.eu-central-1.amazonaws.com/dev/",
+          "api_key": "ldEwCUZscBaNXHgm9qoeR9RnUKnzhQ5t7umVRNfH"
+        }
+      },
+      "carbonemission": {
+        "module": "core.input.carbonemission",
+        "class_name": "WattimeV2",
+        "class_parameters": {
+          "usr": "ewfuser",
+          "pwd": "cE0VndU1UN3R",
+          "ba": "DE_AMPRION"
+        }
+      },
+      "origin": {
+        "module": "core.abstract.bond",
+        "class_name": "OriginCredentials",
+        "class_parameters": {
+          "asset_id": 16,
+          "contract_address": "0xc73728651f498682ab56a2a82ca700e06949b9b4",
+          "wallet_add": "0x00D6ebCE819241d39DF6Fc3Efc4210110f2ea22e",
+          "wallet_pwd": "b099ced61e0fb493d4475ce054b7c682a7434603f1e3ca1ce7899acb7b10b206"
+        }
+      },
+      "name": "prod_sonnen_101p"
+    },
+    {
+      "energy": {
+        "module": "core.input.sonnen",
+        "class_name": "Sonnen_102_p",
+        "class_parameters": {
+          "api_url": "https://4ljl2ccd1i.execute-api.eu-central-1.amazonaws.com/dev/",
+          "api_key": "ldEwCUZscBaNXHgm9qoeR9RnUKnzhQ5t7umVRNfH"
+        }
+      },
+      "carbonemission": {
+        "module": "core.input.carbonemission",
+        "class_name": "WattimeV2",
+        "class_parameters": {
+          "usr": "ewfuser",
+          "pwd": "cE0VndU1UN3R",
+          "ba": "DE_AMPRION"
+        }
+      },
+      "origin": {
+        "module": "core.abstract.bond",
+        "class_name": "OriginCredentials",
+        "class_parameters": {
+          "asset_id": 17,
+          "contract_address": "0xc73728651f498682ab56a2a82ca700e06949b9b4",
+          "wallet_add": "0x00147a9cb19A46eF40bcfcAd256AD99d25A11FA1",
+          "wallet_pwd": "1d7dfd42c94a60fa6862c50a01e0a8b91195f4ae25d8f0fb23b9fca38ef1d6a7"
+        }
+      },
+      "name": "prod_sonnen_102p"
+    },
+    {
+      "energy": {
+        "module": "core.input.excelon",
+        "class_name": "ExcelonTest",
+        "class_parameters": {
+          "api_url": "https://origin-dev.run.aws-usw02-pr.ice.predix.io/api/",
+          "api_key": "CFX8trB6cHZ9usMtFFwfQQVNr5jWze4EUFjz89DnQX6YHAjwU93trunF5pUqveTfyD6Uep5AQfrHuXEcsrBDbnbKmDVSW25JY5VA",
+        }
+      },
+      "carbonemission": {
+        "module": "core.input.carbonemission",
+        "class_name": "WattimeV2",
+        "class_parameters": {
+          "usr": "ewfuser",
+          "pwd": "cE0VndU1UN3R",
+          "ba": "DE_AMPRION"
+        }
+      },
+      "origin": {
+        "module": "core.abstract.bond",
+        "class_name": "OriginCredentials",
+        "class_parameters": {
+          "asset_id": 17,
+          "contract_address": "0xc73728651f498682ab56a2a82ca700e06949b9b4",
+          "wallet_add": "0x00147a9cb19A46eF40bcfcAd256AD99d25A11FA1",
+          "wallet_pwd": "1d7dfd42c94a60fa6862c50a01e0a8b91195f4ae25d8f0fb23b9fca38ef1d6a7"
+        }
+      },
+      "name": "prod_excelon"
+    }
+  ],
+  "client": {
+    "module": "core.output.energyweb",
+    "class_name": "RemoteClientOriginProducer",
+    "class_parameters": {
+      "url": "http://tobalaba.slock.it/rpc:8545"
+    }
+  }
+}

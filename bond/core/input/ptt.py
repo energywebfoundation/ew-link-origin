@@ -37,7 +37,7 @@ class PTTftp(EnergyDataSource):
         }
         device = Device(**device_meta)
         # accumulated power in Wh
-        accumulated_power = sum(locale.atof(power.p_minus) for power in raw if power.p_minus) * pow(10, -6)
+        accumulated_power = int(sum(locale.atof(power.p_minus) for power in raw if power.p_minus))
         # access_epoch
         now = datetime.datetime.now().astimezone()
         access_epoch = calendar.timegm(now.timetuple())

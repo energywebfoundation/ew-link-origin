@@ -3,7 +3,7 @@ import time
 
 import core.helper as core
 
-JSON = 'assets/local-producer.json'
+JSON = 'assets/f.test.json'
 
 
 # Helper to spawn an Tobalaba client on execution

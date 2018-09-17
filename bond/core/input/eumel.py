@@ -40,7 +40,7 @@ class DataLoggerV1(EnergyDataSource):
             serial_number=tree_header['sn'],
             geolocation=None)
         # accumulated power in Wh
-        accumulated_power = float(tree_leaves['TotWhImp'].replace('.', '')) * pow(10, -6)
+        accumulated_power = int(float(tree_leaves['TotWhImp']))
         # access_epoch
         now = datetime.datetime.now().astimezone()
         access_epoch = calendar.timegm(now.timetuple())
@@ -85,7 +85,7 @@ class DataLoggerV2d1d1(EnergyDataSource):
             serial_number=tree_header['sn'],
             geolocation=None)
         # accumulated power
-        accumulated_power = float(tree_leaves['TotWhImp'])
+        accumulated_power = int(float(tree_leaves['TotWhImp']))
         # access_epoch
         now = datetime.datetime.now().astimezone()
         access_epoch = calendar.timegm(now.timetuple())

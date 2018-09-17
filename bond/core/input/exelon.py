@@ -39,7 +39,7 @@ class ExelonAPI(EnergyDataSource):
         }
         device = Device(**device_meta)
         # accumulated power in ?
-        accumulated_power = data['amount']
+        accumulated_power = int(data['amount'])
         # access_epoch
         now = datetime.datetime.now().astimezone()
         access_epoch = calendar.timegm(now.timetuple())

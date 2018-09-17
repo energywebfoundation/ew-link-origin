@@ -50,7 +50,8 @@ class GridSingularity(EnergyDataSource):
         accumulated_power = 0
         latest_timestamp = 0
         for element in raw["consumptions"]:  # add all consumption together and save latest timestamp
-            accumulated_power += element['consumption']
+            # KWh to Wh
+            accumulated_power += int(element['consumption'] * pow(10, 3))
             if element["timestamp"] > latest_timestamp:
                 latest_timestamp = element["timestamp"]
         # access_epoch

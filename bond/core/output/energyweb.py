@@ -2,8 +2,7 @@ import json
 import time
 
 import requests
-import web3
-from web3 import HTTPProvider
+from web3 import HTTPProvider, Web3
 
 from web3.contract import ConciseContract
 from web3.providers import BaseProvider
@@ -317,16 +316,14 @@ class LocalClientOriginConsumer(OriginConsumer):
 class RemoteClientOriginProducer(OriginProducer):
     """
     Green Energy Producer accessing a remote ewf client
-    TODO: review others, using this as default
     """
 
     def __init__(self, url):
         self.MAX_RETRIES = 1000
         self.SECONDS_BETWEEN_RETRIES = 5
-        self.w3 = web3.Web3(HTTPProvider(url))
+        self.w3 = Web3(HTTPProvider(url))
         self.contracts = {
             "producer": json.load(open('./assets/AssetProducingRegistryLogic.json')),
-            "consumer": json.load(open('./assets/AssetConsumingRegistryLogic.json')),
             "asset": json.load(open('./assets/AssetLogic.json'))
         }
 
@@ -377,7 +374,7 @@ class RemoteClientOriginProducer(OriginProducer):
     def last_hash(self, origin: OriginCredentials):
         return self.__last_producer_file_hash(origin)
 
-    def last_state(self, origin: OriginCredentials):
+    def last_state(self, origin: OriginCredentials) -> dict:
         """
         Get last file hash registered from producer contract
         Source:
@@ -398,7 +395,15 @@ class RemoteClientOriginProducer(OriginProducer):
         receipt = self.call(origin.contract_address, 'producer', 'getAssetGeneral', origin.asset_id)
         if not receipt:
             raise ConnectionError
-        return receipt
+        state = {
+            "smart_meter": Web3.toText(receipt[0]) if isinstance(receipt[0], bytes) else receipt[0],
+            "owner": Web3.toText(receipt[1]) if isinstance(receipt[1], bytes) else receipt[1],
+            "since": Web3.toText(receipt[2]) if isinstance(receipt[2], bytes) else receipt[2],
+            "last_meter_read": Web3.toInt(receipt[3]) if isinstance(receipt[3], bytes) else receipt[3],
+            "is_active": receipt[4],
+            "last_hash": Web3.toBytes(receipt[5]) if not isinstance(receipt[5], bytes) else receipt[5],
+        }
+        return state
 
 
 # ---------------------------------------------------------------------------------------------------
@@ -410,9 +415,8 @@ class RemoteClientOriginConsumer(OriginConsumer):
     def __init__(self, url):
         self.MAX_RETRIES = 1000
         self.SECONDS_BETWEEN_RETRIES = 5
-        self.w3 = web3.Web3(HTTPProvider(url))
+        self.w3 = Web3(HTTPProvider(url))
         self.contracts = {
-            "producer": json.load(open('./assets/AssetProducingRegistryLogic.json')),
             "consumer": json.load(open('./assets/AssetConsumingRegistryLogic.json')),
             "asset": json.load(open('./assets/AssetLogic.json'))
         }
@@ -459,7 +463,7 @@ class RemoteClientOriginConsumer(OriginConsumer):
     def last_hash(self, origin: OriginCredentials):
         return self.__last_producer_file_hash(origin)
 
-    def last_state(self, origin: OriginCredentials):
+    def last_state(self, origin: OriginCredentials) -> dict:
         """
         Get last file hash registered from producer contract
         Source:
@@ -483,4 +487,15 @@ class RemoteClientOriginConsumer(OriginConsumer):
         receipt = self.call(origin.contract_address, 'consumer', 'getAssetGeneral', origin.asset_id)
         if not receipt:
             raise ConnectionError
-        return receipt
+        state = {
+            "smart_meter": Web3.toText(receipt[0]) if isinstance(receipt[0], bytes) else receipt[0],
+            "owner": Web3.toText(receipt[1]) if isinstance(receipt[1], bytes) else receipt[1],
+            "since": Web3.toText(receipt[2]) if isinstance(receipt[2], bytes) else receipt[2],
+            "capacity": Web3.toInt(receipt[3]) if isinstance(receipt[3], bytes) else receipt[3],
+            "is_max_capacity": receipt[4],
+            "last_meter_read": Web3.toInt(receipt[5]) if isinstance(receipt[5], bytes) else receipt[5],
+            "certificates": Web3.toInt(receipt[6]) if isinstance(receipt[6], bytes) else receipt[6],
+            "is_active": receipt[7],
+            "last_hash": Web3.toBytes(receipt[8]) if not isinstance(receipt[8], bytes) else receipt[8],
+        }
+        return state
