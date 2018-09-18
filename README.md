@@ -104,6 +104,8 @@ __production configuration example:__
   }
 }
 ```
+__one line version__
+`{ "production": [ { "energy": { "module": "core.input.fronius", "class_name": "LoxoneTest", "class_parameters": { "ip": "http://0.0.0.0:123", "source": "Produced", "user": "123", "password": "123" } }, "carbonemission": { "module": "core.input.carbonemission", "class_name": "Wattime", "class_parameters": { "usr": "energyweb", "pwd": "en3rgy!web", "ba": "FR", "hours_from_now": 24 } }, "origin": { "module": "core.abstract.bond", "class_name": "OriginCredentials", "class_parameters": { "asset_id": 2, "contract_address": "0xc73728651f498682ab56a2a82ca700e06949b9b4", "wallet_add": "0x00C4D3aaB56dC8Be0dFE3AD7B1d418210172C578", "wallet_pwd": "ea793f1e52af6d9dc650ee91bb6f0b701bff5f60b021cb06b1cb78574954ae91" } }, "name": "TestProducer" } ], "client": { "module": "core.output.energyweb", "class_name": "RemoteClientOriginProducer", "class_parameters": { "url": "https://tobalaba.slock.it/rpc:8545" } } }`
 
 __consumption configuration example:__
 ```json
@@ -142,3 +144,5 @@ __consumption configuration example:__
   }
 }
 ```
+__one line version__
+`{ "consumption": [ { "energy": { "module": "core.input.fronius", "class_name": "LoxoneTest", "class_parameters": { "ip": "http://0.0.0.0:123", "source": "Consumed", "user": "123", "password": "123" } }, "origin": { "module": "core.abstract.bond", "class_name": "OriginCredentials", "class_parameters": { "asset_id": 2, "contract_address": "0xc68fb291a6ddf3d4d9e3a061de39563bf269d868", "wallet_add": "0x0088fF114071cD11D910A3C4C999215DbbF320fF", "wallet_pwd": "8cc3187a123770c8b6b89ccee765fbfafc36d64d80a6f33d7e4ffc4ff638097f" } }, "name": "TestConsumer" } ], "client": { "module": "core.output.energyweb", "class_name": "RemoteClientOriginConsumer", "class_parameters": { "url": "https://tobalaba.slock.it/rpc:8545" } } }`
