@@ -14,7 +14,7 @@ VOLUME ["/sys/fs/cgroup", "/sys/fs/cgroup/systemd", "/tmp", "/run", "/run/lock"]
 WORKDIR /usr/src/app
 
 # Copy requirements.txt first for better cache on later pushes
-COPY ./bond/requirements.txt /requirements.txt
+COPY ./requirements.txt /requirements.txt
 
 # pip install python deps from requirements.txt on the resin.io build server
 RUN pip install --upgrade pip
