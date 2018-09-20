@@ -157,7 +157,7 @@ class LoxoneTest(Loxone):
     """
 
     def _reach_source(self) -> (str, dict):
-        raw = '"device":{"manufacturer":"Siemens","model":"TD-3511","serial_number":"123456","latitude":"48.245","longitude":"14.039","measuredEnergy":[{"accumulated_power":0.0000011,"measurement_time":2018-09-14T18:01:51+02:00}]}"'
+        raw = '"device":{"manufacturer":"Siemens","model":"TD-3511","serial_number":"123456","latitude":"48.245","longitude":"14.039","measuredEnergy":[{"accumulated_power":1.111111,"measurement_time":2018-09-14T18:01:51+02:00}]}"'
         data = raw[10:-50].replace('"measuredEnergy":[{', '').replace('"', '')
         data = [tuple(pair.split(':')) for pair in data.split(',')]
         return raw, {k: v for k, v in data}

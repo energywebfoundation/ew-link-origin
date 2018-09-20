@@ -180,15 +180,3 @@ class WattimeV2(CarbonEmissionDataSource):
             raise AttributeError('Failed to get balancing authority on api.')
         ans = r.json()
         self.ba = ans['abbrev']
-
-if __name__ == '__main__':
-    penis = {
-        "usr": "energyweb",
-        "pwd": "en3rgy!web",
-        "ba": "DE_AMPRION",
-          "hours_from_now": 24
-    }
-    w = Wattime(**penis)
-    auth_token = w.get_auth_token()
-    # 2. Fetch marginal data
-    anus = w.get_marginal(auth_token=auth_token)
