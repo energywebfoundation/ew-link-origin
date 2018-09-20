@@ -117,10 +117,10 @@ def read_production_data(config: InputConfiguration, last_hash: str, last_state:
     energy = int(input_data.raw_energy.accumulated_power) if input_data.raw_energy else 0
     # add last measured energy in case it is not accumulated
     # TODO: fix this in the new release
-    if not (isinstance(config.energy, DataLoggerV1) or isinstance(config.energy, DataLoggerV2d1d1)):
-        last_energy = last_state['last_meter_read']
-        energy += last_energy
-    # x * y kg/Watts = xy kg/Watts
+    # if not (isinstance(config.energy, DataLoggerV1) or isinstance(config.energy, DataLoggerV2d1d1)):
+    #     last_energy = last_state['last_meter_read']
+    #     energy += last_energy
+    # x Wh * y kg of CO2 per MWh = xy kg of CO2
     calculated_co2 = energy * co2_saved
     co2_saved = int(calculated_co2 * pow(10, 3))
     energy = int(energy)
