@@ -38,7 +38,7 @@ class Sonnen(EnergyDataSource):
         # measurement epoch
         measurement_timestamp = now - datetime.timedelta(hours=12)
         measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
-        return EnergyData(device=device, access_epoch=access_epoch, raw=str(raw), accumulated_power=accumulated_power,
+        return EnergyData(device=device, access_epoch=access_epoch, raw=str(raw), accumulated_energy=accumulated_power,
                           measurement_epoch=measurement_epoch)
 
     def _get_daily_data(self, days_ago=1) -> tuple:

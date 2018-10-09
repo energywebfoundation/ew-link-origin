@@ -37,7 +37,7 @@ class FroniusV1(EnergyDataSource):
         measurement_timestamp = data['Head']['Timestamp'][:-6]
         measurement_timestamp = datetime.datetime.strptime(measurement_timestamp, "%Y-%m-%dT%H:%M:%S")
         measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
-        return EnergyData(device=device, access_epoch=access_epoch, raw=raw, accumulated_power=accumulated_power,
+        return EnergyData(device=device, access_epoch=access_epoch, raw=raw, accumulated_energy=accumulated_power,
                           measurement_epoch=measurement_epoch)
 
     def _reach_source(self) -> (str, dict):
@@ -136,7 +136,7 @@ class Loxone(EnergyDataSource):
         # measurement epoch
         # TODO: ask them to send it as string to parse as json
         measurement_epoch = access_epoch
-        return EnergyData(device=device, access_epoch=access_epoch, raw=raw, accumulated_power=accumulated_power,
+        return EnergyData(device=device, access_epoch=access_epoch, raw=raw, accumulated_energy=accumulated_power,
                           measurement_epoch=measurement_epoch)
 
     def _reach_source(self) -> (str, dict):

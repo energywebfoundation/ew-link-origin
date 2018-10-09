@@ -1,7 +1,6 @@
 """
 Interface for the Exelon api
-- Exelon api delivers producing data
-- delivers production from the past hour
+- Exelon api delivers production from the past hour
 """
 import calendar
 import datetime
@@ -46,7 +45,7 @@ class ExelonAPI(EnergyDataSource):
         # measurement epoch
         measurement_timestamp = datetime.datetime.strptime(data['endTime'], '%Y-%m-%dT%H:%M:%S.%fZ')
         measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
-        return EnergyData(device=device, access_epoch=access_epoch, raw=raw, accumulated_power=accumulated_power,
+        return EnergyData(device=device, access_epoch=access_epoch, raw=raw, accumulated_energy=accumulated_power,
                           measurement_epoch=measurement_epoch)
 
     def _get_daily_data(self) -> dict:

@@ -45,7 +45,7 @@ class PTTftp(EnergyDataSource):
         measurement_timestamp = datetime.datetime.strptime(raw[-1].timestamp, "%Y-%m-%dT%H:%M:%S")
         measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
         self._del_files(file_list)
-        return EnergyData(device=device, access_epoch=access_epoch, raw=str(raw), accumulated_power=accumulated_power,
+        return EnergyData(device=device, access_epoch=access_epoch, raw=str(raw), accumulated_energy=accumulated_power,
                           measurement_epoch=measurement_epoch)
 
     def _reach_source(self):

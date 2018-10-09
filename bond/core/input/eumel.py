@@ -47,7 +47,7 @@ class DataLoggerV1(EnergyDataSource):
         # measurement epoch
         measurement_timestamp = datetime.datetime.strptime(tree_header['t'], "%Y-%m-%dT%H:%M:%S%z")
         measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
-        return EnergyData(device=device, access_epoch=access_epoch, raw=str(raw), accumulated_power=accumulated_power,
+        return EnergyData(device=device, access_epoch=access_epoch, raw=str(raw), accumulated_energy=accumulated_power,
                           measurement_epoch=measurement_epoch)
 
 
@@ -92,5 +92,5 @@ class DataLoggerV2d1d1(EnergyDataSource):
         # measurement epoch
         measurement_timestamp = datetime.datetime.strptime(tree_header['t'], "%Y-%m-%dT%H:%M:%S%z")
         measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
-        return EnergyData(device=device, access_epoch=access_epoch, raw=str(raw), accumulated_power=accumulated_power,
+        return EnergyData(device=device, access_epoch=access_epoch, raw=str(raw), accumulated_energy=accumulated_power,
                           measurement_epoch=measurement_epoch)

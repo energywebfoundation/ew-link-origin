@@ -25,5 +25,5 @@ class EnergyMeter(EnergyDataSource):
         measurement_epoch = calendar.timegm(now.timetuple())
         device_str = device.manufacturer + device.model + device.serial_number
         raw = str(device_str + str(access_epoch) + str(accumulated_power) + str(measurement_epoch))
-        return EnergyData(device=device, access_epoch=access_epoch, raw=raw, accumulated_power=accumulated_power,
+        return EnergyData(device=device, access_epoch=access_epoch, raw=raw, accumulated_energy=accumulated_power,
                           measurement_epoch=measurement_epoch)

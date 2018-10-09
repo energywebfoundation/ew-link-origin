@@ -1,9 +1,6 @@
 """
 Interface for the Gridsingularity api
-- Gridsingularity api delivers consuming and producing data which are processed separately
-- delivers production from the past hour
-- constructor takes the site_id, client_id, client_secret, username and password as parameter
-- Access by using a requested token which is generated with each call
+- Gridsingularity api delivers consuming data
 """
 import calendar
 import datetime
@@ -59,7 +56,7 @@ class GridSingularity(EnergyDataSource):
         access_epoch = calendar.timegm(now.timetuple())
         # measurement epoch
         measurement_epoch = int(latest_timestamp)
-        return EnergyData(device=device, access_epoch=access_epoch, raw=raw, accumulated_power=accumulated_power,
+        return EnergyData(device=device, access_epoch=access_epoch, raw=raw, accumulated_energy=accumulated_power,
                           measurement_epoch=measurement_epoch)
 
     def _get_daily_data(self, auth_token: str) -> dict:

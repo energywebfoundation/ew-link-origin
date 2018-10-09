@@ -1,9 +1,6 @@
 """
 Interface for the Engie api
-- Engie api delivers producing data
-- delivers consumption and production from the past hour
-- constructor takes the site_id, username and password as parameters
-- Access by username and password
+- Engie api delivers production data
 """
 import calendar
 import datetime
@@ -44,7 +41,7 @@ class SmireTestAPI(EnergyDataSource):
         # measurement epoch
         measurement_timestamp = datetime.datetime.strptime(data[-1]['date'], "%Y-%m-%d")
         measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
-        return EnergyData(device=device, access_epoch=access_epoch, raw=raw, accumulated_power=accumulated_power,
+        return EnergyData(device=device, access_epoch=access_epoch, raw=raw, accumulated_energy=accumulated_power,
                           measurement_epoch=measurement_epoch)
 
     def _get_daily_data(self, days) -> dict:

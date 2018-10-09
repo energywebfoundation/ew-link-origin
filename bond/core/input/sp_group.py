@@ -43,7 +43,7 @@ class SPGroupAPI(EnergyDataSource):
         # measurement epoch
         measurement_timestamp = datetime.datetime.strptime(data['end_time'], '%Y-%m-%dT%H:%M:%SZ')
         measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
-        return EnergyData(device=device, access_epoch=access_epoch, raw=str(raw), accumulated_power=accumulated_power,
+        return EnergyData(device=device, access_epoch=access_epoch, raw=str(raw), accumulated_energy=accumulated_power,
                           measurement_epoch=measurement_epoch)
 
     def _get_daily_data(self) -> dict:
