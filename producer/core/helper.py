@@ -13,7 +13,7 @@ import core.config_parser as config_parser
 from core.abstract.bond import InputConfiguration, Configuration
 from core.input.sp_group import SPGroupAPI
 
-PERSISTENCE = '/mnt/data/tobalaba/'
+PERSISTENCE = '/app/'
 
 tty_handler = colorlog.StreamHandler()
 tty_handler.setFormatter(colorlog.ColoredFormatter('%(log_color)s%(message)s'))

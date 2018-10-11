@@ -7,6 +7,10 @@ services:
     - tobalaba
     - --jsonrpc-apis
     - all
+    - --log-file
+    - /app/parity.log
+    volumes:
+    - ./logs/:/app/:rw
   origin-consumer:
     build: ./consumer
   origin-producer:
