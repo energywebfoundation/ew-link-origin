@@ -8,10 +8,10 @@ services:
     - --jsonrpc-apis
     - all
     - --log-file
-    - /app/parity.log
+    - /app/logs/parity.log
     volumes:
-    - ./logs/:/app/:rw
-  origin-consumer:
-    build: ./consumer
+    - ./logs/:/app/logs/:rw
   origin-producer:
     build: ./producer
+    volumes:
+    - ./logs/:/app/logs/:rw
