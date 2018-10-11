@@ -115,6 +115,8 @@ class GeneralSmartContractClient(SmartContractClient):
             if tx_receipt and tx_receipt['blockNumber']:
                 break
             time.sleep(self.SECONDS_BETWEEN_RETRIES)
+        if not tx_receipt:
+            raise ConnectionError('Transaction hanging in the client.')
         return tx_receipt
 
 
@@ -137,7 +139,7 @@ class EnergyWeb(GeneralSmartContractClient):
                 "asset": json.load(open('./assets/AssetLogic.json'))
             },
             "provider": HTTPProvider(url),
-            "max_retries": 1000,
+            "max_retries": 60,
             "retry_pause": 5
         }
         self.url = url
@@ -319,7 +321,7 @@ class RemoteClientOriginProducer(OriginProducer):
     """
 
     def __init__(self, url):
-        self.MAX_RETRIES = 1000
+        self.MAX_RETRIES = 60
         self.SECONDS_BETWEEN_RETRIES = 5
         self.w3 = Web3(HTTPProvider(url))
         self.contracts = {
@@ -413,7 +415,7 @@ class RemoteClientOriginConsumer(OriginConsumer):
     """
 
     def __init__(self, url):
-        self.MAX_RETRIES = 1000
+        self.MAX_RETRIES = 60
         self.SECONDS_BETWEEN_RETRIES = 5
         self.w3 = Web3(HTTPProvider(url))
         self.contracts = {

@@ -90,7 +90,7 @@ class DiskStorage:
         return file_name
 
 
-def __fetch_input_data(external_data_source: ExternalDataSource):
+def __fetch_input_data(external_data_source: ExternalDataSource) -> ExternalData:
     try:
         result = external_data_source.read_state()
         if not issubclass(result.__class__, ExternalData):
@@ -113,20 +113,22 @@ def read_production_data(config: InputConfiguration, last_hash: str, last_state:
         'produced': None,
     }
     input_data = ProductionFileData(**input_data_dict)
-    co2_saved = input_data.raw_carbon_emitted.accumulated_co2 if input_data.raw_carbon_emitted else 0
-    energy = int(input_data.raw_energy.accumulated_power) if input_data.raw_energy else 0
-    # add last measured energy in case it is not accumulated
-    # TODO: fix this in the new release
-    # if not (isinstance(config.energy, DataLoggerV1) or isinstance(config.energy, DataLoggerV2d1d1)):
-    #     last_energy = last_state['last_meter_read']
-    #     energy += last_energy
-    # x Wh * y kg of CO2 per MWh = xy kg of CO2
-    calculated_co2 = energy * co2_saved
-    co2_saved = int(calculated_co2 * pow(10, 3))
-    energy = int(energy)
+    energy = 0
+    is_meter_down = True
+    if input_data.raw_energy:
+        energy = input_data.raw_energy.energy
+        if not input_data.raw_energy.device.is_accumulated:
+            last_energy = last_state['last_meter_read']
+            energy += last_energy
+        is_meter_down = False
+    co2_saved = 0
+    if input_data.raw_carbon_emitted:
+        co2_saved = input_data.raw_carbon_emitted.accumulated_co2
+        calculated_co2 = energy * co2_saved
+        co2_saved = int(calculated_co2 * pow(10, 3))
     produced = {
         'energy': energy,
-        'is_meter_down': True if input_data.raw_energy is None else False,
+        'is_meter_down': is_meter_down,
         'previous_hash': last_hash,
         'co2_saved': co2_saved,
         'is_co2_down': True if input_data.raw_carbon_emitted is None else False
@@ -138,26 +140,20 @@ def read_production_data(config: InputConfiguration, last_hash: str, last_state:
 def read_consumption_data(config: InputConfiguration, last_hash: str, last_state: dict) -> ConsumptionFileData:
     """
     Reach for external data sources and return parsed consumed data
-    :param last_hash: Last file hash
+    :param last_hash: Last file hash from local chain
+    :param last_state: Last energy object from blockchain
     :param config: InputConfiguration
     :return: ConsumptionInputData
+    TODO: Add comparison from last chain hash to local hash and throw a Warning
     """
-    input_data_dict = {
-        'raw_energy': __fetch_input_data(config.energy),
-        'consumed': None,
-    }
-    input_data = ConsumptionFileData(**input_data_dict)
-    # add last measured energy in case it is not accumulated
-    # TODO: fix this in the new release
-    energy = int(input_data.raw_energy.accumulated_power) if input_data.raw_energy else 0
-    if not (isinstance(config.energy, DataLoggerV1) or isinstance(config.energy, DataLoggerV2d1d1)):
-        last_energy = last_state['last_meter_read']
-        energy += last_energy
-    consumed = {
-        'energy': energy,
-        'is_meter_down': True if input_data.raw_energy is None else False,
-        'previous_hash':  last_hash
-    }
-    input_data.consumed = ConsumedChainData(**consumed)
+    input_data = ConsumptionFileData(raw_energy=__fetch_input_data(config.energy), consumed=None)
+    energy = 0
+    is_meter_down = True
+    if input_data.raw_energy:
+        energy = input_data.raw_energy.energy
+        if not input_data.raw_energy.device.is_accumulated:
+            last_energy = last_state['last_meter_read']
+            energy += last_energy
+        is_meter_down = False
+    input_data.consumed = ConsumedChainData(energy=energy, previous_hash=last_hash, is_meter_down=is_meter_down)
     return input_data
-

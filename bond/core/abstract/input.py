@@ -1,12 +1,12 @@
 """
 General data input interfaces
 """
-from enum import Enum
+from enum import IntEnum
 
 from core.abstract import JSONAble
 
 
-class EnergyUnit(Enum):
+class EnergyUnit(IntEnum):
     """
     Possible units for effort and billing purposes. Determines the convertion algorithms.
     """
@@ -55,7 +55,7 @@ class ExternalData(JSONAble):
         self.raw = raw
 
 
-class ReadCycle(Enum):
+class ReadCycle(IntEnum):
     """
     Data source reading time cycle. Determines the period time is collected.
     """
@@ -87,18 +87,18 @@ class EnergyData(ExternalData):
     Standard for energy and power data used as input
     """
 
-    def __init__(self, device, access_epoch, raw, accumulated_energy, measurement_epoch):
+    def __init__(self, device, access_epoch, raw, energy, measurement_epoch):
         """
         Minimum set of data for power measurement logging.
         :param device: Metadata about the measurement device
         :param access_epoch: Time the external API was accessed
         :param raw: Raw data collected
-        :param accumulated_energy: Accumulated energy measurement at the source converted to watt-hours
+        :param energy: Measured energy at the source converted to watt-hours
         :param measurement_epoch: Time of measurement at the source
         """
         self.device = device
         self.measurement_epoch = measurement_epoch
-        self.accumulated_energy = accumulated_energy
+        self.energy = energy
         ExternalData.__init__(self, access_epoch, raw)
 
 

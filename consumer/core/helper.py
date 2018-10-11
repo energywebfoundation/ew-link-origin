@@ -1,10 +1,11 @@
 import os
-import json
 import time
 import sched
 import logging
 import colorlog
 import datetime
+
+import pytz
 
 import core.data_access as dao
 import core.config_parser as config_parser
@@ -53,15 +54,15 @@ def convert_time(epoch: int):
 
 
 def print_config(configuration_file):
-    prod = '[PROD][CONF] meter: {} - co2 source: {}'
-    coms = '[COMS][CONF] meter: {}'
+    prod = '[PROD][CONF] meter: {} - energy module: {} - co2 module: {}'
+    coms = '[COMS][CONF] meter: {} - energy module: {}'
     logger.debug('[CONF] path to logs: {}'.format(PERSISTENCE))
     configuration = config_parser.parse(configuration_file)
     if configuration.production is not None:
-        [logger.debug(prod.format(item.energy.__class__.__name__, item.carbon_emission.__class__.__name__))
+        [logger.debug(prod.format(item.name, item.energy.__class__.__name__, item.carbon_emission.__class__.__name__))
          for item in configuration.production]
     if configuration.consumption is not None:
-        [logger.debug(coms.format(item.energy.__class__.__name__)) for item in configuration.consumption]
+        [logger.debug(coms.format(item.name, item.energy.__class__.__name__)) for item in configuration.consumption]
     return {"configuration": configuration}
 
 
@@ -73,17 +74,17 @@ def _produce(chain_file, config, item) -> bool:
         produced_data = dao.read_production_data(item, last_local_chain_hash, last_remote_state)
         created_file = production_local_chain.add_to_chain(produced_data)
         tx_receipt = config.client.mint(produced_data.produced, item.origin)
-        class_name = item.energy.__class__.__name__
+        friendly_name = item.name
         data = produced_data.produced
         block_number = str(tx_receipt['blockNumber'])
         msg = '[PROD] meter: {} - {} watts - {} kg of Co2 - block: {}'
         if data.is_meter_down:
-            logger.warning(msg.format(class_name, data.energy, data.co2_saved, block_number))
+            logger.warning(msg.format(friendly_name, data.energy, data.co2_saved, block_number))
         else:
-            logger.info(msg.format(class_name, data.energy, data.co2_saved, block_number))
+            logger.info(msg.format(friendly_name, data.energy, data.co2_saved, block_number))
         return True
     except Exception as e:
-        error_log.exception("[BOND][PROD] meter: {} - stack: {}".format(item.energy.__class__.__name__, e))
+        error_log.exception("[BOND][PROD] module: {} - stack: {}".format(item.energy.__class__.__name__, e))
         return False
 
 
@@ -93,7 +94,7 @@ def print_production_results(config: Configuration, item: InputConfiguration, ch
             return
         time.sleep(300 * trial)
         if trial == 2:
-            logger.critical("[COMS][FAIL] meter: {} - Check error.log".format(item.energy.__class__.__name__))
+            logger.critical("[COMS][FAIL] module: {} - Check error.log".format(item.energy.__class__.__name__))
 
 
 def _consume(chain_file, config, item):
@@ -104,17 +105,17 @@ def _consume(chain_file, config, item):
         consumed_data = dao.read_consumption_data(item, last_local_chain_hash, last_remote_state)
         created_file = consumption_local_chain.add_to_chain(consumed_data)
         tx_receipt = config.client.mint(consumed_data.consumed, item.origin)
-        class_name = item.energy.__class__.__name__
+        friendly_name = item.name
         data = consumed_data.consumed
         block_number = str(tx_receipt['blockNumber'])
         message = '[COMS] meter: {} - {} watts - block: {}'
         if data.is_meter_down:
-            logger.warning(message.format(class_name, data.energy, block_number))
+            logger.warning(message.format(friendly_name, data.energy, block_number))
         else:
-            logger.info(message.format(class_name, data.energy, block_number))
+            logger.info(message.format(friendly_name, data.energy, block_number))
         return True
     except Exception as e:
-        error_log.exception("[BOND][COMS] meter: {} - stack: {}".format(item.energy.__class__.__name__, e))
+        error_log.exception("[BOND][COMS] module: {} - stack: {}".format(item.energy.__class__.__name__, e))
         return False
 
 
@@ -124,7 +125,7 @@ def print_consumption_results(config: Configuration, item: InputConfiguration, c
             return
         time.sleep(300 * trial)
         if trial == 2:
-            logger.critical("[COMS][FAIL] meter: {} - Check error.log".format(item.energy.__class__.__name__))
+            logger.critical("[COMS][FAIL] module: {} - Check error.log".format(item.energy.__class__.__name__))
 
 
 def log_production(configuration: Configuration):
@@ -147,17 +148,9 @@ def log_sp(configuration: Configuration):
 
 def schedule(kwargs):
     scheduler = sched.scheduler(time.time, time.sleep)
-    today = datetime.datetime.now() + datetime.timedelta(hours=1)
-    tomorrow = datetime.datetime.now() + datetime.timedelta(days=1)
-    daily_wake = tomorrow.replace(hour=0, minute=31)
-    if datetime.datetime.now() > daily_wake:
-        daily_wake = daily_wake + datetime.timedelta(days=1)
-    remaining_hours = set(range(24)) - set(range(today.hour))
-    for hour in list(remaining_hours):
-        hourly_wake = today.replace(hour=hour, minute=1)
-        scheduler.enterabs(time=time.mktime(hourly_wake.timetuple()), priority=2, action=log_sp, kwargs=kwargs)
-    hourly_wake = tomorrow.replace(hour=0, minute=1)
-    scheduler.enterabs(time=time.mktime(hourly_wake.timetuple()), priority=3, action=log_sp, kwargs=kwargs)
-    scheduler.enterabs(time=time.mktime(daily_wake.timetuple()), priority=2, action=log_consumption, kwargs=kwargs)
-    scheduler.enterabs(time=time.mktime(daily_wake.timetuple()), priority=1, action=log_production, kwargs=kwargs)
+    today = datetime.datetime.now(pytz.utc)
+    next_hour = today + datetime.timedelta(hours=1, minutes=15)
+    scheduler.enterabs(time=time.mktime(next_hour.timetuple()), priority=2, action=log_consumption, kwargs=kwargs)
+    scheduler.enterabs(time=time.mktime(next_hour.timetuple()), priority=1, action=log_production, kwargs=kwargs)
+    logger.debug("[BOND] next data collection: {}".format(next_hour.isoformat()))
     scheduler.run()
