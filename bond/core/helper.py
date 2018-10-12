@@ -27,13 +27,13 @@ file_handler.setFormatter(formatter)
 logger = colorlog.getLogger('example')
 logger.addHandler(tty_handler)
 logger.addHandler(file_handler)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.NOTSET)
 
 error_log = logging.getLogger()
 error_file_handler = logging.FileHandler(PERSISTENCE + 'error.log')
 error_file_handler.setFormatter(formatter)
 error_log.addHandler(error_file_handler)
-error_log.setLevel(logging.DEBUG)
+error_log.setLevel(logging.ERROR)
 
 
 class AsyncClientError(EnvironmentError):

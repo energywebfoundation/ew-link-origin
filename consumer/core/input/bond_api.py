@@ -45,7 +45,7 @@ class BondAPIv1(EnergyDataSource):
         now = datetime.datetime.now().astimezone()
         access_epoch = calendar.timegm(now.timetuple())
         #  measurement epoch
-        measurement_time = datetime.datetime.strptime(measurement_list[-1]['measurement_time'], "%Y-%m-%dT%H:%M:%S%z")
+        measurement_time = datetime.datetime.strptime(measurement_list[-1]['measurement_time'], "%Y-%m-%dT%H:%M:%SSS%z")
         measurement_epoch = calendar.timegm(measurement_time.timetuple())
         return EnergyData(device=device, access_epoch=access_epoch, raw=raw, energy=energy,
                           measurement_epoch=measurement_epoch)
@@ -70,7 +70,7 @@ class BondAPIv1(EnergyDataSource):
 
     def _parse_source(self, raw: str, data: dict):
         measurement_list = data['measuredEnergy']
-        if data['next']:
+        if 'next' in data and data['next']:
             _, __, ___ = self._reach_source(self.base_url + data['next'], next=True)
             return tuple(x + y for x, y in zip(([raw], [data], measurement_list), (_, __, ___)))
         return [raw], [data], measurement_list

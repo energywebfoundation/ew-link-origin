@@ -5,10 +5,12 @@ services:
     command:
     - --chain
     - tobalaba
-    - --jsonrpc-apis
-    - all
     - --log-file
     - /app/logs/parity.log
+    - --db-compaction
+    - ssd
+    - --jsonrpc-interface
+    - all
     volumes:
     - ./logs/:/app/logs/:rw
   origin-producer:
