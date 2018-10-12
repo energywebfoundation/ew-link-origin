@@ -11,8 +11,9 @@ docker-compose up
 2. Wait until Parity syncs the chain. In short just check for latest block in [etherscan](https://tobalaba.etherscan.com/) and compare to the ones being imported by the client.
 
 #### Update
+After pulling new code updates please clear up docker. 
 ```
-docker system prune -a
 git pull
+./clear.sh
 docker-compose up
 ```
