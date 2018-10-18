@@ -4,7 +4,6 @@ Interface for the Bond API
 """
 import calendar
 import datetime
-
 import pytz
 import requests
 import json
@@ -24,6 +23,7 @@ class BondAPIv1(EnergyDataSource):
         :param user: User credential.
         :param password: Password for basic authentication method.
         """
+
         if source not in ('produced', 'consumed'):
             raise AssertionError
         self.base_url = base_url
@@ -38,17 +38,26 @@ class BondAPIv1(EnergyDataSource):
         device = Device(**device_meta)
         # accumulated energy in Wh
         if device.is_accumulated:
-            energy = self.to_wh(measurement_list[-1]['energy'], device.energy_unit)
+            energy = self.to_wh(
+                measurement_list[-1]['energy'], device.energy_unit)
         else:
-            energy = self.to_wh(sum(i['energy'] for i in measurement_list), device.energy_unit)
+            energy = self.to_wh(sum(i['energy']
+                                    for i in measurement_list), device.energy_unit)
         # access_epoch
         now = datetime.datetime.now().astimezone()
         access_epoch = calendar.timegm(now.timetuple())
         #  measurement epoch
-        measurement_time = datetime.datetime.strptime(measurement_list[-1]['measurement_time'], "%Y-%m-%dT%H:%M:%SSS%z")
+        measurement_time = datetime.datetime.strptime(
+            measurement_list[-1]['measurement_time'], "%Y-%m-%dT%H:%M:%S%z")
         measurement_epoch = calendar.timegm(measurement_time.timetuple())
-        return EnergyData(device=device, access_epoch=access_epoch, raw=raw, energy=energy,
-                          measurement_epoch=measurement_epoch)
+
+        energy_data = EnergyData(device=device, access_epoch=access_epoch,
+                                 raw=raw, energy=energy,
+                                 measurement_epoch=measurement_epoch)
+
+        print(energy_data.__dict__)
+
+        return energy_data
 
     def _reach_source(self, url, next=False) -> (str, dict):
         marginal_query = None
@@ -61,17 +70,24 @@ class BondAPIv1(EnergyDataSource):
                 'end': end_date.isoformat(),  # the hour of day
                 'limit': 10
             }
-        http_packet = requests.get(url=url, params=marginal_query, auth=self.auth)
+        http_packet = requests.get(
+            url=url, params=marginal_query, auth=self.auth)
+
+        print(F'reaching source at {url}, {marginal_query}')
+
         raw = http_packet.content.decode()
         if not http_packet.ok:
             raise EnvironmentError
         data = http_packet.json()
+
+        print(F'acquired  {data}')
         return self._parse_source(raw, data)
 
     def _parse_source(self, raw: str, data: dict):
         measurement_list = data['measuredEnergy']
         if 'next' in data and data['next']:
-            _, __, ___ = self._reach_source(self.base_url + data['next'], next=True)
+            _, __, ___ = self._reach_source(
+                self.base_url + data['next'], next=True)
             return tuple(x + y for x, y in zip(([raw], [data], measurement_list), (_, __, ___)))
         return [raw], [data], measurement_list
 
