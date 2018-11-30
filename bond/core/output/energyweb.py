@@ -134,9 +134,9 @@ class EnergyWeb(GeneralSmartContractClient):
         """
         params = {
             "contracts": {
-                "producer": json.load(open('./assets/AssetProducingRegistryLogic.json')),
-                "consumer": json.load(open('./assets/AssetConsumingRegistryLogic.json')),
-                "asset": json.load(open('./assets/AssetLogic.json'))
+                "producer": json.load(open('./coo/AssetProducingRegistryLogic.json')),
+                "consumer": json.load(open('./coo/AssetConsumingRegistryLogic.json')),
+                "asset": json.load(open('./coo/AssetLogic.json'))
             },
             "provider": HTTPProvider(url),
             "max_retries": 60,
@@ -325,8 +325,8 @@ class RemoteClientOriginProducer(OriginProducer):
         self.SECONDS_BETWEEN_RETRIES = 5
         self.w3 = Web3(HTTPProvider(url))
         self.contracts = {
-            "producer": json.load(open('./assets/AssetProducingRegistryLogic.json')),
-            "asset": json.load(open('./assets/AssetLogic.json'))
+            "producer": json.load(open('./coo/AssetProducingRegistryLogic.json')),
+            "asset": json.load(open('./coo/AssetLogic.json'))
         }
 
     def __last_producer_file_hash(self, origin: OriginCredentials):
@@ -419,8 +419,8 @@ class RemoteClientOriginConsumer(OriginConsumer):
         self.SECONDS_BETWEEN_RETRIES = 5
         self.w3 = Web3(HTTPProvider(url))
         self.contracts = {
-            "consumer": json.load(open('./assets/AssetConsumingRegistryLogic.json')),
-            "asset": json.load(open('./assets/AssetLogic.json'))
+            "consumer": json.load(open('./coo/AssetConsumingRegistryLogic.json')),
+            "asset": json.load(open('./coo/AssetLogic.json'))
         }
 
     def __last_producer_file_hash(self, origin: OriginCredentials):

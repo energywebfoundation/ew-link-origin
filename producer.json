@@ -1,0 +1,43 @@
+{
+  "production": [
+    {
+      "energy": {
+        "module": "core.input.bond_api",
+        "class_name": "BondAPIv1TestDevice1",
+        "class_parameters": {
+          "base_url": "base_url",
+          "source": "produced",
+          "device_id": 0
+        }
+      },
+      "carbonemission": {
+        "module": "core.input.carbonemission",
+        "class_name": "Wattime",
+        "class_parameters": {
+          "usr": "energyweb",
+          "pwd": "en3rgy!web",
+          "ba": "FR",
+          "hours_from_now": 24
+        }
+      },
+      "origin": {
+        "module": "core.abstract.bond",
+        "class_name": "OriginCredentials",
+        "class_parameters": {
+          "asset_id": 2,
+          "contract_address": "0xc73728651f498682ab56a2a82ca700e06949b9b4",
+          "wallet_add": "0x00C4D3aaB56dC8Be0dFE3AD7B1d418210172C578",
+          "wallet_pwd": "ea793f1e52af6d9dc650ee91bb6f0b701bff5f60b021cb06b1cb78574954ae91"
+        }
+      },
+      "name": "TestProducer"
+    }
+  ],
+  "client": {
+    "module": "core.output.energyweb",
+    "class_name": "RemoteClientOriginProducer",
+    "class_parameters": {
+      "url": "https://rpc.slock.it/tobalaba"
+    }
+  }
+}

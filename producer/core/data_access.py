@@ -10,8 +10,6 @@ from core.abstract.input import ExternalDataSource, ExternalData
 from core.abstract.bond import ChainLink, ChainFile, ProductionFileData, ConsumptionFileData, ProducedChainData, \
     ConsumedChainData, LocalFileData, InputConfiguration
 
-from core.input.eumel import DataLoggerV1, DataLoggerV2d1d1
-
 
 class DiskStorage:
 

@@ -109,4 +109,5 @@ origin/venv/
 t.c.json
 t.p.json
 .DS_Store
-ignore/
+logs/
+config/

@@ -7,7 +7,7 @@ import datetime
 import json
 import requests
 
-from core.input import EnergyData, Device, EnergyDataSource
+from core.abstract.input import EnergyData, Device, EnergyDataSource
 
 
 class BondAPIv1(EnergyDataSource):
@@ -30,7 +30,7 @@ class BondAPIv1(EnergyDataSource):
 
     def read_state(self, start=None, end=None) -> EnergyData:
         # raw
-        raw, data, measurement_list = self._reach_source(self.api_url, start, end)
+        raw, data, measurement_list = self._reach_source(self.api_url)
         # device
         device_meta = data[-1]['device']
         device = Device(**device_meta)

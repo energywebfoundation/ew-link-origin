@@ -27,7 +27,7 @@ file_handler.setFormatter(formatter)
 logger = colorlog.getLogger('example')
 logger.addHandler(tty_handler)
 logger.addHandler(file_handler)
-logger.setLevel(logging.NOTSET)
+logger.setLevel(logging.DEBUG)
 
 error_log = logging.getLogger()
 error_file_handler = logging.FileHandler(PERSISTENCE + 'error.log')

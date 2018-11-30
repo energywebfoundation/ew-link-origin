@@ -1,21 +1,16 @@
 version: '2'
 services:
-  parity:
-    image: parity/parity:v2.0.5
-    command:
-    - --chain
-    - tobalaba
-    - --log-file
-    - /app/logs/parity.log
-    - --db-compaction
-    - ssd
-    - --jsonrpc-interface
-    - all
-    - --bootnodes
-    - enode://106103dc090053d81b8a94bc11eeb132bd952bdd8279cd0e9d6c8cc74b39b853f69d8242acd104dcb26ecb05e1025ac70d76bbadb166d03a98b4a18ad7d42bf1@5.189.176.161:32303
-    volumes:
-    - ./logs/:/app/logs/:rw
   origin-producer:
     build: ./producer
     volumes:
     - ./logs/:/app/logs/:rw
+    - ./producer.json:/app/producer.json:rw
+    environment:
+    - CONFIG=/app/producer.json
+  origin-consumer:
+    build: ./consumer
+    volumes:
+    - ./logs/:/app/logs/:rw
+    - ./consumer.json:/app/consumer.json:rw
+    environment:
+    - CONFIG=/app/consumer.json

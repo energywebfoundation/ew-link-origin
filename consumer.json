@@ -1,0 +1,33 @@
+{
+  "consumption": [
+    {
+      "energy": {
+        "module": "core.input.bond_api",
+        "class_name": "BondAPIv1TestDevice1",
+        "class_parameters": {
+          "base_url": "base_url",
+          "source": "produced",
+          "device_id": 0
+        }
+      },
+      "origin": {
+        "module": "core.abstract.bond",
+        "class_name": "OriginCredentials",
+        "class_parameters": {
+          "asset_id": 3,
+          "contract_address": "0x8De517a4a7F58bbC288969778274376381644c45",
+          "wallet_add": "0x68F89f072A37c9571733E899EFF7219a03d51bb0",
+          "wallet_pwd": "f97120b63afc4a6c622a4131687ac6d3ef068590beec04276a3d13bc4148c12b"
+        }
+      },
+      "name": "TestConsumer"
+    }
+  ],
+  "client": {
+    "module": "core.output.energyweb",
+    "class_name": "RemoteClientOriginConsumer",
+    "class_parameters": {
+      "url": "https://rpc.slock.it/tobalaba"
+    }
+  }
+}
