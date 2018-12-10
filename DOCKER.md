@@ -4,7 +4,7 @@ Switch to the `x64` branch and run docker compose, it will run parity on Tobalab
 #### First run
 ```
 git fetch
-git checkout x64
+git checkout x64-legacy
 docker-compose up
 ```
 1. Edit the __PRODUCER__ and __CONSUMER__ variables in `producer/Dockerfile` and `consumer/Dockerfile`.
