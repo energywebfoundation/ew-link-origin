@@ -3,7 +3,7 @@
 
 [Energyweb](energyweb.org) link is a hardware oriented project to integrate energy assets to the [Origin DAPP](](https://github.com/energywebfoundation/ewf-coo)).
 
-It is currently deployed on `x86_64`, `arm64` and `armv8` architecture devices using [resin.io](resin.io). The devices logs carbon emission and generated/consumed power data into [certificate of origin](https://github.com/energywebfoundation/certificate_of_origin) smart-contracts.
+It is currently deployed on `x86_64`, `arm64` and `armv8` architecture devices using [balena (formerly resin.io)](https://www.balena.io). The devices logs carbon emission and generated/consumed power data into [certificate of origin](https://github.com/energywebfoundation/certificate_of_origin) smart-contracts.
 
 ### Origin App
 ![Origin App Entity-Controller-Boundry Diagram](https://github.com/energywebfoundation/ewf-link-origin/blob/master/media/origin-ecb.png)
