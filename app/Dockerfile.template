@@ -1,6 +1,6 @@
 # base-image for python on any machine using a template variable,
 # see more about dockerfile templates here:http://docs.resin.io/pages/deployment/docker-templates
-FROM resin/%%RESIN_MACHINE_NAME%%-python:3.7
+FROM resin/%%RESIN_MACHINE_NAME%%-python:3.6
 
 # use apt-get if you need to install dependencies,
 # for instance if you need ALSA sound utils, just uncomment the lines below.
@@ -14,12 +14,11 @@ VOLUME ["/sys/fs/cgroup", "/sys/fs/cgroup/systemd", "/tmp", "/run", "/run/lock"]
 WORKDIR /usr/src/app
 
 # Copy requirements.txt first for better cache on later pushes
-COPY ./requirements.txt /requirements.txt
+COPY Pipfile Pipfile.lock ./
 
 # pip install python deps from requirements.txt on the resin.io build server
-RUN pip install --upgrade pip
-#RUN pip install -r /requirements.txt
-RUN pipenv sync
+RUN pip3 install --upgrade pip setuptools pipenv
+RUN pipenv install --system --deploy
 
 # This will copy all files in our root to the working  directory in the container
 COPY . ./
@@ -28,4 +27,4 @@ COPY . ./
 ENV PYTHONWARNINGS="ignore"
 
 # bond.py will run when container starts up on the device
-CMD ["pipenv","run","origin-producer.py"]
+CMD ["pipenv","run", "python", "prodconsume.py"]
