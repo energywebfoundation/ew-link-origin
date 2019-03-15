@@ -1,0 +1,61 @@
+
+{
+ "consumers": [
+  {
+   "energy-meter": {
+    "module": "energyweb.eds.energy_api",
+    "class_name": "BondAPIv1TestDevice3",
+    "class_parameters": {
+     "base_url": "base_url",
+     "source": "produced",
+     "device_id": 0
+    }
+   },
+   "smart-contract": {
+    "module": "energyweb.smart_contract.origin_v1",
+    "class_name": "OriginConsumer",
+    "class_parameters": {
+     "asset_id": 3,
+     "wallet_add": "0x68F89f072A37c9571733E899EFF7219a03d51bb0",
+     "wallet_pwd": "f97120b63afc4a6c622a4131687ac6d3ef068590beec04276a3d13bc4148c12b",
+     "client_url": "https://rpc.slock.it/tobalaba"
+    }
+   },
+   "name": "Shell_Consumer_Asset_3"
+  }
+ ],
+ "producers": [
+  {
+   "energy-meter": {
+    "module": "energyweb.eds.energy_api",
+    "class_name": "BondAPIv1TestDevice3",
+    "class_parameters": {
+     "base_url": "base_url",
+     "source": "produced",
+     "device_id": 0
+    }
+   },
+   "carbon-emission": {
+    "module": "energyweb.carbonemission",
+    "class_name": "WattimeV1",
+    "class_parameters": {
+     "usr": "energyweb",
+     "pwd": "en3rgy!web",
+     "ba": "FR",
+     "hours_from_now": 24
+    }
+   },
+   "smart-contract": {
+    "module": "energyweb.smart_contract.origin_v1",
+    "class_name": "OriginProducer",
+    "class_parameters": {
+     "asset_id": 2,
+     "wallet_add": "0x4A616994A229565f7f7E96161eFd78b780bf24e2",
+     "wallet_pwd": "1b17e7cb5879a18fb6c9e7aee03a66841f2aa10102bd537752ecbdb5b6252d2f",
+     "client_url": "https://rpc.slock.it/tobalaba"
+    }
+   },
+   "name": "Shell_Producer_Asset_1"
+  }
+ ]
+}

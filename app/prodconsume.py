@@ -193,7 +193,7 @@ class MyApp(energyweb.dispatcher.App):
 
     def configure(self):
         try:
-            app_configuration_file = json.load(open('app/config.json'))
+            app_configuration_file = json.load(open('config.json'))
             app_config = energyweb.config.parse_coo_v1(app_configuration_file)
             interval = datetime.timedelta(seconds=3)
             for producer in app_config.production:
