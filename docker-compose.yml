@@ -1,6 +1,4 @@
 version: '2'
 services:
-  origin-consumer:
-    build: ./consumer
-  origin-producer:
-    build: ./producer
+  origin-producer-consumer:
+    build: ./app
